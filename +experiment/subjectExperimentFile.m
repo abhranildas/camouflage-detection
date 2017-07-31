@@ -22,10 +22,10 @@ nBins       = size(binIndex, 1);
 %% Experimental values
 SubjectExpFile.binIndex = binIndex;
 SubjectExpFile.levelCompleted = zeros(nSessions, nBins);
-SubjectExpFile.targetAmplitude = zeros(nTrials, nLevels, nSessions, nBins);
+SubjectExpFile.edgeEnergy = zeros(nTrials, nLevels, nSessions, nBins);
 SubjectExpFile.stimPosDeg = zeros(nTrials, nLevels, nSessions, nBins);
 SubjectExpFile.fixPosDeg = zeros(nTrials, nLevels, nSessions, nBins);
-SubjectExpFile.stimuliIndex = zeros(nTrials, nLevels, nSessions, nBins);
+SubjectExpFile.stimulusSeed = zeros(nTrials, nLevels, nSessions, nBins);
 SubjectExpFile.pixelsPerDeg = ExpSettings.pixelsPerDeg;
 SubjectExpFile.bgPixVal = ExpSettings.bgPixVal;
 
