@@ -14,9 +14,7 @@ function setUpExperiment(ImgStats)
 
     %% CAMOUFLAGE    
     % Experimental bins
-    binIndex = [1 5 5; 3 5 5; 5 5 5; 7 5 5; 10 5 5; ...
-                5 1 5; 5 3 5; 5 7 5; 5 10 5; ...
-                5 5 1; 5 5 3; 7 7 7; 10 5 5];
+    binIndex = [1];
  
     % Contrast range for each level
     targetLvls = repmat(linspace(0.2, 0.05, 5), [size(binIndex,1) , 1]);    
@@ -25,7 +23,7 @@ function setUpExperiment(ImgStats)
     fpSubjects = 'experiment_files/subject_out';
     
     nBins = size(binIndex, 1);
-    nTargets = size(ImgStats.Settings.targets, 3);
+    nTargets = 1;%size(ImgStats.Settings.targets, 3);
 
     % Session files
     for iBin = 1:nBins
@@ -41,11 +39,11 @@ function setUpExperiment(ImgStats)
     end
  
     %% Subject experiment files
-    subjectStr = ['sps'; 'rcw'; 'jsa'; 'yhb'];
+    subjectStr = ['ad'; 'ss'; 'cw'];
 
     nSubjects = size(subjectStr, 1);
     
-    ExpSettings.targetTypeStr = {'gabor', 'dog'};
+    %ExpSettings.targetTypeStr = {'gabor', 'dog'};
     
     for iSubject = 1:nSubjects
         for iTarget = 1:nTargets

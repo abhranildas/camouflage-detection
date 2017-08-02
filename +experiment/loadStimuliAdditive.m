@@ -50,23 +50,23 @@ fixationIntervalS = ExpSettings.fixationIntervalMs/1000;
 blankIntervalS    = ExpSettings.blankIntervalMs/1000;
 
 % Create the circular mask
-maskSizePix      = size(stimuli(:,:,:,1,1));
-maskCenterXY     = [ceil(maskSizePix(1)/2) ceil(maskSizePix(2)/2)];
-maskRadiusPix    = ceil((maskSizePix(1)-1)/2); 
-[maskX, maskY]   = meshgrid(-(maskCenterXY(1)-1):(maskSizePix(1)-maskCenterXY(1)), -(maskCenterXY(2)-1):(maskSizePix(2)-maskCenterXY(2)));
-circMask        = ((maskX.^2+maskY.^2)<=(maskRadiusPix.^2));
+% maskSizePix      = size(stimuli(:,:,:,1,1));
+% maskCenterXY     = [ceil(maskSizePix(1)/2) ceil(maskSizePix(2)/2)];
+% maskRadiusPix    = ceil((maskSizePix(1)-1)/2); 
+% [maskX, maskY]   = meshgrid(-(maskCenterXY(1)-1):(maskSizePix(1)-maskCenterXY(1)), -(maskCenterXY(2)-1):(maskSizePix(2)-maskCenterXY(2)));
+% circMask        = ((maskX.^2+maskY.^2)<=(maskRadiusPix.^2));
 
 nTrials = ExpSettings.nTrials;
 nLevels = ExpSettings.nLevels;
 
 %% Add stimuli to backgrounds
-for iTrials = 1:nTrials
-    for iLevels = 1:nLevels
-        thisStimulus = stimuli(:,:,iTrials,iLevels);
+for iTrial = 1:nTrials
+    for iLevel = 1:nLevels
+        thisStimulus = stimuli(:,:,iTrial,iLevel);
         
         % Convert to 8 bit        
-        if(bTargetPresent(iTrials, iLevels))
-            thisTarget = target.*targetAmplitude(iTrials,iLevels).*(2^bitDepthIn-1);
+        if(bTargetPresent(iTrial, iLevel))
+            thisTarget = target.*targetAmplitude(iTrial,iLevel).*(2^bitDepthIn-1);
             
             thisStimulus = ...
                 round(lib.embedImageinCenter(thisStimulus, thisTarget, bAdditive, bitDepthOut));
@@ -79,21 +79,21 @@ for iTrials = 1:nTrials
         % Apply the gamma correction
         thisStimulus = experiment.gammaCorrect(thisStimulus, gammaValue, bitDepthIn, bitDepthOut);
         
-        stimuli(:,:,iTrials,iLevels) = thisStimulus;
+        stimuli(:,:,iTrial,iLevel) = thisStimulus;
 
     end
 end
 
 %% Create target examples
-targetSamples = bgPixVal.*ones([size(stimuli, 1) size(stimuli,2), iLevels]);
+targetSamples = bgPixVal.*ones([size(stimuli, 1) size(stimuli,2), iLevel]);
 
 
-for iLevels = 1:nLevels
-    thisTarget = target.*mean(targetAmplitude(:,iLevels)).*(2^bitDepthIn-1);
+for iLevel = 1:nLevels
+    thisTarget = target.*mean(targetAmplitude(:,iLevel)).*(2^bitDepthIn-1);
     
     thisSample = ...
-        lib.embedImageinCenter(targetSamples(:,:,iLevels), thisTarget, bAdditive, bitDepthOut);
-    targetSamples(:,:,iLevels) = experiment.gammaCorrect(thisSample, gammaValue, bitDepthIn, bitDepthOut);
+        lib.embedImageinCenter(targetSamples(:,:,iLevel), thisTarget, bAdditive, bitDepthOut);
+    targetSamples(:,:,iLevel) = experiment.gammaCorrect(thisSample, gammaValue, bitDepthIn, bitDepthOut);
 end
 
 %% Create the fixation target

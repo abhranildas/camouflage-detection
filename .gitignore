@@ -2,3 +2,5 @@ experiment_files/*
 experiment_settings/*
 eyetracking_files/*
 ImgStats.mat
+*.gif
+*.asv

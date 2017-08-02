@@ -1,4 +1,4 @@
-function SessionSettings = sessionSettings(ImgStats, targetTypeStr, binIndex, targetLvls)
+function SessionSettings = sessionSettings(targetTypeStr, binIndex, targetLvls)
 %SESSIONSETTINGS Loads settings and stimuli for each experimental session 
 % 
 % Example: 
@@ -24,10 +24,10 @@ blankIntervalMs    = 100;
 
 monitorMaxPix = 255;    
 
-imgFilePath = ImgStats.Settings.imgFilePath;
+%imgFilePath = ImgStats.Settings.imgFilePath;
 
-targetIndex = lib.getTargetIndexFromString(ImgStats.Settings, targetTypeStr);
-target = ImgStats.Settings.targets(:,:,targetIndex);
+%targetIndex = lib.getTargetIndexFromString(ImgStats.Settings, targetTypeStr);
+%target = ImgStats.Settings.targets(:,:,targetIndex);
 
 nLevels = length(targetLvls);
 nTrials = 30;
@@ -42,7 +42,7 @@ edgeEnergy = repmat(targetLvls, [nTrials, 1, nSessions]);
 stimPosDeg = zeros(nTrials, nLevels, nSessions, 2);
 fixPosDeg = zeros(nTrials, nLevels, nSessions, 2);
 
-loadSessionStimuli = @experiment.loadStimuliAdditive;
+loadSessionStimuli = @experiment.loadStimuliCamouflage;
 
 bTargetPresent  = experiment.generateTargetPresentMatrix(nTrials, nLevels, nSessions, pTarget);
 
