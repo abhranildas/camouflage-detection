@@ -1,5 +1,5 @@
 function SessionData = runSession(SessionSettings)
-%RUNEXPERIMENTBLOCK Runs a single block of an experiment.
+%RUNSESSION Runs a single block of an experiment.
 % Description: 
 %   A session consists of N levels. Each level contains M trials. The
 %   experiment protocol is agnostic to what visual content define the
@@ -29,7 +29,6 @@ for iLevel = levelStartIndex:nLevels
             EyelinkDoDriftCorrection(SessionSettings.el);
             Eyelink('Command', 'set_idle_mode');            
             Screen('FillRect', SessionSettings.window, SessionSettings.bgPixValGamma);
-
         end    
     
         experiment.main.displayLevelStart(SessionSettings, iLevel);        
@@ -52,16 +51,7 @@ for iLevel = levelStartIndex:nLevels
     
     if ~SessionSettings.bFovea
         Eyelink('StopRecording');
-    end       
-    
-    
-    
-    
-     
-    
-    
-    
-     
+    end
 end
 
 SessionData.response = responseMatrix;

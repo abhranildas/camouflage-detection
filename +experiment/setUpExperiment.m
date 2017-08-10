@@ -1,8 +1,8 @@
-function setUpExperiment(ImgStats)
+function setUpExperiment()
 %SETUPEXPERIMENT Creates and saves all experimental stimuli and settings
 % 
 % Example: 
-%  SETUPEXPERIMENT(ImgStats, 'fovea'); 
+%  SETUPEXPERIMENT(); 
 %
 % Output: 
 %  None
@@ -17,41 +17,36 @@ function setUpExperiment(ImgStats)
     binIndex = [1];
  
     % Contrast range for each level
-    targetLvls = repmat(linspace(0.2, 0.05, 5), [size(binIndex,1) , 1]);    
+    targetLvls = repmat(0.15, [size(binIndex,1) , 1]);    
 
     fpSettings = 'experiment_files/experiment_settings';
     fpSubjects = 'experiment_files/subject_out';
     
     nBins = size(binIndex, 1);
-    nTargets = 1;%size(ImgStats.Settings.targets, 3);
+    % nTargets = size(ImgStats.Settings.targets, 3);
 
     % Session files
     for iBin = 1:nBins
-        for iTarget = 1:nTargets
-            ExpSettings = experiment.sessionSettings(ImgStats, expTypeStr,...
-                ImgStats.Settings.targetKey{iTarget}, binIndex(iBin,:), targetLvls(iBin,:));
+        %for iTarget = 1:nTargets
+            ExpSettings = experiment.sessionSettings(binIndex(iBin,:), targetLvls(iBin,:));
             
-            fpOut = [fpSettings '/' expTypeStr '/' ExpSettings.targetTypeStr ...
-                '/L' num2str(binIndex(iBin,1)) '_C' num2str(binIndex(iBin,2)) ...
-                '_S' num2str(binIndex(iBin,3)) '.mat'];
+            fpOut = [fpSettings '/camo.mat'];
             save(fpOut, 'ExpSettings');
-        end
+        %end
     end
  
     %% Subject experiment files
     subjectStr = ['ad'; 'ss'; 'cw'];
 
-    nSubjects = size(subjectStr, 1);
-    
-    %ExpSettings.targetTypeStr = {'gabor', 'dog'};
+    nSubjects = size(subjectStr, 1);   
+
     
     for iSubject = 1:nSubjects
-        for iTarget = 1:nTargets
+        %for iTarget = 1:nTargets
             SubjectExpFile = experiment.subjectExperimentFile(ExpSettings, binIndex);
             
-            fpOut = [fpSubjects '/' expTypeStr '/' ExpSettings.targetTypeStr{iTarget} ...
-                '/' subjectStr(iSubject,:) '.mat']; 
+            fpOut = [fpSubjects '/camo_' subjectStr(iSubject,:) '.mat']; 
             save(fpOut, 'SubjectExpFile');
-        end
+        %end
     end    
 end

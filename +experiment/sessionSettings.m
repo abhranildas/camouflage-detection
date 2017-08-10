@@ -1,8 +1,8 @@
-function SessionSettings = sessionSettings(targetTypeStr, binIndex, targetLvls)
+function SessionSettings = sessionSettings(binIndex, targetLvls)
 %SESSIONSETTINGS Loads settings and stimuli for each experimental session 
 % 
 % Example: 
-%  ExpSettings = SESSIONSETTINGS(ImgStats, 'fovea', [5 5 5], linspace(0.05, 0.2, 5)); 
+%  ExpSettings = SESSIONSETTINGS([5 5 5], linspace(0.05, 0.2, 5)); 
 %
 % Output: 
 %  ExpSettings Structure containing stimuli and experiment settings
@@ -37,7 +37,7 @@ pTarget = 0.5;
 
 pixelsPerDeg = 120;
 
-edgeEnergy = repmat(targetLvls, [nTrials, 1, nSessions]);
+edgeEnergies = repmat(targetLvls, [nTrials, 1, nSessions]);
 
 stimPosDeg = zeros(nTrials, nLevels, nSessions, 2);
 fixPosDeg = zeros(nTrials, nLevels, nSessions, 2);
@@ -46,8 +46,8 @@ loadSessionStimuli = @experiment.loadStimuliCamouflage;
 
 bTargetPresent  = experiment.generateTargetPresentMatrix(nTrials, nLevels, nSessions, pTarget);
 
-sampleMethod = 'random';
-imgSet       = 'N';
+%sampleMethod = 'random';
+%imgSet       = 'N';
 
 [stimuli, stimulusSeed] = experiment.samplePatchesForExperiment(ImgStats, ...
     targetTypeStr, binIndex, nTrials, nLevels, nSessions, sampleMethod, imgSet);
@@ -59,7 +59,7 @@ SessionSettings = struct('binIndex', binIndex, 'monitorMaxPix', monitorMaxPix, .
     'nLevels', nLevels, 'nTrials', nTrials, 'nSessions', nSessions, 'sampleMethod', sampleMethod, ...
     'pTarget', pTarget, 'pixelsPerDeg', pixelsPerDeg, 'stimPosDeg', stimPosDeg, ...
     'fixPosDeg', fixPosDeg, 'loadSessionStimuli', loadSessionStimuli, ...
-    'bTargetPresent', bTargetPresent, 'edgeEnergy', edgeEnergy, ...
+    'bTargetPresent', bTargetPresent, 'edgeEnergies', edgeEnergies, ...
     'stimuli', stimuli, 'stimulusSeed', stimulusSeed, 'bgPixVal', bgPixVal, ...
     'stimulusIntervalMs', stimulusIntervalMs, 'responseIntervalMs', responseInvervalMs, ...
     'fixationIntervalMs', fixationIntervalMs, 'blankIntervalMs', blankIntervalMs);  

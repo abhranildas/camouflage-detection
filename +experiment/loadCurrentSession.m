@@ -1,5 +1,5 @@
 function SettingsOut = loadCurrentSession(subjectStr, expTypeStr, targetTypeStr, binIndex, sessionNumber, levelNumber)
-%LOADCURRENSESSIONS Load the stimuli and experiment info for the next
+%LOADCURRENTSESSION Load the stimuli and experiment info for the next
 %session. Called only during experiment.
 %
 % v1.0, 1/26/2016, Steve Sebastian <sebastian@utexas.edu>

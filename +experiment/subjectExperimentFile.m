@@ -31,9 +31,9 @@ SubjectExpFile.bgPixVal = ExpSettings.bgPixVal;
 
 %% Performance values
 SubjectExpFile.bTargetPresent = zeros(nTrials, nLevels, nSessions, nBins);
-SubjectExpFile.correct = zeros(nTrials, nLevels, nSessions, nBins);
 SubjectExpFile.response = zeros(nTrials, nLevels, nSessions, nBins);
 SubjectExpFile.hit = zeros(nTrials, nLevels, nSessions, nBins);
 SubjectExpFile.miss = zeros(nTrials, nLevels, nSessions, nBins);
 SubjectExpFile.falseAlarm = zeros(nTrials, nLevels, nSessions, nBins);
 SubjectExpFile.correctRejection = zeros(nTrials, nLevels, nSessions, nBins);
+SubjectExpFile.correct = zeros(nTrials, nLevels, nSessions, nBins);
