@@ -1,52 +1,98 @@
-function setUpExperiment()
-%SETUPEXPERIMENT Creates and saves all experimental stimuli and settings
-% 
-% Example: 
-%  SETUPEXPERIMENT(); 
-%
-% Output: 
-%  None
-%
-% See also:
-%   SESSIONSETTINGS
-%
-% v1.0, 2/18/2016, Steve Sebastian <sebastian@utexas.edu>
-
-    %% CAMOUFLAGE    
-    % Experimental bins
-    binIndex = [1];
- 
-    % Contrast range for each level
-    targetLvls = repmat(0.15, [size(binIndex,1) , 1]);    
-
-    fpSettings = 'experiment_files/experiment_settings';
-    fpSubjects = 'experiment_files/subject_out';
+function setUpExperiment(exp_type,subjectStr)
+    %SETUPEXPERIMENT Creates and saves all experimental stimuli and settings
+    %
+    % Example:
+    %  SETUPEXPERIMENT();
+    %
+    % Output:
+    %  None
+    %
+    % See also:
+    %   SESSIONSETTINGS
+    %
+    % v1.0, 2/18/2016, Steve Sebastian <sebastian@utexas.edu>
     
-    nBins = size(binIndex, 1);
-    % nTargets = size(ImgStats.Settings.targets, 3);
-
-    % Session files
-    for iBin = 1:nBins
-        %for iTarget = 1:nTargets
-            ExpSettings = experiment.sessionSettings(binIndex(iBin,:), targetLvls(iBin,:));
-            
-            fpOut = [fpSettings '/camo.mat'];
-            save(fpOut, 'ExpSettings');
-        %end
+    %% CAMOUFLAGE
+    
+    luminance=0.5;
+    contrast=0.15;
+    bg_size=256; % in px
+    target_radius=64; % in px
+    nLevels=10;
+    monitor_distance=60; % in PPD
+    transformExpName=''; % transform ml & cont of stimuli of existing experiment, or leave blank
+    
+    % for checking clipping in boundary ribbon region
+    kernel_size=[1 3];
+    
+    if strcmp(exp_type,'pink_noise')
+        %         seed_energy_file='seed_energy_pn_gradbynorm';
+        texture_params.type='pink_noise';
+    else
+        %         seed_energy_file='edge_strengths_bark';
+        % for bark texture with portilla simoncelli:
+        addpath(genpath('por_sim_tx_synth'))
+        input_img=['global_data/',exp_type,'.jpg'];
+        im0=double(rgb2gray(imread(input_img)));
+        
+        Nsc = 4; % Number of scales
+        Nor = 4; % Number of orientations
+        Na = 9;  % Spatial neighborhood is Na x Na coefficients
+        Niter = 25;	% Number of iterations of synthesis loop
+        
+        texture_params=struct;
+        texture_params.type='por_sim';
+        texture_params.stats=textureAnalysis(im0, Nsc, Nor, Na);
+        texture_params.Niter=Niter;
     end
- 
+    
+    % load edge power file
+    seed_energy_file=['edge_powers_',exp_type,'.mat'];
+    load(['global_data/',seed_energy_file],'edge_powers','edgePowerBlockEdges');
+    
+    % find the widest span around the mean edge power,
+    % such that 10 equal-width bins each have >=80 samples (to be safe; exp. needs
+    % ~60 target samples in each bin).
+%     dist_mean=mean(edge_powers(:,2));
+%     dist_span=(max(edge_powers(:,2))-min(edge_powers(:,2)))/2;
+%     while true
+%         h=histcounts(edge_powers(:,2),linspace(dist_mean-dist_span,dist_mean+dist_span,nLevels+1));
+%         if min(h)>80
+%             break
+%         else
+%             dist_span=.9*dist_span;
+%         end
+%     end
+    
+%     edgePowerBlockEdges=linspace(dist_mean-dist_span,dist_mean+dist_span,nLevels+1);
+%     edgePowerBlockEdges = linspace(min(edge_powers(:,2)),max(edge_powers(:,2)),nLevels+1);
+    global bdry_ribbon;
+    [~,~,~,bdry_ribbon]=lib.circular_mask(bg_size,target_radius,'center',kernel_size);
+    
+    %% Session files
+    %for iCondition = 1:nConditions
+    ExpSettings = experiment.sessionSettings(exp_type, texture_params, seed_energy_file, luminance, contrast, bg_size, target_radius, edgePowerBlockEdges, monitor_distance, transformExpName);
+    if strcmp(exp_type,'pink_noise')
+        folderOut= ['exp_files/' exp_type '_L' num2str(luminance) '_C' num2str(contrast)];
+    else
+        folderOut= ['exp_files/' exp_type];
+    end
+    mkdir(folderOut);
+    fpOut = [folderOut '/exp_settings.mat'];
+    save(fpOut, 'ExpSettings');
+    %end
+    
     %% Subject experiment files
-    subjectStr = ['ad'; 'ss'; 'cw'];
-
-    nSubjects = size(subjectStr, 1);   
-
+    %subjectStr = ['ad'; 'cw'; 'es'; 'wg'];
+    
+    nSubjects = size(subjectStr, 1);
     
     for iSubject = 1:nSubjects
-        %for iTarget = 1:nTargets
-            SubjectExpFile = experiment.subjectExperimentFile(ExpSettings, binIndex);
-            
-            fpOut = [fpSubjects '/camo_' subjectStr(iSubject,:) '.mat']; 
-            save(fpOut, 'SubjectExpFile');
-        %end
-    end    
+        SubjectExpFile = experiment.subjectExperimentFile(ExpSettings);
+        %             folderOut= ['exp_files/' exp_type '_L' num2str(luminance) '_C' num2str(contrast) '/subject_out'];
+        folderOut= ['exp_files/' exp_type '/subject_out'];
+        mkdir(folderOut);
+        fpOut = [folderOut '/' subjectStr(iSubject,:) '.mat'];
+        save(fpOut, 'SubjectExpFile');
+    end
 end

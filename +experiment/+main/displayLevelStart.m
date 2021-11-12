@@ -25,7 +25,7 @@ fixDestination  = floor(CenterRectOnPointd(fixRect, fixPosPixXY(1), fixPosPixXY(
 %% Draw fixTarget followed by blank if foveal experiment
 
 Screen('TextSize', w, 25);
-DrawFormattedText(w, 'Observe the target that you will be required to detect.\nPress any key when ready to continue the experiment.', ...
+DrawFormattedText(w, sprintf('Level %d\n\n This is the outline for the target that you will be required to detect.\n\n Press any key when ready.',blockNumber), ...
     'center',SessionSettings.pixelsPerDeg);
 
 target = SessionSettings.targetSamples(:,:,blockNumber);
@@ -36,13 +36,13 @@ targetDestination  = floor(CenterRectOnPointd(targetRect, stimPosPixXY(1), stimP
  
 
 
-if SessionSettings.bFovea % If foveal experiment, then draw stimulus after fixation cross.
-    Screen('DrawTexture', SessionSettings.window, fixTexture, [], fixDestination);
-    Screen('DrawTexture', SessionSettings.window, targetTexture, [], targetDestination);
-else
+% if SessionSettings.bFovea % If foveal experiment, then draw stimulus after fixation cross.
+%     Screen('DrawTexture', SessionSettings.window, fixTexture, [], fixDestination);
+%     Screen('DrawTexture', SessionSettings.window, targetTexture, [], targetDestination);
+% else
     Screen('DrawTexture', SessionSettings.window, targetTexture, [], targetDestination);    
     Screen('DrawTexture', SessionSettings.window, fixTexture, [], fixDestination);
-end
+% end
 Screen('Flip',SessionSettings.window);
    
 %WaitSecs(10); %Adapt to background luminance

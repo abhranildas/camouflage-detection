@@ -1,4 +1,4 @@
-function SettingsOut = loadCurrentSession(subjectStr, expTypeStr, targetTypeStr, binIndex, sessionNumber, levelNumber)
+function SettingsOut = loadCurrentSession(subjectStr, expTypeStr, condition, sessionNumber, levelNumber)
 %LOADCURRENTSESSION Load the stimuli and experiment info for the next
 %session. Called only during experiment.
 %
@@ -6,12 +6,11 @@ function SettingsOut = loadCurrentSession(subjectStr, expTypeStr, targetTypeStr,
 
 %% Determine current session
 
-filePathSubject = ['experiment_files/subject_out/' expTypeStr '/' targetTypeStr '/' subjectStr '.mat'];
+filePathSubject = ['exp_files/' expTypeStr '/subject_out/' subjectStr '.mat'];
 load(filePathSubject);
 
 if(nargin < 4)
-    nLevels = size(SubjectExpFile.stimPosDeg,2);
-        
+    nLevels = size(SubjectExpFile.stimuli,4);        
 
     % Check for experiment files that have not been completed
     % Check for not completed session
@@ -28,33 +27,31 @@ if(nargin < 4)
     currentBin     = notCompletedBin(sIndex(1));
     currentSession = notCompletedSession(sIndex(1));
     
-    binIndex = SubjectExpFile.binIndex(currentBin, :);
+    %condition = SubjectExpFile.condition(currentBin, :);
     levelCompleted = SubjectExpFile.levelCompleted(currentSession, currentBin);
     levelStartIndex = levelCompleted + 1;
 else
     currentSession = sessionNumber; 
-    currentBin = find(ismember(SubjectExpFile.binIndex, binIndex, 'rows') == 1);
+    currentBin = find(ismember(SubjectExpFile.binIndex, condition, 'rows') == 1);
     levelStartIndex = levelNumber;
 end
 
 
-disp(['Loading bin: L' num2str(binIndex(1)) ' C' num2str(binIndex(2)) ' S' num2str(binIndex(3))]);
-disp(['Session number: ' num2str(currentSession) ' Level number: ' num2str(levelStartIndex)]);
+% disp(['Loading bin: L' num2str(SubjectExpFile.luminance) ' C' num2str(SubjectExpFile.contrast)]);
+disp(['Session ' num2str(currentSession) ', Level ' num2str(levelStartIndex)]);
 
 %% Load settings
 
-filePathSession = ['experiment_files/experiment_settings/' expTypeStr '/' targetTypeStr '/' ...
-    'L' num2str(binIndex(1)) '_C' num2str(binIndex(2)) '_S' num2str(binIndex(3)) '.mat'];
+filePathSession = ['exp_files/' expTypeStr '/exp_settings.mat'];
 load(filePathSession);
 
 save(filePathSubject, 'SubjectExpFile');
 
 SettingsOut = ExpSettings;
-SettingsOut.bgPixVal = (ExpSettings.bgPixVal./255).*(2^16-1);
-SettingsOut.bgPixValGamma = experiment.gammaCorrect(SettingsOut.bgPixVal, 1.972, 16, 8);
+SettingsOut.bgPixVal = ExpSettings.bgPixVal./255;
+SettingsOut.bgPixValGamma = experiment.gammaCorrect(SettingsOut.bgPixVal, 2.089, 8);
 SettingsOut.subjectStr = subjectStr;
 SettingsOut.expTypeStr = expTypeStr;
-SettingsOut.targetTypeStr = targetTypeStr;
 SettingsOut.levelStartIndex = levelStartIndex;
 SettingsOut.currentBin = currentBin;
 SettingsOut.currentSession = currentSession;

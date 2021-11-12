@@ -1,4 +1,4 @@
-function imgOut = gammaCorrect(imgIn, gammaValue, bitDepthIn, bitDepthOut)
+function imgOut = gammaCorrect(imgIn, gammaValue, bitDepthOut)
 %GAMMACORRECT Apply gamma commpression to the 
 % 
 % Example: 
@@ -7,12 +7,11 @@ function imgOut = gammaCorrect(imgIn, gammaValue, bitDepthIn, bitDepthOut)
 % v1.0, 2/24/2016, Steve Sebastian <sebastian@utexas.edu>
 
 %%
-maxPixelValIn = 2^bitDepthIn - 1;
 maxPixelValOut = 2^bitDepthOut - 1;
 
 %% Gamma correct
 
-imgOut = (imgIn./maxPixelValIn).^(1/gammaValue);
-imgOut = maxPixelValOut.*imgOut;
+imgOut = imgIn.^(1/gammaValue);
+imgOut = maxPixelValOut*imgOut;
 imgOut = round(imgOut);
 

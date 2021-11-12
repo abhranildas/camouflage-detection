@@ -14,14 +14,14 @@ function SessionData = runSession(SessionSettings)
 % v2.0, 1/27/2016, Steve Sebastian, R. C. Walshe <calen.walshe@utexas.edu>
 
 nTrials     = SessionSettings.nTrials;
-nLevels     = SessionSettings.nLevels;
+nBlocks     = SessionSettings.nBlocks;
 
-levelStartIndex = SessionSettings.levelStartIndex;
+blockStartIndex = SessionSettings.levelStartIndex;
 
-responseMatrix = zeros(nTrials, nLevels);
-rtMatrix = zeros(nTrials, nLevels);
+responseMatrix = zeros(nTrials, nBlocks);
+rtMatrix = zeros(nTrials, nBlocks);
 
-for iLevel = levelStartIndex:nLevels
+for iBlock = blockStartIndex:nBlocks
 
         if ~SessionSettings.bFovea
             Eyelink('Command', 'set_idle_mode');
@@ -31,17 +31,17 @@ for iLevel = levelStartIndex:nLevels
             Screen('FillRect', SessionSettings.window, SessionSettings.bgPixValGamma);
         end    
     
-        experiment.main.displayLevelStart(SessionSettings, iLevel);        
+        experiment.main.displayLevelStart(SessionSettings, iBlock);        
     
     for iTrial = 1:nTrials
 
-        [response, RT] = experiment.main.runTrial(SessionSettings, iTrial, iLevel);
+        [response, RT] = experiment.main.runTrial(SessionSettings, iTrial, iBlock);
 
-        responseMatrix(iTrial, iLevel) = response;
-        rtMatrix(iLevel, iLevel) = RT;
+        responseMatrix(iTrial, iBlock) = response;
+        rtMatrix(iBlock, iBlock) = RT;
     end
     
-    experiment.saveCurrentLevel(SessionSettings, responseMatrix(:,iLevel), iLevel);
+    experiment.saveCurrentLevel(SessionSettings, responseMatrix(:,iBlock), iBlock);
     
     Screen('FillRect', SessionSettings.window, SessionSettings.bgPixValGamma)
     Screen('TextSize', SessionSettings.window, 25);
