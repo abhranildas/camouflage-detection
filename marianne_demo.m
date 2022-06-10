@@ -1,5 +1,3 @@
-%% demo for Marianne and Lynn
-
 %% generate specific pink noise stimulus
 ml=0.5; % mean luminance
 cont=0.15; % contrast
