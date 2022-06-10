@@ -15,28 +15,11 @@ function SubjectExpFile = subjectExperimentFile(ExpSettings)
 
 %% 
 nTrials     = ExpSettings.nTrials;
-nLevels     = ExpSettings.nBlocks;
+nLevels     = ExpSettings.nLevels;
 nSessions   = ExpSettings.nSessions;
 nBins       = 1;
 
-%% Experimental values
-SubjectExpFile.exp_type = ExpSettings.exp_type;
-SubjectExpFile.luminance = ExpSettings.luminance;
-SubjectExpFile.contrast = ExpSettings.contrast;
-SubjectExpFile.target_radius = ExpSettings.target_radius;
-SubjectExpFile.stimulus_size = ExpSettings.stimulus_size;
-SubjectExpFile.monitor_distance = ExpSettings.monitor_distance;
 SubjectExpFile.levelCompleted = zeros(nSessions, nBins);
-SubjectExpFile.edgePowerBlockEdges = ExpSettings.edgePowerBlockEdges;
-SubjectExpFile.edgePowerBlockCenters = ExpSettings.edgePowerBlockCenters;
-SubjectExpFile.edgePowers = zeros(nTrials, nLevels, nSessions, nBins);
-SubjectExpFile.stimuliSeed = zeros(size(ExpSettings.stimuliSeed));
-SubjectExpFile.stimuli = zeros(size(ExpSettings.stimuli));
-SubjectExpFile.stimPosDeg = zeros(nTrials, nLevels, nSessions, nBins);
-SubjectExpFile.fixPosDeg = zeros(nTrials, nLevels, nSessions, nBins);
-SubjectExpFile.bgPixVal = ExpSettings.bgPixVal;
-
-%% Performance values
 SubjectExpFile.bTargetPresent = false(nTrials, nLevels, nSessions, nBins);
 SubjectExpFile.response = false(nTrials, nLevels, nSessions, nBins);
 SubjectExpFile.hit = false(nTrials, nLevels, nSessions, nBins);

@@ -1,8 +1,8 @@
-function [img_1f,wn]=create_pink_noise_square(bg_size,alpha)
+function [img_1f,wn]=create_pink_noise_square(bg_size,exponent)
 % creates a square image of pink noise of given size
 
-if ~exist('alpha','var')
-    alpha=1;
+if ~exist('exponent','var')
+    exponent=1;
 end
 
 % create 1/f Fourier filter.
@@ -11,7 +11,7 @@ for i=1:bg_size
     for j=1:bg_size
         z=norm([i-bg_size/2-1,j-bg_size/2-1]);
         if z  % leave fft origin at 1
-            fil_1f(i,j) = z^(-alpha);
+            fil_1f(i,j) = z^(-exponent);
         end
     end
 end

@@ -1,6 +1,6 @@
-function [stimuli, seeds, edgePowers, pClipped]=generate_camouflage_stimuli(texture_params,seed_energy_file,edgePowerBlockEdges,nTrials,nSessions,bg_size,target_radius,ml,cont,bTargetPresent)
+function [stimuli, seeds, edgePowers, pClipped]=generate_camouflage_stimuli(texture,seed_energy_file,edgePowerBlockEdges,nTrials,nSessions,bg_size,target_radius,ml,cont,bTargetPresent)
     load(['global_data/',seed_energy_file],'edge_powers')
-    [~,~,~,bdry_ribbon]=lib.circular_mask(bg_size,target_radius,'center');
+    [~,~,~,bdry_ribbon]=lib.target_mask('bg_size',bg_size,'target_radius',target_radius);
     nLevels=size(edgePowerBlockEdges,1);
     stimuli=zeros(bg_size,bg_size,nTrials,nLevels,nSessions);
     % seeds=zeros(nTrials,nLevels,nSessions);
@@ -36,12 +36,12 @@ function [stimuli, seeds, edgePowers, pClipped]=generate_camouflage_stimuli(text
                     % seed=randsample(seeds_available,1);
                     seed=seeds(iTrial,iLevel,iSession);
                     edgePowers(iTrial,iLevel,iSession)=edge_powers(seed,2);
-                    stim=lib.stimulus(texture_params,seed,bg_size,target_radius,'center',0,ml,cont,'match','match');
+                    stim=lib.stimulus('texture',texture,'seed',seed,'bg_size',bg_size,'target_radius',target_radius,'ml_b',ml,'cont_b',cont);
                 else % if this is a without-target stimulus
                     %  seed=randi([1 size(edge_powers,1)]); % randomly pick from all seeds
                     seed=seeds(iTrial,iLevel,iSession);
                     edgePowers(iTrial,iLevel,iSession)=edge_powers(seed,1);
-                    stim=lib.stimulus(texture_params,seed,bg_size,0,'center',0,ml,cont);
+                    stim=lib.stimulus('texture',texture,'seed',seed,'bg_size',bg_size,'ml_b',ml,'cont_b',cont);
                 end
                 seeds(iTrial,iLevel,iSession)=seed;
                 stimuli(:,:,iTrial,iLevel,iSession)=stim;

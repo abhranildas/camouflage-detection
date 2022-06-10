@@ -1,14 +1,16 @@
 % compute pmf parameters
-[mu,th,b,c]=experiment.analysis.computeThresholdInBin('leather','ad',1,0);
+[th,b,c]=experiment.analysis.computeThreshold_edgePower('pink_noise','neel',1,0);
+mu=0;
 a=th-mu;
 
 % load edge powers
-load('global_data/edge_powers_pink_noise.mat','edge_powers')
+%load('global_data/edge_powers_pink_noise.mat','edge_powers')
 
 [~,~,~,dprimes]=experiment.analysis.psychometricFun(edge_powers(:,2),mu,a,b,c);
 
 figure; histogram(dprimes,'normalization','pdf')
-mean(dprimes)
+d=mean(dprimes)
+normcdf(d/2)
 
 %% unblock/shuffle pink noise experiment
 idx=randperm(numel(ExpSettings.stimuliSeed));

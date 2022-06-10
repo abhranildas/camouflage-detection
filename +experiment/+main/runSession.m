@@ -14,14 +14,14 @@ function SessionData = runSession(SessionSettings)
 % v2.0, 1/27/2016, Steve Sebastian, R. C. Walshe <calen.walshe@utexas.edu>
 
 nTrials     = SessionSettings.nTrials;
-nBlocks     = SessionSettings.nBlocks;
+nLevels     = SessionSettings.nLevels;
 
 blockStartIndex = SessionSettings.levelStartIndex;
 
-responseMatrix = zeros(nTrials, nBlocks);
-rtMatrix = zeros(nTrials, nBlocks);
+responseMatrix = zeros(nTrials, nLevels);
+rtMatrix = zeros(nTrials, nLevels);
 
-for iBlock = blockStartIndex:nBlocks
+for iBlock = blockStartIndex:nLevels
 
         if ~SessionSettings.bFovea
             Eyelink('Command', 'set_idle_mode');

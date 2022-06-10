@@ -15,7 +15,7 @@ function nll = computeNegLogLikelihood(p,target_means, num_blanks,num_targets, n
     %%
     
 %     mu=p(1);
-    mu=0;
+    %mu=0;
     a=p(1);
     b=p(2);
     c=p(3);
@@ -32,7 +32,7 @@ function nll = computeNegLogLikelihood(p,target_means, num_blanks,num_targets, n
         %         ll=sum(log(normcdf(z(response)/2)))+... % response target
         %      + sum(log(normcdf(d(~response),'upper'))); % response blank
         
-        d=(abs(target_means-mu)/a).^b.*sign(target_means-mu); % d primes
+        d=(abs(target_means)/a).^b.*sign(target_means); % d primes
         p_h=normcdf(d*(1-c)/2); % prob. of hits
         p_cr=normcdf(d*(1+c)/2); % prob. of correct rejection
 %         p_c=(p_h+p_cr)/2; % prob. of correct

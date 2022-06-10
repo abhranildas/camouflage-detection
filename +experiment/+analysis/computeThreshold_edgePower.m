@@ -1,5 +1,8 @@
-function [mu, threshold, b, c, mu_sd, threshold_sd, b_sd, c_sd, sessions_completed, target_means, pcBoot_sds, x_pmf, y_pmf] = computeThreshold_alpha(expTypeStr, subjectStr, bPlot, bBootstrap)
-    
+function [threshold, b, c, threshold_sd, b_sd, c_sd, sessions_completed, target_means, pcBoot_sds, x_pmf, y_pmf] = computeThreshold_edgePower(expTypeStr, subjectStr, bPlot, bBootstrap)
+
+    % Load in experiment settings file
+    load(['./exp_files/' expTypeStr '/exp_settings.mat'],'ExpSettings');
+
     % Load in subject experiment file
     load(['./exp_files/' expTypeStr '/subject_out/'  subjectStr '.mat'],'SubjectExpFile');
     
@@ -18,7 +21,7 @@ function [mu, threshold, b, c, mu_sd, threshold_sd, b_sd, c_sd, sessions_complet
     correct_reject=logical([]);
     correct=logical([]);
     
-    blank_mean=0;
+%     blank_mean=mean(SubjectExpFile.edgePowers(~SubjectExpFile.bTargetPresent));
     
     if(bPlot)
         disp(['Sessions used: ' num2str(sessions_completed)]);
@@ -26,7 +29,7 @@ function [mu, threshold, b, c, mu_sd, threshold_sd, b_sd, c_sd, sessions_complet
     
     for cItr = 1:length(completedBinIndex)
         if(completedBinIndex(cItr))
-            exp_values    = [exp_values; repmat(SubjectExpFile.alphas, [nTrials 1])];
+            exp_values    = [exp_values; ExpSettings.edgePowers(:,:,cItr)];
             bTarget = [bTarget; SubjectExpFile.bTargetPresent(:,:,cItr)];
             hit = [hit; SubjectExpFile.hit(:,:,cItr)];
             correct_reject = [correct_reject; SubjectExpFile.correctRejection(:,:,cItr)];
@@ -60,12 +63,13 @@ function [mu, threshold, b, c, mu_sd, threshold_sd, b_sd, c_sd, sessions_complet
     
     %% Figure properties
     if bPlot
-        figure; hold on;
-        plot(target_means, p_c, '.k', 'MarkerSize', 15);
-        fplot(@(x) experiment.analysis.psychometricFun(x,mu,a,b,c),[mu SubjectExpFile.alphas(end)],'k');
-        xline(threshold,'color','k','Linewidth',1)
-        %ylim([.5 1])
-        xlabel('noise colour \alpha'); ylabel('% correct')
+        hold on;
+        plot(target_means, p_c, 'ob', 'markerfacecolor','b','MarkerSize',5);
+        fplot(@(x) experiment.analysis.psychometricFun(x,mu,a,b,c),[mu 1],'b');
+        xline(threshold,'color','b','Linewidth',1)
+%         xlim([0 1])
+        ylim([0 1])
+        xlabel('edge power'); ylabel('% correct')
         set(gca,'FontSize',13,'TickDir','out','box','off','ytick',[.5 .75 1],'yticklabel',[50 75 100]);
     end
     
@@ -105,12 +109,11 @@ function [mu, threshold, b, c, mu_sd, threshold_sd, b_sd, c_sd, sessions_complet
         c_sd = std(c_boot);
         pcBoot_sds = std(pc_boot);
         if(bPlot)
-%             for i=1:length(target_means)
-%                 rectangle('Position',[target_means(i)-.01, p_c(i)-pcBoot_sds(i), .02, 2*pcBoot_sds(i)],...
-%                     'facecolor',[0 0 0 .1], 'edgecolor','none')
-%             end
-            errorbar(target_means,p_c,pcBoot_sds,'linestyle','none', 'color','k');
+            for i=1:length(target_means)
+                rectangle('Position',[target_means(i)-target_sds(i), p_c(i)-pcBoot_sds(i), 2*target_sds(i), 2*pcBoot_sds(i)],...
+                    'facecolor',[0 0 1 .1], 'edgecolor','none')
+            end
         end
         % mark threshold errorband:
-        rectangle('Position',[threshold-threshold_sd 0 2*threshold_sd 1],'facecolor',[0 0 0 .1], 'edgecolor','none')
+        rectangle('Position',[threshold-threshold_sd 0 2*threshold_sd 1],'facecolor',[0 0 1 .1], 'edgecolor','none')
     end

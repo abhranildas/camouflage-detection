@@ -18,12 +18,9 @@ function setUpExperiment(exp_type,subjectStr)
     contrast=0.15;
     bg_size=256; % in px
     target_radius=64; % in px
-    nLevels=10;
+%     nLevels=10;
     monitor_distance=60; % in PPD
     transformExpName=''; % transform ml & cont of stimuli of existing experiment, or leave blank
-    
-    % for checking clipping in boundary ribbon region
-    kernel_size=[1 3];
     
     if strcmp(exp_type,'pink_noise')
         %         seed_energy_file='seed_energy_pn_gradbynorm';
@@ -48,7 +45,7 @@ function setUpExperiment(exp_type,subjectStr)
     
     % load edge power file
     seed_energy_file=['edge_powers_',exp_type,'.mat'];
-    load(['global_data/',seed_energy_file],'edge_powers','edgePowerBlockEdges');
+    load(['global_data/',seed_energy_file],'edgePowerBlockEdges');
     
     % find the widest span around the mean edge power,
     % such that 10 equal-width bins each have >=80 samples (to be safe; exp. needs
@@ -66,17 +63,19 @@ function setUpExperiment(exp_type,subjectStr)
     
 %     edgePowerBlockEdges=linspace(dist_mean-dist_span,dist_mean+dist_span,nLevels+1);
 %     edgePowerBlockEdges = linspace(min(edge_powers(:,2)),max(edge_powers(:,2)),nLevels+1);
+        
+    % for checking clipping in boundary ribbon region
     global bdry_ribbon;
-    [~,~,~,bdry_ribbon]=lib.circular_mask(bg_size,target_radius,'center',kernel_size);
+    [~,~,~,bdry_ribbon]=lib.target_mask('bg_size',bg_size,'target_radius',target_radius);
     
     %% Session files
     %for iCondition = 1:nConditions
     ExpSettings = experiment.sessionSettings(exp_type, texture_params, seed_energy_file, luminance, contrast, bg_size, target_radius, edgePowerBlockEdges, monitor_distance, transformExpName);
-    if strcmp(exp_type,'pink_noise')
-        folderOut= ['exp_files/' exp_type '_L' num2str(luminance) '_C' num2str(contrast)];
-    else
+%     if strcmp(exp_type,'pink_noise')
+%         folderOut= ['exp_files/' exp_type '_L' num2str(luminance) '_C' num2str(contrast)];
+%     else
         folderOut= ['exp_files/' exp_type];
-    end
+%     end
     mkdir(folderOut);
     fpOut = [folderOut '/exp_settings.mat'];
     save(fpOut, 'ExpSettings');

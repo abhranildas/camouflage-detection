@@ -1,3 +1,5 @@
+load('exp_files/pink_noise/exp_settings.mat','ExpSettings')
+
 load('exp_files/pink_noise_unblocked/subject_out/adriana.mat','SubjectExpFile')
 SubjectExpFile_ub=SubjectExpFile;
 load('exp_files/pink_noise/subject_out/adriana.mat')
@@ -17,14 +19,14 @@ cr=sum(c)./sum(~t);
 cr_ub=sum(c_ub)./sum(~t_ub);
 
 figure; hold on
-plot(SubjectExpFile.edgePowerBlockCenters,hr,'.b');
-plot(SubjectExpFile.edgePowerBlockCenters,hr_ub,'or');
-title('hit rate'); legend('blocked','unblocked')
+plot(ExpSettings.edgePowerBlockCenters,hr_ub,'-o','color','b','markerfacecolor','w');
+plot(ExpSettings.edgePowerBlockCenters,hr,'-o','color','b','markersize',4,'markerfacecolor','b');
+plot(ExpSettings.edgePowerBlockCenters,cr_ub,'-o','color','r','markerfacecolor','w');
+plot(ExpSettings.edgePowerBlockCenters,cr,'-o','color','r','markersize',4,'markerfacecolor','r');
+legend('hit rate (shuffled)','hit rate (blocked)','correct rejection rate (shuffled)','correct rejection rate (blocked)')
+legend boxoff
 
-figure; hold on
-plot(SubjectExpFile.edgePowerBlockCenters,cr,'.b');
-plot(SubjectExpFile.edgePowerBlockCenters,cr_ub,'or');
-title('corr. rej. rate'); legend('blocked','unblocked')
+xlabel('edge power')
 
 d=norminv(hr)-norminv(1-cr);
 d_ub=norminv(hr_ub)-norminv(1-mean(cr_ub));
@@ -69,8 +71,8 @@ d_ub_std=std(d_ub_boot,'omitnan');
 d_ub_std(isnan(d_ub_std))=0;
 
 figure; hold on
-errorbar(SubjectExpFile.edgePowerBlockCenters,d,d_std,'b','marker','o','markerfacecolor','b');
-errorbar(SubjectExpFile.edgePowerBlockCenters,d_ub,d_ub_std,'r','marker','o','markerfacecolor','r');
+errorbar(ExpSettings.edgePowerBlockCenters,d,d_std,'b','marker','o','markerfacecolor','b');
+errorbar(ExpSettings.edgePowerBlockCenters,d_ub,d_ub_std,'r','marker','o','markerfacecolor','r');
 
 title('d prime'); legend('blocked','unblocked')
 

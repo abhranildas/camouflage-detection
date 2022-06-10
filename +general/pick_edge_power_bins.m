@@ -2,11 +2,11 @@
 histogram(edge_powers(:,1))
 hold on
 histogram(edge_powers(:,2))
-ylim([60 6000])
+ylim([60 60000])
 set(gca,'yscale','log')
 
 % find leftmost and rightmost bin locations
-bins=linspace(.4485,.6525,10);
+bins=linspace(.846,.938,10);
 
 % now use xline to mark bins, and add to:
 edgePowerBlockEdges=[];

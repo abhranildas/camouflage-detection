@@ -24,7 +24,7 @@ currentSession = ExpSettings.currentSession;
 
 monitorSizePix = ExpSettings.monitorSizePix;
 
-stimuliSeed = ExpSettings.stimuliSeed(:,:,currentSession); 
+seeds = ExpSettings.seeds(:,:,currentSession); 
 stimuli = ExpSettings.stimuli(:,:,:,:,currentSession);
 % edgePowerBlockEdges = ExpSettings.edgePowerBlockEdges;
 edgePowers = ExpSettings.edgePowers(:,:,currentSession); 
@@ -45,7 +45,7 @@ fixationIntervalS = ExpSettings.fixationIntervalMs/1000;
 blankIntervalS    = ExpSettings.blankIntervalMs/1000;
 
 nTrials = ExpSettings.nTrials;
-nBlocks = ExpSettings.nBlocks;
+nLevels = ExpSettings.nLevels;
 
 %% Gamma correct stimuli
 % and change to 8-bits
@@ -53,14 +53,14 @@ nBlocks = ExpSettings.nBlocks;
 bitDepthOut = 8;
 
 for iTrial = 1:nTrials
-    for iBlock = 1:nBlocks
-        thisStimulus = stimuli(:,:,iTrial,iBlock);
+    for iLevel = 1:nLevels
+        thisStimulus = stimuli(:,:,iTrial,iLevel);
         % clip:
         thisStimulus(thisStimulus>1)=1;
         thisStimulus(thisStimulus<0)=0;
         
         thisStimulus = experiment.gammaCorrect(thisStimulus, gammaValue, bitDepthOut);        
-        stimuli(:,:,iTrial,iBlock) = thisStimulus;
+        stimuli(:,:,iTrial,iLevel) = thisStimulus;
     end
 end
 
@@ -72,7 +72,7 @@ target_outline(:,[1 end])=1;
 target_outline([1 end],:)=1;
 target_outline=double(~target_outline);
 target_outline(target_outline==1)=ExpSettings.luminance;
-targetSamples=repmat(experiment.gammaCorrect(target_outline,gammaValue,bitDepthOut),[1 1 ExpSettings.nBlocks]);
+targetSamples=repmat(experiment.gammaCorrect(target_outline,gammaValue,bitDepthOut),[1 1 ExpSettings.nLevels]);
 
 % example camouflage target at each level
 % targetSamples=experiment.gammaCorrect(experiment.generate_camouflage_stimuli...
@@ -92,9 +92,9 @@ SessionSettings = struct('bTargetPresent', bTargetPresent, 'stimPosPix', stimPos
     'fixPosPix', fixPosPix,'bgPixValGamma', bgPixValGamma, 'targetSamples', targetSamples, ...
     'responseIntervalS', responseIntervalS, 'fixationIntervalS', fixationIntervalS, ...
     'stimulusIntervalS', stimulusIntervalS, 'blankIntervalS', blankIntervalS, ...
-    'fixationTarget', fixationTarget, 'nTrials', nTrials, 'nBlocks', nBlocks, ...
+    'fixationTarget', fixationTarget, 'nTrials', nTrials, 'nLevels', nLevels, ...
     'pixelsPerDeg', pixelsPerDeg, 'bFovea', bFovea, ...
     'levelStartIndex', levelStartIndex, 'subjectStr', subjectStr, 'expTypeStr', expTypeStr, ...
     'currentBin', currentBin, 'currentSession', currentSession, ...
-    'stimuliSeed', stimuliSeed, 'stimuli', stimuli,... %     'edgePowerBlockEdges', edgePowerBlockEdges, ...
+    'seeds', seeds, 'stimuli', stimuli,... %     'edgePowerBlockEdges', edgePowerBlockEdges, ...
     'edgePowers', edgePowers, 'stimPosDeg', stimPosDeg, 'fixPosDeg', fixPosDeg);

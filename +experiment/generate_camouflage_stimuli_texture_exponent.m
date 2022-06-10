@@ -1,4 +1,4 @@
-function [stimuli, seeds, edgePowers, pClipped]=generate_camouflage_stimuli_alpha(alphas,nTrials,nSessions,bg_size,target_radius,ml,cont,bTargetPresent)
+function [stimuli, seeds, edgePowers, pClipped]=generate_camouflage_stimuli_texture_exponent(alphas,nTrials,nSessions,bg_size,target_radius,ml,cont,bTargetPresent)
     texture.type='pink_noise';
     n_edge=1e4; kernel_sd=1;
     

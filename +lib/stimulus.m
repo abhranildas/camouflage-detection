@@ -1,9 +1,52 @@
-function [stim,mask,mask_edge,mask_normal,seed,wn_b,wn_t]=stimulus(varargin)
+function [stim,seed,mask,mask_edge,mask_normal,mask_strip,wn_b,wn_t]=stimulus(varargin)
+    % STIMULUS Generate camouflage stimulus image
+    %
+    % Abhranil Das <abhranil.das@utexas.edu>
+    % Center for Perceptual Systems, University of Texas at Austin
+    %
+    % Example:
+    % stim=lib.stimulus();
+    % stim=lib.stimulus('seed',1,'ml_b',0.5,'cont_b',0.15,'target_radius',64);
+    % texture.type='pink_noise';
+    % texture.exponent=2;
+    % stim=lib.stimulus('texture',texture,'target_radius',64);
+    %
+    % Required inputs: none
+    %
+    % Optional name-value inputs:
+    % bg_size               size (px) of the square stimulus image. Must be even. 
+    % texture               struct containing texture details. Pink noise by
+    %                       default.
+    % seed                  random seed for generating the image. Random by default.
+    % target_shape          'circular' by default, or specify a number that is the
+    %                       1/f exponent of a filtered noise function of angle.
+    % target_radius         0 by default (no target).
+    % target_radius_cont    target radius contrast if it is a filtered noise function
+    % target_loc            2-element vector specifying target location. Center by default.
+    % target_or             target orientation, 0 by default.
+    % ml_b                  mean luminance of the background, as fraction
+    % cont_b                contrast of the background, as fraction
+    % ml_t                  mean luminance of target. By default it matches that of the exact background region it covers.
+    % cont_t                target contrast. By default it matches that of the exact background region it covers.
+    %
+    % Output(s):
+    % stim                  stimulus image
+    % seed                  random seed used to generate the stimulus
+    % mask                  binary target mask image
+    % mask_edge             binary image of the target mask edge
+    % mask_normal           2 arrays specifying the x- and y- components of
+    %                       the normal vectors to the mask edge
+    % mask_strip            binary image of a thick strip along the mask edge 
+    %                       over which the edge power is computed
+    % wn_b                  white noise image that was filtered to make
+    %                       background texture
+    % wn_t                  white noise image that was filtered to make
+    %                       target texture
     
     parser=inputParser;
     parser.KeepUnmatched=true;
     addParameter(parser,'bg_size', 256, @(x) isscalar(x) && ~mod(x,2)); %bg_size needs to be even, otherwise you get complex numbers.
-    s.type='pink_noise'; s.alpha=1;
+    s.type='pink_noise'; s.exponent=1;
     addParameter(parser,'texture',s, @isstruct);
     addParameter(parser,'seed','rand', @(x) isscalar(x) || strcmp(x,'rand'));
     addParameter(parser,'target_shape', 'circular', @(x) strcmp(x,'circular') || isscalar(x));
@@ -38,16 +81,16 @@ function [stim,mask,mask_edge,mask_normal,seed,wn_b,wn_t]=stimulus(varargin)
     
     if strcmp(texture.type,'pink_noise')
         % create background
-        if ~isfield(texture,'alpha')
-            alpha=1;
+        if ~isfield(texture,'exponent')
+            exponent=1;
         else
-            alpha=texture.alpha;
+            exponent=texture.exponent;
         end
-        stim=lib.create_pink_noise_square(bg_size,alpha);
+        stim=lib.create_pink_noise_square(bg_size,exponent);
         % if target present,
         if target_radius
             % create target
-            [target_patch,wn_t]=lib.create_pink_noise_square(bg_size,alpha);
+            [target_patch,wn_t]=lib.create_pink_noise_square(bg_size,exponent);
         end
     elseif strcmp(texture.type,'por_sim')
         % create background
@@ -69,7 +112,7 @@ function [stim,mask,mask_edge,mask_normal,seed,wn_b,wn_t]=stimulus(varargin)
     
     % if target present,
     if target_radius
-        [mask,mask_edge,mask_normal]=lib.target_mask(varargin{:});
+        [mask,mask_edge,mask_normal,mask_strip]=lib.target_mask(varargin{:});
         blocked=stim.*mask;
         target_mask=double(mask);
         target_mask(~target_mask)=nan;

@@ -1,4 +1,4 @@
-function setUpExperiment_alpha(exp_type,subjectStr)
+function setUpExperiment_texture_exponent(exp_type,subjectStr)
     %SETUPEXPERIMENT Creates and saves all experimental stimuli and settings
     %
     % Example:
@@ -18,7 +18,7 @@ function setUpExperiment_alpha(exp_type,subjectStr)
     contrast=0.15;
     bg_size=256; % in px
     target_radius=64; % in px
-    alphas=linspace(.8,2,10);
+    exponents=linspace(.8,2,10);
     monitor_distance=60; % in PPD
     
     % for checking clipping in boundary ribbon region
@@ -30,7 +30,7 @@ function setUpExperiment_alpha(exp_type,subjectStr)
     [~,~,~,bdry_ribbon]=lib.circular_mask(bg_size,target_radius,'center',kernel_size);
     
     %% Session files
-    ExpSettings = experiment.sessionSettings_alpha(exp_type,texture_params, alphas, luminance, contrast, bg_size, target_radius, monitor_distance);
+    ExpSettings = experiment.sessionSettings_texture_exponent(exp_type,texture_params, exponents, luminance, contrast, bg_size, target_radius, monitor_distance);
     folderOut= ['exp_files/' exp_type];
     mkdir(folderOut);
     fpOut = [folderOut '/exp_settings.mat'];

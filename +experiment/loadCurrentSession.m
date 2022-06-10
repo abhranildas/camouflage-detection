@@ -10,7 +10,7 @@ filePathSubject = ['exp_files/' expTypeStr '/subject_out/' subjectStr '.mat'];
 load(filePathSubject);
 
 if(nargin < 4)
-    nLevels = size(SubjectExpFile.stimuli,4);        
+    nLevels = size(SubjectExpFile.bTargetPresent,2);        
 
     % Check for experiment files that have not been completed
     % Check for not completed session
