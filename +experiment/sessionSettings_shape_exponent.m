@@ -26,7 +26,7 @@ function SessionSettings = sessionSettings_shape_exponent(exp_type,texture, expo
     
     nLevels = length(exponents);
     nTrials = 30;
-    nSessions = 4;
+    nSessions = 16;
     
     stimPosDeg = zeros(nTrials, nLevels, nSessions, 2);
     fixPosDeg = zeros(nTrials, nLevels, nSessions, 2);
@@ -36,7 +36,7 @@ function SessionSettings = sessionSettings_shape_exponent(exp_type,texture, expo
     
     % generate stimuli
     bTargetPresent=logical(experiment.generateTargetPresentMatrix(nTrials, nLevels, nSessions, pTarget));
-    [stimuli,seeds,edgePowers,pClipped]=experiment.generate_camouflage_stimuli_shape_exponent(exponents,nTrials,nSessions,bg_size,target_radius,ml,cont,bTargetPresent);
+    [stimuli,seeds,edgePowers,pClipped]=experiment.generate_camouflage_stimuli_shape_exponent(exponents,texture,nTrials,nSessions,bg_size,target_radius,ml,cont,bTargetPresent);
     
     SessionSettings = struct(...
         'exp_type', exp_type,...

@@ -1,5 +1,5 @@
 len=100;
-fil_whiten=[1 1:len/2 len/2-1:-1:1]; % whitening filter
+fil_whiten=[1 1:len/2 len/2-1: -1:1]; % whitening filter
 fil_pinken=1./fil_whiten;  % pinkening filter
 
 %y=[normrnd(0,1,[1 len/2]),zeros(1,len/2)];
@@ -36,15 +36,115 @@ for n=1:len
     x_irf_anal(n)=(1+2*(-1)^n/len+sum(2*cos(2*(n-1)*k*pi/len)./k))/len;
 end
 
-% figure(1)
-% stem(x_delta);
-% figure(2)
-% plot(x_pink_irf);
-% hold on
-% plot(x_irf_anal);
-% hold off;
+figure(1)
+stem(x_delta);
+figure(2)
+plot(x_pink_irf);
+hold on
+plot(x_irf_anal);
+hold off;
 
 crop_mask=[ones(1,len/2) zeros(1,len/2)];
+
+%% pinkening IRF (corrected)
+len=5e3;
+
+% create 1/sqrt(f) Fourier filter.
+fil_1f = ones(1,len);
+for i=1:len
+    z=sqrt(norm(i-len/2-1));
+    if z  % leave fft origin at 1
+        fil_1f(i) = z^(-1);
+    end
+end
+
+% delta function:
+delta=[1,zeros(1,len-1)];
+
+% Fourier transform image, then fftshift to shift 0-frequency
+% to the center of the image, to align with 1/f filter whose
+% 0-frequency is also at the center. Otherwise multiplying
+% them together will not multiply corresponding elements.
+delta_f = fftshift(fft(delta));
+
+% multiply with 1/f filter
+delta_f_fil = fil_1f.*delta_f;
+
+% ifftshift to first shift back the fourier transform
+% to have 0-frequency at the start again. This lets
+% ifft2 do inverse Fourier transform correctly:
+pinken_irf = ifft(ifftshift(delta_f_fil));
+
+figure; hold on
+stem(fftshift(delta),'marker','none','color','k');
+plot(fftshift(pinken_irf),'b')
+xlim(251+150*[-1 1]); ylim([0 .15])
+set(gca,'xtick',[101 251 401],'xticklabels',{'-150','0','150'},'ytick',[0 .15],'fontsize',13)
+
+%% whitening IRF (corrected)
+len=500;
+
+% create sqrt(f) Fourier filter.
+fil_1f = ones(1,len);
+for i=1:len
+    z=sqrt(norm(i-len/2-1));
+    if z  % leave fft origin at 1
+        fil_1f(i) = z;
+    end
+end
+
+% delta function:
+delta=[1,zeros(1,len-1)];
+
+% Fourier transform image, then fftshift to shift 0-frequency
+% to the center of the image, to align with 1/f filter whose
+% 0-frequency is also at the center. Otherwise multiplying
+% them together will not multiply corresponding elements.
+delta_f = fftshift(fft(delta));
+
+% multiply with 1/f filter
+delta_f_fil = fil_1f.*delta_f;
+
+% ifftshift to first shift back the fourier transform
+% to have 0-frequency at the start again. This lets
+% ifft2 do inverse Fourier transform correctly:
+whiten_irf = ifft(ifftshift(delta_f_fil));
+
+figure; hold on
+stem(fftshift(delta),'marker','none','color','k');
+plot(fftshift(whiten_irf),'b')
+xlim(251+10*[-1 1]); ylim([-3 12])
+set(gca,'xtick',[241 251 261],'xticklabels',{'-10','0','10'},'ytick',[0 10],'fontsize',13)
+
+%% checking theoretical form of pinkening IRF
+N=100;
+x=1:N;
+delta=[1,zeros(1,N-1)];
+delta_f=fft(delta);
+
+fil_1f = ones(1,N);
+for i=1:N
+    z=sqrt(norm(i-N/2-1));
+    if z  % leave fft origin at 1
+        fil_1f(i) = 1/z;
+    end
+end
+
+a=fftshift(fil_1f);
+delta_f=delta_f.*a;
+f_numeric=ifft(delta_f);
+
+% f=cos(0*x*2*pi/N);
+% f=exp(1i*0*x*2*pi/N);
+f=1+cos(pi*(x-1))/sqrt(N/2);
+for k=1:N/2-1
+    f=f+2*cos(2*pi*k*(x-1)/N)/sqrt(k);
+%     f=f+exp(1i*(k-1)*x*2*pi/N);
+end
+f=f/N;
+
+figure; plot(f_numeric); hold on; plot(f,'o');
+[sum(f) sum(f.^2)]
 
 %% continuous analytical whitening filter
 k_max=2;

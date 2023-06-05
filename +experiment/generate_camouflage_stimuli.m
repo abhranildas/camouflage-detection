@@ -1,5 +1,5 @@
-function [stimuli, seeds, edgePowers, pClipped]=generate_camouflage_stimuli(texture,seed_energy_file,edgePowerBlockEdges,nTrials,nSessions,bg_size,target_radius,ml,cont,bTargetPresent)
-    load(['global_data/',seed_energy_file],'edge_powers')
+function [stimuli, seeds, edgePowers, pClipped]=generate_camouflage_stimuli(texture,exp_type,edgePowerBlockEdges,nTrials,nSessions,bg_size,target_radius,ml,cont,bTargetPresent)
+    load(['global_data/edge_powers/',exp_type,'.mat'],'edge_powers')
     [~,~,~,bdry_ribbon]=lib.target_mask('bg_size',bg_size,'target_radius',target_radius);
     nLevels=size(edgePowerBlockEdges,1);
     stimuli=zeros(bg_size,bg_size,nTrials,nLevels,nSessions);

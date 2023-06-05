@@ -1,16 +1,16 @@
-function [sig_1f,wn]=create_pink_noise_line(len,alpha)
+function [sig_1f,wn]=create_pink_noise_line(len,exponent)
     % creates a 1d pink noise signal
     
     if ~exist('alpha','var')
-        alpha=1;
+        exponent=1;
     end
     
     % create 1/f Fourier filter.
     fil_1f = ones(1,len);
     for i=1:len
-        z=norm(i-len/2-1);
+        z=sqrt(norm(i-len/2-1));
         if z  % leave fft origin at 1
-            fil_1f(i) = z^(-alpha);
+            fil_1f(i) = z^(-exponent);
         end
     end
     % white noise signal:

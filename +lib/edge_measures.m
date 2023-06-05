@@ -5,20 +5,17 @@ function [txtr_edge_density,n_bdry_edge_pixels,bdry_contours,txtr_contours]=edge
     addRequired(parser,'stim', @isnumeric);
     [~,~,~,bdry_strip]=lib.target_mask();
     addParameter(parser,'bdry_strip', bdry_strip, @islogical);
-%     addParameter(parser,'sig_n', 1, @isnumeric);
-    
+    edge_kernel=[1/16 1/8 1/16;
+        1/8 1/4 1/8;
+        1/16 1/8 1/16];
+    addParameter(parser,'edge_kernel', edge_kernel, @isnumeric);
     parse(parser,stim,varargin{:});
     bdry_strip=parser.Results.bdry_strip;
-%     sig_n=parser.Results.sig_n;
-    
-    %     kernel_size=[1 3];
+    edge_kernel=parser.Results.edge_kernel;
     
     %% compute all edge contours in the image
-    % stimulus gradient using steerable filter:
-    %     stim_grad=lib.steerable_grad(stim,kernel_size);
-    
-    %     stim_grad_x=stim_grad(:,:,1); stim_grad_y=stim_grad(:,:,2);
-    all_edges=edge(stim,'canny',[.2 .3]); % threshold for foliage
+%     all_edges=edge(stim,'canny',[.2 .3]); % threshold for foliage
+    all_edges=edge(stim,'zerocross',1e-3,edge_kernel); % threshold for foliage
     
     %% separate into boundary contours and texture contours
     bdry_contours=bwboundaries((all_edges&bdry_strip)');

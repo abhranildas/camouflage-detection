@@ -18,7 +18,7 @@ end
 stim_grad=lib.steerable_grad(stim,kernel_size);
 
 % create target mask
-[~,mask_edge,mask_normal]=lib.circular_mask(size(stim,1),target_radius,target_loc);
+[~,mask_edge,mask_normal]=lib.target_mask('bg_size',size(stim,1),'target_radius',target_radius,'target_loc',target_loc);
 
 edge_grad=mask_edge.*stim_grad;
 [~,edge_mag]=cart2pol(edge_grad(:,:,1),edge_grad(:,:,2));

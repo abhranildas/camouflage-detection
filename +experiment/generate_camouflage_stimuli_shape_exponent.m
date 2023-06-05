@@ -1,17 +1,17 @@
-function [stimuli, seeds, edgePowers, pClipped]=generate_camouflage_stimuli_shape_exponent(alphas,nTrials,nSessions,bg_size,target_radius,ml,cont,bTargetPresent)
-texture.type='pink_noise';
+function [stimuli, seeds, edgePowers, pClipped]=generate_camouflage_stimuli_shape_exponent(exponents,texture,nTrials,nSessions,bg_size,target_radius,ml,cont,bTargetPresent)
+% texture.type='pink_noise';
 %     n_edge=1e4; kernel_sd=1;
 
 %     [~,~,~,bdry_ribbon]=lib.circular_mask(bg_size,target_radius,'center');
-nLevels=length(alphas);
+nLevels=length(exponents);
 stimuli=zeros(bg_size,bg_size,nTrials,nLevels,nSessions);
-seeds=nan(nTrials,nLevels,nSessions);
+seeds=nan(nTrials,nLevels,nSessions,'single');
 edgePowers=nan(nTrials,nLevels,nSessions);
 pClipped=zeros(nTrials,nLevels,nSessions);
 
 % generate stimuli images
 parfor iLevel=1:nLevels
-    alpha=alphas(iLevel);
+    alpha=exponents(iLevel);
     for iSession=1:nSessions
         for iTrial=1:nTrials
             fprintf('Level %d Session %d Trial %d\n', [iLevel iSession iTrial])

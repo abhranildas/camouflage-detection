@@ -58,7 +58,7 @@ function [edge,edge_field,edge_normal_field,th_grid] = edge_vector_ideal(stim,va
     end
     
     % calculate stimulus gradient using steerable filter:
-    stim_grad=lib.steerable_grad(stim,kernel_size);
+    stim_grad=lib.steerable_grad(stim,'kernel_size',kernel_size);
     
     % edge magnitude
     edge_field=mask_edge.*stim_grad;

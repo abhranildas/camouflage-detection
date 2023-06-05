@@ -29,8 +29,8 @@ function setUpExperiment(exp_type,subjectStr)
         %         seed_energy_file='edge_strengths_bark';
         % for bark texture with portilla simoncelli:
         addpath(genpath('por_sim_tx_synth'))
-        input_img=['global_data/',exp_type,'.jpg'];
-        im0=double(rgb2gray(imread(input_img)));
+        input_img=['global_data/images/',exp_type,'.png'];
+        im0=double(im2gray(imread(input_img)));
         
         Nsc = 4; % Number of scales
         Nor = 4; % Number of orientations
@@ -44,8 +44,7 @@ function setUpExperiment(exp_type,subjectStr)
     end
     
     % load edge power file
-    seed_energy_file=['edge_powers_',exp_type,'.mat'];
-    load(['global_data/',seed_energy_file],'edgePowerBlockEdges');
+    load(['global_data/edge_powers/',exp_type,'.mat'],'edgePowerBlockEdges');
     
     % find the widest span around the mean edge power,
     % such that 10 equal-width bins each have >=80 samples (to be safe; exp. needs
@@ -70,7 +69,7 @@ function setUpExperiment(exp_type,subjectStr)
     
     %% Session files
     %for iCondition = 1:nConditions
-    ExpSettings = experiment.sessionSettings(exp_type, texture_params, seed_energy_file, luminance, contrast, bg_size, target_radius, edgePowerBlockEdges, monitor_distance, transformExpName);
+    ExpSettings = experiment.sessionSettings(exp_type, texture_params, luminance, contrast, bg_size, target_radius, edgePowerBlockEdges, monitor_distance, transformExpName);
 %     if strcmp(exp_type,'pink_noise')
 %         folderOut= ['exp_files/' exp_type '_L' num2str(luminance) '_C' num2str(contrast)];
 %     else

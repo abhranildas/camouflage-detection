@@ -1,4 +1,4 @@
-function [mask,mask_edge,mask_normal,mask_strip]=target_mask(varargin)
+function [mask,mask_edge,target_normal,mask_strip]=target_mask(varargin)
 
 parser=inputParser;
 parser.KeepUnmatched=true;
@@ -66,33 +66,33 @@ mask_edge=bwperim(mask,4)|bwperim(~mask,4);
 mask_edge(:,[1 end])=0; mask_edge([1 end],:)=0;
 
 % compute mask normal vectors
-mask_normal=zeros(bg_size,bg_size,2);
+target_normal=zeros(bg_size,bg_size,2);
 
 if strcmp(target_shape,'circular')
     for i=2:bg_size-1
         for j=2:bg_size-1
-            if mask_edge(i,j)
+%             if mask_edge(i,j)
                 vec=[j-mask_center(2),mask_center(1)-i];
                 vec=vec/norm(vec);
-                mask_normal(i,j,1)=vec(1); mask_normal(i,j,2)=vec(2);
-            end
+                target_normal(i,j,1)=vec(1); target_normal(i,j,2)=vec(2);
+%             end
         end
     end
 else
-    %         [mask_normal(:,:,1),mask_normal(:,:,2)] = imgradientxy(mask);
-    %         mask_normal(:,:,1)=-mask_normal(:,:,1);
+    %         [target_normal(:,:,1),target_normal(:,:,2)] = imgradientxy(mask);
+    %         target_normal(:,:,1)=-target_normal(:,:,1);
     [~,gdir] = imgradient(~mask);
-    mask_normal(:,:,1)=cosd(gdir);
-    mask_normal(:,:,2)=sind(gdir);
+    target_normal(:,:,1)=cosd(gdir);
+    target_normal(:,:,2)=sind(gdir);
     
-    %         mask_normal=lib.steerable_grad(~mask,[1 3]);
+    %         target_normal=lib.steerable_grad(~mask,[1 3]);
     %
-    %         mask_normal=mask_normal./vecnorm(mask_normal,2,3);
-    mask_normal=mask_normal.*mask_edge;
+    %         target_normal=target_normal./vecnorm(target_normal,2,3);
+    target_normal=target_normal.*mask_edge;
     
 end
 
 % make boundary ribbon of steerable kernel width
-mask_grad=lib.steerable_grad(mask,kernel_size);
+mask_grad=lib.steerable_grad(mask,'kernel_size',kernel_size,'normalize',false);
 mask_grad_mag=mask_grad(:,:,1).^2+mask_grad(:,:,2).^2;
-mask_strip=mask_grad_mag>1e-31;
+mask_strip=mask_grad_mag>1e-20;
