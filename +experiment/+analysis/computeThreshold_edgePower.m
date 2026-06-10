@@ -64,9 +64,9 @@ function [threshold, b, c, threshold_sd, b_sd, c_sd, sessions_completed, target_
     %% Figure properties
     if bPlot
         hold on;
-        plot(target_means, p_c, 'ob', 'markerfacecolor','b','MarkerSize',5);
-        fplot(@(x) experiment.analysis.psychometricFun(x,mu,a,b,c),[mu 1],'b');
-        xline(threshold,'color','b','Linewidth',1)
+        plot(target_means, p_c, 'ok', 'markerfacecolor','k','MarkerSize',5);
+        fplot(@(x) experiment.analysis.psychometricFun(x,mu,a,b,c),[mu 1],'k');
+        xline(threshold,'color','k','Linewidth',1)
 %         xlim([0 1])
         ylim([0 1])
         xlabel('edge power'); ylabel('% correct')
@@ -111,9 +111,9 @@ function [threshold, b, c, threshold_sd, b_sd, c_sd, sessions_completed, target_
         if(bPlot)
             for i=1:length(target_means)
                 rectangle('Position',[target_means(i)-target_sds(i), p_c(i)-pcBoot_sds(i), 2*target_sds(i), 2*pcBoot_sds(i)],...
-                    'facecolor',[0 0 1 .1], 'edgecolor','none')
+                    'facecolor',[0 0 0 .5], 'edgecolor','none')
             end
         end
         % mark threshold errorband:
-        rectangle('Position',[threshold-threshold_sd 0 2*threshold_sd 1],'facecolor',[0 0 1 .1], 'edgecolor','none')
+        rectangle('Position',[threshold-threshold_sd 0 2*threshold_sd 1],'facecolor',[0 0 0 .1], 'edgecolor','none')
     end

@@ -18,18 +18,18 @@ else
 end
 
 % pink noise texture
-% texture_params.type='pink_noise';
+% texture.type='pink_noise';
 
 % Portilla-Simoncelli texture
 addpath(genpath('por_sim_tx_synth'))
-input_img='global_data/natural/camo.png';
+input_img='global_data/textures/natural/camo.png';
 im0=double(im2gray(imread(input_img)));
 Nsc = 4; % Number of scales
 Nor = 4; % Number of orientations
 Na = 9;  % Spatial neighborhood is Na x Na coefficients
 Niter = 25;	% Number of iterations of synthesis loop
 texture=struct;
-texture.type='por_sim';
+texture.type='ps';
 texture.stats=textureAnalysis(im0, Nsc, Nor, Na);
 texture.Niter=Niter;
 

@@ -27,7 +27,7 @@ monitorSizePix = ExpSettings.monitorSizePix;
 seeds = ExpSettings.seeds(:,:,currentSession); 
 stimuli = ExpSettings.stimuli(:,:,:,:,currentSession);
 % edgePowerBlockEdges = ExpSettings.edgePowerBlockEdges;
-edgePowers = ExpSettings.edgePowers(:,:,currentSession); 
+% edgePowers = ExpSettings.edgePowers(:,:,currentSession); 
 bTargetPresent = ExpSettings.bTargetPresent(:,:,currentSession);
 bgPixVal = ExpSettings.bgPixVal; 
 bgPixValGamma = ExpSettings.bgPixValGamma; 
@@ -96,5 +96,5 @@ SessionSettings = struct('bTargetPresent', bTargetPresent, 'stimPosPix', stimPos
     'pixelsPerDeg', pixelsPerDeg, 'bFovea', bFovea, ...
     'levelStartIndex', levelStartIndex, 'subjectStr', subjectStr, 'expTypeStr', expTypeStr, ...
     'currentBin', currentBin, 'currentSession', currentSession, ...
-    'seeds', seeds, 'stimuli', stimuli,... %     'edgePowerBlockEdges', edgePowerBlockEdges, ...
-    'edgePowers', edgePowers, 'stimPosDeg', stimPosDeg, 'fixPosDeg', fixPosDeg);
+    'seeds', seeds, 'stimuli', stimuli,... %     'edgePowerBlockEdges', edgePowerBlockEdges, 'edgePowers', edgePowers,...
+    'stimPosDeg', stimPosDeg, 'fixPosDeg', fixPosDeg);

@@ -6,7 +6,7 @@ ylim([60 60000])
 set(gca,'yscale','log')
 
 % find leftmost and rightmost bin locations
-bins=linspace(.759,.839,10);
+bins=linspace(.759,.899,10);
 
 % now use xline to mark bins, and add to:
 edgePowerBlockEdges=[];

@@ -1,278 +1,110 @@
-%% Compute edge contour properties of experimental stimuli
-% filepaths={'pink_noise','texture_exponent/ecc_0','natural/moth','natural/rock','natural/spots','natural/bark_recast','natural/leaf',...
-%     'natural/leather','natural/foliage','natural/soil','natural/paper','natural/grass','natural/camo'};
-filepaths={'pink_noise'};
-ppd=60;
+%% Compute edge contour properties of the stimuli of each experiment
+filepaths={'natural/moth','natural/rock','natural/camo_large','natural/spots','natural/leaf','natural/leather','natural/camo','pink_noise',...
+    'natural/foliage','natural/soil','natural/grass','natural/paper','natural/bark_recast','texture_exponent/ecc_0'}; %
+% filepaths={'all'};
 
-edge_props=struct;
+% load the efficient-coding histogram bins of gradient magnitude, and pca coeffs, computed from natural images
+load('global_data/nat_im_eff_coding.mat') 
+
+% dumb down the efficient bins to only use equispaced bins at the middle scale
+% n_bins=size(grad_m_bins,2)-1;
+% grad_m_bins=repmat([-inf linspace(grad_m_bins(3,2),grad_m_bins(3,end-1),n_bins-1) inf],[5 1]);
+% grad_o_bins=repmat([-inf linspace(grad_o_bins(3,2),grad_o_bins(3,end-1),n_bins-1) inf],[5 1]);
+% grad_p_bins=repmat([-inf linspace(grad_p_bins(3,2),grad_p_bins(3,end-1),n_bins-1) inf],[5 1]);
+
+[Itrial, ILevel, ISession]=ndgrid(1:30,1:10,1:4);
+n_scales=5;
+nLevels=10;
+
 for i = 1:length(filepaths)
+    tic
     filepath=filepaths{i}
     load(['exp_files/' filepath '/exp_settings.mat']);
 
-    edge_props.num=nan(size(ExpSettings.seeds));
-    edge_props.dens=nan(size(ExpSettings.seeds));
-    edge_props.len=cell(size(ExpSettings.seeds));
-    edge_props.or=cell(size(ExpSettings.seeds));
-    edge_props.curv=cell(size(ExpSettings.seeds));
-    edge_props.ep1=cell(size(ExpSettings.seeds));
-    edge_props.ep2=cell(size(ExpSettings.seeds));
-    edge_props.ep4=cell(size(ExpSettings.seeds));
-    edge_props.ep8=cell(size(ExpSettings.seeds));
-    edge_props.ep16=cell(size(ExpSettings.seeds));
-    edge_props.or_al=nan(size(ExpSettings.seeds));
-    %     edge_props.len_mean=nan(size(ExpSettings.seeds));
-    edge_props.or_mean=nan(size(ExpSettings.seeds));
-    edge_props.curv_mean=nan(size(ExpSettings.seeds));
-    %     edge_props.ep1_mean=nan(size(ExpSettings.seeds));
-    %     edge_props.ep2_mean=nan(size(ExpSettings.seeds));
-    %     edge_props.ep4_mean=nan(size(ExpSettings.seeds));
+    edge_props=struct;
 
-    for iSession=1:ExpSettings.nSessions
-        for iLevel=1:ExpSettings.nLevels
-            for iTrial=1:ExpSettings.nTrials
-%                 [iSession iLevel iTrial]
-                stim=ExpSettings.stimuli(:,:,iTrial,iLevel,iSession);
-                stim_otf=lib.otf_filter(stim,ppd);
+    % [grad_m_1,grad_m_2,grad_m_4,grad_m_8,grad_m_16,...
+    %     grad_o_1,grad_o_2,grad_o_4,grad_o_8,grad_o_16,...
+    %     grad_p_1,grad_p_2,grad_p_4,grad_p_8,grad_p_16,...
+    %     edge_props.npix_llr,...
+    %     edge_props.ncon_llr,...
+    %     edge_props.len_llr,...
+    %     edge_props.pos_llr,...
+    %     edge_props.pos_sum,...
+    %     edge_props.or_llr,...
+    %     edge_props.or_sum,...
+    %     edge_props.curv_llr,...
+    %     edge_props.curv_sum,...
+    %     ep_1,ep_2,ep_4,ep_8,ep_16]=...
 
-                % detect edge pixels over entire image:
-                edge_pixels=lib.detect_edge_pixels(stim_otf);
+        [grad_m_1,grad_m_2,grad_m_4,grad_m_8,grad_m_16,...
+        grad_o_1,grad_o_2,grad_o_4,grad_o_8,grad_o_16,...
+        grad_p_1,grad_p_2,grad_p_4,grad_p_8,grad_p_16,...
+        ]=...
+        arrayfun(@(iTrial,iLevel,iSession) lib.edge_props_stim(ExpSettings.stimuli(:,:,iTrial,iLevel,iSession),'pca_coeffs',pca_coeffs,...
+        'grad_mag_bins',grad_pca_m_bins,'grad_or_bins',grad_pca_o_bins,'grad_prod_bins',grad_pca_p_bins),Itrial, ILevel, ISession);
 
-                % separate into boundary and texture edge pixels
-                [~,~,~,bd_strip]=lib.target_mask('kernel_size',[1 2]);
-                bd_pixels=single(edge_pixels&bd_strip)';
-                bd_pixels(~bd_strip)=nan; % nan the non-boundary region to compute densities correctly
-                %                 tx_pixels=single(edge_pixels&(~bd_strip))';
-                %                 tx_pixels(bd_strip)=nan;
+    % store edge power and gradient histograms across scales into single arrays
+    grad_m=nan([30 10 4 n_scales]);
+    grad_o=nan([30 10 4 n_scales]);
+    grad_p=nan([30 10 4 n_scales]);
+    % ep=nan([30 10 4 n_scales]);
+    for i_scale=1:n_scales
+        grad_m(:,:,:,i_scale)=eval(['grad_m_' num2str(2^(i_scale-1))]);
+        grad_o(:,:,:,i_scale)=eval(['grad_o_' num2str(2^(i_scale-1))]);
+        grad_p(:,:,:,i_scale)=eval(['grad_p_' num2str(2^(i_scale-1))]);
+        % ep(:,:,:,i_scale)=eval(['ep_' num2str(2^(i_scale-1))]);
+    end
 
-                [edge_props_this,mean_edge_props_this]=lib.edge_props_stim(stim_otf,'edge_pixels',bd_pixels);
-                %                 [~,mean_tx_contour_props]=lib.edge_contour_props(stim_otf,'edge_pixels',tx_pixels);
+    % edge_props.ep=ep;
+    edge_props.grad_m=grad_m;
+    edge_props.grad_o=grad_o;
+    edge_props.grad_p=grad_p;
 
-                edge_props.num(iTrial,iLevel,iSession)=mean_edge_props_this.num;
-                edge_props.dens(iTrial,iLevel,iSession)=mean_edge_props_this.dens;
-                edge_props.len{iTrial,iLevel,iSession}=[edge_props_this.len];
-                edge_props.len_mean(iTrial,iLevel,iSession)=mean_edge_props_this.length;
-                edge_props.or{iTrial,iLevel,iSession}=[edge_props_this.or];
-                edge_props.or_mean(iTrial,iLevel,iSession)=mean_edge_props_this.or;
-                edge_props.curv{iTrial,iLevel,iSession}=[edge_props_this.curv];
-                edge_props.curv_mean(iTrial,iLevel,iSession)=mean_edge_props_this.curv;
-                edge_props.ep1{iTrial,iLevel,iSession}=[edge_props_this.ep1];
-                %                 edge_props.ep1_mean(iTrial,iLevel,iSession)=mean_edge_props_this.ep1;
-                edge_props.ep2{iTrial,iLevel,iSession}=[edge_props_this.ep2];
-                %                 edge_props.ep2_mean(iTrial,iLevel,iSession)=mean_edge_props_this.ep2;
-                edge_props.ep4{iTrial,iLevel,iSession}=[edge_props_this.ep4];
-                %                 edge_props.ep4_mean(iTrial,iLevel,iSession)=mean_edge_props_this.ep4;
-                edge_props.ep8{iTrial,iLevel,iSession}=[edge_props_this.ep8];
-                edge_props.ep16{iTrial,iLevel,iSession}=[edge_props_this.ep16];
-                edge_props.or_al(iTrial,iLevel,iSession)=mean_edge_props_this.or_al;
+    % merge gradient histograms and edge powers across scales into combined decision variables
+    % input_array_names={'grad_m','grad_o','grad_p','ep'};
+    input_array_names={'grad_m','grad_o','grad_p'};
+
+    comb_dv=nan([30 10 4]);
+    comb_dv_thislevel=nan([30 1 4]);
+    for i_input=1:numel(input_array_names)
+        this_input_array=eval(input_array_names{i_input});
+        for iLevel=1:nLevels
+            targets_thislevel=ExpSettings.bTargetPresent(:,iLevel,:);
+            feature_vectors_target=nan(nnz(targets_thislevel),n_scales);
+            feature_vectors_blank=nan(nnz(~targets_thislevel),n_scales);
+            for i_scale=1:n_scales
+                feature_thislevel=this_input_array(:,iLevel,:,i_scale);
+                feature_vectors_target(:,i_scale)=feature_thislevel(targets_thislevel);
+                feature_vectors_blank(:,i_scale)=feature_thislevel(~targets_thislevel);
             end
+
+            results=classify_normals(feature_vectors_target,feature_vectors_blank,'input_type','samp','samp_opt',false,'plotmode',0,'precision','basic');
+            comb_dv_thislevel(targets_thislevel) = results.samp_dv{1};
+            comb_dv_thislevel(~targets_thislevel) = results.samp_dv{2};
+            comb_dv(:,iLevel,:)=comb_dv_thislevel;
         end
+        edge_props.([input_array_names{i_input} '_comb'])=comb_dv;
     end
 
-    %% compute normal contour count stats
-    num=edge_props.num;
-
-    % blank stats
-    num_blanks=num(~ExpSettings.bTargetPresent);
-    [num_blank_sd,num_blank_mean]=std(num_blanks);
-
-    % target stats
-    num_target_means=nan(1,10);
-    num_target_sds=nan(1,10);
-
-%     figure;
-    for iLevel=1:10
-        num_thislevel=num(:,iLevel,:);
-        num_targets=num_thislevel(ExpSettings.bTargetPresent(:,iLevel,:));
-        [num_target_sds(iLevel),num_target_means(iLevel)]=std(num_targets);
-
-%         subplot(10,1,iLevel); hold on
-%         histogram(num_blanks,'normalization','pdf','edgecolor','none')
-%         histogram(num_targets,'normalization','pdf','edgecolor','none')
-        %             xlim([0 22]); set(gca,'ytick',[])
-        %     set(gca,'yscale','log')
-    end
-
-    % compute LLRs
-    num_llr=nan(size(edge_props.num));
-    for iSession=1:ExpSettings.nSessions
-        for iLevel=1:ExpSettings.nLevels
-            for iTrial=1:ExpSettings.nTrials
-                num_llr(iTrial,iLevel,iSession)=((num(iTrial,iLevel,iSession)-num_blank_mean)/num_blank_sd)^2-...
-                    ((num(iTrial,iLevel,iSession)-num_target_means(iLevel))/num_target_sds(iLevel))^2;
-            end
-        end
-    end
-
-    edge_props.num_stats.blank_mean=num_blank_mean;
-    edge_props.num_stats.blank_sd=num_blank_sd;
-    edge_props.num_stats.target_means=num_target_means;
-    edge_props.num_stats.target_sds=num_target_sds;
-    edge_props.num_llr=num_llr;
-    
-    %% compute normal edge density stats
-    dens=edge_props.dens;
-
-    % blank stats
-    dens_blanks=dens(~ExpSettings.bTargetPresent);
-    [dens_blank_sd,dens_blank_mean]=std(dens_blanks);
-
-    % target stats
-    dens_target_means=nan(1,10);
-    dens_target_sds=nan(1,10);
-
-%     figure;
-    for iLevel=1:10
-        dens_thislevel=dens(:,iLevel,:);
-        dens_targets=dens_thislevel(ExpSettings.bTargetPresent(:,iLevel,:));
-        [dens_target_sds(iLevel),dens_target_means(iLevel)]=std(dens_targets);
-
-%         subplot(10,1,iLevel); hold on
-%         histogram(dens_blanks,'normalization','pdf','edgecolor','none')
-%         histogram(dens_targets,'normalization','pdf','edgecolor','none')
-        %             xlim([0 22]); set(gca,'ytick',[])
-        %     set(gca,'yscale','log')
-    end
-
-    % compute LLRs
-    dens_llr=nan(size(edge_props.num));
-    for iSession=1:ExpSettings.nSessions
-        for iLevel=1:ExpSettings.nLevels
-            for iTrial=1:ExpSettings.nTrials
-                dens_llr(iTrial,iLevel,iSession)=((dens(iTrial,iLevel,iSession)-dens_blank_mean)/dens_blank_sd)^2-...
-                    ((dens(iTrial,iLevel,iSession)-dens_target_means(iLevel))/dens_target_sds(iLevel))^2;
-            end
-        end
-    end
-
-    edge_props.dens_stats.blank_mean=dens_blank_mean;
-    edge_props.dens_stats.blank_sd=dens_blank_sd;
-    edge_props.dens_stats.target_means=dens_target_means;
-    edge_props.dens_stats.target_sds=dens_target_sds;
-    edge_props.dens_llr=dens_llr;
-
-    %% compute exponential contour length stats
-
-    len=edge_props.len;
-
-    % blank stats
-    len_blanks=[len{~ExpSettings.bTargetPresent}];
-    len_blank_mean=mean(len_blanks);
-
-    % target stats
-    len_target_means=nan(1,10);
-%     figure;
-    for iLevel=1:10
-        len_thislevel=len(:,iLevel,:);
-        len_targets=[len_thislevel{ExpSettings.bTargetPresent(:,iLevel,:)}];
-        len_target_means(iLevel)=mean(len_targets);
-
-%         subplot(10,1,iLevel); hold on
-%         histogram(len_blanks,'normalization','pdf','edgecolor','none')
-%         histogram(len_targets,'normalization','pdf','edgecolor','none')
-        %             xlim([0 22]); set(gca,'ytick',[])
-%         set(gca,'yscale','log')
-    end
-
-    % compute LLRs
-    len_llr=nan(size(edge_props.num));
-    for iSession=1:ExpSettings.nSessions
-        for iLevel=1:ExpSettings.nLevels
-            for iTrial=1:ExpSettings.nTrials
-                len_llr(iTrial,iLevel,iSession)=...
-                    edge_props.num(iTrial,iLevel,iSession)*log(len_blank_mean/len_target_means(iLevel))+...
-                    (1/len_blank_mean-1/len_target_means(iLevel))*sum(len{iTrial,iLevel,iSession});
-            end
-        end
-    end
-
-    edge_props.len_stats.blank_mean=len_blank_mean;
-    edge_props.len_stats.target_means=len_target_means;
-    edge_props.len_llr=len_llr;
-
-    %% compute exponential edge power stats
-    ep_list={'ep1','ep2','ep4','ep8','ep16'};
-
-    for i_ep=1:numel(ep_list)
-        ep=edge_props.(ep_list{i_ep});
-
-        % blank stats
-        ep_blanks=[ep{~ExpSettings.bTargetPresent}];
-        ep_blank_mean=mean(ep_blanks);
-
-        % target stats
-        ep_target_means=nan(1,10);
-%         figure;
-        for iLevel=1:10
-            ep_thislevel=ep(:,iLevel,:);
-            ep_targets=[ep_thislevel{ExpSettings.bTargetPresent(:,iLevel,:)}];
-            ep_target_means(iLevel)=mean(ep_targets);
-
-%             subplot(10,1,iLevel); hold on
-%             histogram(ep_blanks,'normalization','pdf','edgecolor','none')
-%             histogram(ep_targets,'normalization','pdf','edgecolor','none')
-            %                 xlim([0 22]); set(gca,'ytick',[])
-%             set(gca,'yscale','log')
-        end
-
-        % compute LLRs
-        ep_llr=nan(size(edge_props.num));
-        for iSession=1:ExpSettings.nSessions
-            for iLevel=1:ExpSettings.nLevels
-                for iTrial=1:ExpSettings.nTrials
-                    ep_llr(iTrial,iLevel,iSession)=...
-                        edge_props.num(iTrial,iLevel,iSession)*log(ep_blank_mean/ep_target_means(iLevel))+...
-                        (1/ep_blank_mean-1/ep_target_means(iLevel))*sum(ep{iTrial,iLevel,iSession});
-                end
-            end
-        end
-
-        edge_props.([ep_list{i_ep} '_stats']).blank_mean=ep_blank_mean;
-        edge_props.([ep_list{i_ep} '_stats']).target_means=ep_target_means;
-        edge_props.([ep_list{i_ep} '_llr'])=ep_llr;
-    end
-
+    % save edge properties
     save(['exp_files/' filepath '/edge_props.mat'],'edge_props');
+    toc
 end
 
+%% plot statistics of a feature
+colors=colororder;
+fields=fieldnames(edge_props_all_contours_b);
 
-
-%% compute normal log(length-weighted contour curvature) stats
-% load exp_settings and edge_props_exp
-
-% curv=cellfun(@(x,y) (x.^2).*y, edge_props.curv, edge_props.len,'un',0);
-%
-% % blank stats
-% curv_blanks=[curv{~ExpSettings.bTargetPresent}];
-% [curv_blank_std,curv_blank_mean]=std(curv_blanks);
-%
-% % target stats
-% len_target_means=nan(1,10);
-% figure;
-% for iLevel=1:10
-%     len_thislevel=len(:,iLevel,:);
-%     len_targets=[len_thislevel{ExpSettings.bTargetPresent(:,iLevel,:)}];
-%     len_target_means(iLevel)=mean(len_targets);
-%
-%     subplot(10,1,iLevel); hold on
-%     histogram(len_blanks,'normalization','pdf','edgecolor','none')
-%     histogram(len_targets,'normalization','pdf','edgecolor','none')
-%     %     xlim([0 22]); set(gca,'ytick',[])
-%     set(gca,'yscale','log')
-% end
-%
-% % compute LLRs
-% len_llr=nan(size(edge_props.num));
-% for iSession=1:ExpSettings.nSessions
-%     for iLevel=1:ExpSettings.nLevels
-%         for iTrial=1:ExpSettings.nTrials
-%             len_llr(iTrial,iLevel,iSession)=...
-%                 edge_props.num(iTrial,iLevel,iSession)*log(len_blank_mean/len_target_means(iLevel))+...
-%                 (1/len_blank_mean-1/len_target_means(iLevel))*sum(len{iTrial,iLevel,iSession});
-%         end
-%     end
-% end
-%
-% edge_props.len_stats.blank_mean=len_blank_mean;
-% edge_props.len_stats.target_means=len_target_means;
-% edge_props.len_llr=len_llr;
-
+feature=fields{3}
+figure; hold on
+% xlim([0 4])
+set(gca,'yscale','log')
+histogram([edge_props_all_contours_b.(feature)],'normalization','pdf','edgecolor','none')
+for iLevel=1:10
+    if exist('h','var')
+        delete(h)
+    end
+    h=histogram([edge_props_all_contours_t{iLevel}.(feature)],'normalization','pdf','facecolor',colors(2,:),'edgecolor','none');
+    pause
+end

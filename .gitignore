@@ -4,3 +4,13 @@ exp_files/
 Presentations, reports, abstracts/
 experiment_tracker.xlsx
 experiment_tracker.xlsx
+data/edge_measures_multiscale.mat
+data/edge_measures_pink_noise.mat
+data/edge_powers/pink_noise.mat
+data/old/edge_autocorrelations.mat
+data/old/edge_spectra_LLR.mat
+data/old/edge_strengths_pn_newer.mat
+data/old/edge_strengths_pn_perpratio_asymmetric.mat
+data/old/edges_bark.mat
+data/old/edge_strengths_whitened.mat
+data/old/pink_noise_stim_corrs.mat
