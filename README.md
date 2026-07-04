@@ -92,3 +92,7 @@ texture-learning / texture-segmentation repos; see `../REORGANIZATION_PLAN.md`).
 - `CLEANUP.md` — the full migration/cleanup checklist and old→new mapping.
 - `../vision-commons/ARCHITECTURE.md` — how the repos, the shared library, the
   toolboxes, and `global_data` fit together.
+
+## License
+
+MIT License (see `LICENSE`).
