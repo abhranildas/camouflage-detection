@@ -70,4 +70,11 @@ then fix or delete.
   is the **better template** for the shared harness than texseg's duplicated one. Unify the loop
   skeleton + intervals + session resume/save + **optional EyeLink** plug-in into `+psychexp`; keep
   camo's dependency-injected `loadSessionStimuli` pattern; leave `runCamouflageExperiment_search.m`
-  as a standalone escape hatch. Deferred (can't verify headlessly); ships with a manual test checklist.
+  as a standalone escape hatch.
+- **DONE (additive):** `vision-commons/+psychexp` (shared session→level→trial loop) added, and
+  `+experiment/+main/run_shared.m` wires camo's existing interval functions + its EyeLink lifecycle
+  (session/level/trial pre/post hooks, gated by `S.bFovea`) as hooks and delegates the loop/screen
+  setup/teardown to it. Parse-verified only — **needs validation on a Psychtoolbox machine** (incl. a
+  peripheral EyeLink run) before retiring the originals.
+- **Pending:** once validated, retire `runCamouflageExperiment.m`/`runSession.m`/`runTrial.m`
+  (superseded by `run_shared` + `psychexp`).
