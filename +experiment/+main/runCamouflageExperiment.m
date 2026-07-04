@@ -3,7 +3,7 @@ function SessionData = runCamouflageExperiment(subjectStr, expTypeStr, condition
 %   runCamouflageExperiment(subjectStr, expTypeStr [, condition, sessionNumber, levelNumber])
 %
 %   Delegates the session->level->trial loop, screen setup, and teardown to the
-%   shared vision-commons harness (psychexp.run_experiment), wiring this repo's
+%   shared vision-commons harness (psychframework.run_experiment), wiring this repo's
 %   interval functions (fixationInterval / stimulusInterval / responseInterval /
 %   giveFeedback / displayLevelStart) and its EyeLink layer as hooks. The old
 %   monolithic runCamouflageExperiment + runSession + runTrial were retired in
@@ -33,7 +33,7 @@ function SessionData = runCamouflageExperiment(subjectStr, expTypeStr, condition
     hooks.trial_pre    = @trial_pre;
     hooks.trial_post   = @trial_post;
 
-    SessionData = psychexp.run_experiment(ExpSettings, hooks);
+    SessionData = psychframework.run_experiment(ExpSettings, hooks);
 end
 
 % ------------------------------------------------------------------------------

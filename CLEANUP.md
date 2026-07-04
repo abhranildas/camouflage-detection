@@ -65,13 +65,13 @@ then fix or delete.
 - Some legacy scripts pass wavelength **555 nm** (`test.m`: `lib.otf_filter(stim,ppd,4,555)`); the
   other repos and `config.m` use 550. Confirm the canonical value with Geisler.
 
-## 9. Experiment harness → `vision-commons/+psychexp` (separate pass, needs PTB testing)
+## 9. Experiment harness → `vision-commons/+psychframework` (separate pass, needs PTB testing)
 - camo's single-copy `+experiment` (`+main` runtime, `+analysis` offline, root stimulus/session code)
   is the **better template** for the shared harness than texseg's duplicated one. Unify the loop
-  skeleton + intervals + session resume/save + **optional EyeLink** plug-in into `+psychexp`; keep
+  skeleton + intervals + session resume/save + **optional EyeLink** plug-in into `+psychframework`; keep
   camo's dependency-injected `loadSessionStimuli` pattern; leave `runCamouflageExperiment_search.m`
   as a standalone escape hatch.
-- **DONE:** `vision-commons/+psychexp` (shared session→level→trial loop) added; `runCamouflageExperiment.m`
+- **DONE:** `vision-commons/+psychframework` (shared session→level→trial loop) added; `runCamouflageExperiment.m`
   now delegates the loop/screen/teardown to it, wiring camo's interval functions + EyeLink lifecycle
   (session/level/trial pre/post hooks, gated by `S.bFovea`) as hooks. The superseded `runSession.m` and
   `runTrial.m` were **deleted** (commit `5301e73`). Parse-verified; not headless-testable (Psychtoolbox) —
