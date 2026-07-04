@@ -21,7 +21,7 @@ texture.exponent=2;
 stim=lib.stimulus('seed',35096,'texture',texture,'target_radius',64,'ml_b',0.5,'cont_b',0.15);
 
 ppd=60;
-stim_otf=lib.otf_filter(stim,ppd);
+stim_otf=lib.otf_filter(stim,ppd,4,555);
 
 % Then find edges using zero-crossings of a DoG or LoG filter
 

@@ -59,7 +59,7 @@ for i_file=1:n_files
     % make greyscale
     img_grey = mean(img_rgb,3);
     % apply OTF
-    img_otf=lib.otf_filter(img_grey,ppd);
+    img_otf=lib.otf_filter(img_grey,ppd,4,555);
 
 
     % now sample patches

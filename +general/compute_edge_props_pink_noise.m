@@ -15,7 +15,7 @@ for seed=1:n_samples
     [stim_t,stim_b]=lib.stimulus('seed',seed,'texture',texture,'ml_b',lum,'cont_b',cont,'target_radius',target_radius);
 
     % target edge properties
-    stim_otf=lib.otf_filter(stim_t,ppd);
+    stim_otf=lib.otf_filter(stim_t,ppd,4,555);
     edge_pixels=lib.detect_edge_pixels(stim_otf);
     bd_pixels=single(edge_pixels&bd_strip)';
     bd_pixels(~bd_strip)=nan; % nan the non-boundary region to compute densities correctly
@@ -28,7 +28,7 @@ for seed=1:n_samples
     end
 
     % blank edge properties
-    stim_otf=lib.otf_filter(stim_b,ppd);
+    stim_otf=lib.otf_filter(stim_b,ppd,4,555);
     edge_pixels=lib.detect_edge_pixels(stim_otf);
     bd_pixels=single(edge_pixels&bd_strip)';
     bd_pixels(~bd_strip)=nan; % nan the non-boundary region to compute densities correctly
