@@ -71,10 +71,8 @@ then fix or delete.
   skeleton + intervals + session resume/save + **optional EyeLink** plug-in into `+psychexp`; keep
   camo's dependency-injected `loadSessionStimuli` pattern; leave `runCamouflageExperiment_search.m`
   as a standalone escape hatch.
-- **DONE (additive):** `vision-commons/+psychexp` (shared session→level→trial loop) added, and
-  `+experiment/+main/run_shared.m` wires camo's existing interval functions + its EyeLink lifecycle
-  (session/level/trial pre/post hooks, gated by `S.bFovea`) as hooks and delegates the loop/screen
-  setup/teardown to it. Parse-verified only — **needs validation on a Psychtoolbox machine** (incl. a
-  peripheral EyeLink run) before retiring the originals.
-- **Pending:** once validated, retire `runCamouflageExperiment.m`/`runSession.m`/`runTrial.m`
-  (superseded by `run_shared` + `psychexp`).
+- **DONE:** `vision-commons/+psychexp` (shared session→level→trial loop) added; `runCamouflageExperiment.m`
+  now delegates the loop/screen/teardown to it, wiring camo's interval functions + EyeLink lifecycle
+  (session/level/trial pre/post hooks, gated by `S.bFovea`) as hooks. The superseded `runSession.m` and
+  `runTrial.m` were **deleted** (commit `5301e73`). Parse-verified; not headless-testable (Psychtoolbox) —
+  PTB validation waived by the user. `runCamouflageExperiment_search.m` remains as a standalone escape hatch.
