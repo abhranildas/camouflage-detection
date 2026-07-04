@@ -85,7 +85,7 @@ texture-learning / texture-segmentation repos; see `../REORGANIZATION_PLAN.md`).
   duplicate/orphan functions, and dead `+tinker` prototypes with dangling references;
   canonicalizing the `generate_camouflage_stimuli_*`/`sessionSettings_*`/`setUpExperiment_*`
   variant families; and unifying the Psychtoolbox harness onto a shared
-  `vision-commons/+psychexp` framework. Per request, none of that has been deleted yet.
+  `vision-commons/+psychframework` framework. Per request, none of that has been deleted yet.
 
 ## Documentation
 
