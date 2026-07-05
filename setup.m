@@ -27,12 +27,16 @@ function setup()
 
     repo_root = fileparts(mfilename('fullpath'));
 
-    % --- shared lab library (our own): submodule inside the repo, else sibling ---
+    % --- shared lab library (vision-commons): a sibling folder next to this repo.
+    %     If not found, try to clone it automatically (needs git + network). ---
     commons = locate_folder(repo_root, 'vision-commons');
     if isempty(commons)
+        commons = fetch_commons(repo_root);
+    end
+    if isempty(commons)
         warning('camouflage_detection:setup:noCommons', ...
-            ['vision-commons not found (looked for a submodule in this repo and a sibling ', ...
-             'folder). Clone with --recurse-submodules, or place vision-commons next to this repo.']);
+            ['vision-commons not found and could not be fetched automatically. ', ...
+             'Clone it next to this repo:  git clone https://github.com/abhranildas/vision-commons']);
     else
         addpath(commons);                                    % exposes vislib.*, nat_stat_bayes.*
     end
@@ -59,8 +63,25 @@ function setup()
         'Integrate and Classify Normal Distributions', 'https://github.com/abhranildas/IntClassNorm');
 end
 
+function folder = fetch_commons(repo_root)
+% Auto-fetch vision-commons as a sibling folder (../vision-commons) by cloning it
+% with git. Needs git on the PATH and network access; returns '' if the clone fails
+% (the caller then warns with manual instructions).
+    folder = '';
+    target = fullfile(repo_root, '..', 'vision-commons');
+    url = 'https://github.com/abhranildas/vision-commons.git';
+    fprintf('vision-commons not found; trying to clone it to %s ...\n', target);
+    [status, out] = system(sprintf('git clone "%s" "%s"', url, target));
+    if status == 0 && isfolder(fullfile(target, '+vislib'))
+        folder = target;
+        fprintf('Cloned vision-commons.\n');
+    else
+        fprintf(2, 'Could not auto-fetch vision-commons (git missing or offline?).\n%s\n', out);
+    end
+end
+
 function folder = locate_folder(repo_root, name)
-% Prefer a submodule inside the repo; fall back to a sibling folder.
+% Find vision-commons as a sibling folder next to the repo (or inside it, if present).
     candidates = {fullfile(repo_root, name), fullfile(repo_root, '..', name)};
     folder = '';
     for i = 1:numel(candidates)

@@ -22,8 +22,8 @@ synthesized stimuli, and psychometric-threshold analysis. See `paper/` and
 
 ## Dependencies
 
-- **[vision-commons](../vision-commons)** — the lab's shared MATLAB library (git
-  submodule, or a sibling folder during local dev). Provides `vislib.*` (optics,
+- **[vision-commons](https://github.com/abhranildas/vision-commons)** — the lab's shared MATLAB library (a
+  sibling folder next to this repo; `setup.m` clones it automatically if it's missing). Provides `vislib.*` (optics,
   filters, normalization) and `nat_stat_bayes.*` (decision-variable toolkit).
 - **lab-root `+lib`** — *temporary*: camouflage-domain code (`lib.stimulus`,
   `lib.target_mask`, `lib.edge_measures*`, filter-bank builders) still lives there.
