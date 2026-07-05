@@ -43,13 +43,13 @@ then fix or delete.
   already loads from relative `exp_files/...`).
 
 ## 5. Duplicates / orphans / bugs
-- `gammaCorrect` exists **three** ways: `+experiment/gammaCorrect.m`, `lib.gammaCorrect`, and
-  `vislib.gamma_compress`/`gamma_expand`. Consolidate.
-- `+experiment/occludingTarget.m` — references undefined `background` (should be `backgroundImg`); dead.
-- `+experiment/saveCurrentSession.m` — buggy `save(...)` (passes a value, not a name) + an
-  inconsistent path scheme; orphaned relative to the live `saveCurrentLevel`.
-- `+experiment/subjectExperimentFile_alpha.m` — byte-identical duplicate of `subjectExperimentFile.m`.
-- `.asv` autosaves (e.g. `+general/compute_edge_props_exp_eq.asv`, `..._full.asv`).
+- **DONE:** removed `+experiment/occludingTarget.m` (dead, undefined `background`, unreferenced) and
+  `+experiment/saveCurrentSession.m` (buggy + orphaned, superseded by `saveCurrentLevel`). Removed the
+  byte-identical duplicate `+experiment/subjectExperimentFile_alpha.m` and repointed its two callers
+  (`setUpExperiment_shape_exponent`, `setUpExperiment_texture_exponent`) to `experiment.subjectExperimentFile`.
+- `.asv` autosaves — already git-ignored (`*.asv` in `.gitignore`); not in the repo, nothing to do.
+- **Pending:** `gammaCorrect` exists **three** ways — `+experiment/gammaCorrect.m`, `lib.gammaCorrect`,
+  and `vislib.gamma_compress`/`gamma_expand`. Consolidate (touches experiment code; do with the +lib pass).
 
 ## 6. Copy-paste experiment-variant families (canonicalize with a parameter)
 - `generate_camouflage_stimuli{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m`,

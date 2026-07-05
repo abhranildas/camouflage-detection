@@ -42,7 +42,7 @@ function setUpExperiment_texture_exponent(exp_type,subjectStr)
     nSubjects = size(subjectStr, 1);
     
     for iSubject = 1:nSubjects
-        SubjectExpFile = experiment.subjectExperimentFile_alpha(ExpSettings);
+        SubjectExpFile = experiment.subjectExperimentFile(ExpSettings);
         folderOut= ['exp_files/' exp_type '/subject_out'];
         mkdir(folderOut);
         fpOut = [folderOut '/' subjectStr(iSubject,:) '.mat'];
