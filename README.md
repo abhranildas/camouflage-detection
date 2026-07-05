@@ -78,14 +78,15 @@ across the lab's repos.
 This repo is mid-migration onto `vision-commons` (aligning it with the
 texture-learning / texture-segmentation repos; see `../REORGANIZATION_PLAN.md`).
 
-- **Done:** `setup.m` + `config.m` added (previously the repo relied on the ambient
-  MATLAB path and had stale hardcoded paths); `nat_stat_bayes.dv_spatial` promoted to commons.
-- **Pending (see `CLEANUP.md`):** extracting the camouflage-domain code out of the
-  lab-root `+lib` and adopting generic DV/optics from commons; removing `edgecode/`,
-  duplicate/orphan functions, and dead `+tinker` prototypes with dangling references;
-  canonicalizing the `generate_camouflage_stimuli_*`/`sessionSettings_*`/`setUpExperiment_*`
-  variant families; and unifying the Psychtoolbox harness onto a shared
-  `vision-commons/+psychframework` framework. Per request, none of that has been deleted yet.
+- **Done:** `setup.m` + `config.m` added (was ambient path + stale hardcoded paths);
+  `nat_stat_bayes.dv_spatial` promoted to commons; the Psychtoolbox harness unified onto the shared
+  `vision-commons/+psychframework`; removed the redundant `edgecode/` and dead/duplicate `+experiment`
+  functions (`occludingTarget`, `saveCurrentSession`, `subjectExperimentFile_alpha`).
+- **Intentionally left as-is** (owner's decision — see `CLEANUP.md` for details): the camouflage-domain
+  code still lives in the lab-root `+lib` (not extracted into this repo); the
+  `generate_camouflage_stimuli_*`/`sessionSettings_*`/`setUpExperiment_*` variant families are not merged;
+  the exploratory `+tinker` prototypes (with some dead `lib.*` references) are kept; and
+  `computeBootstrappedThreshold` is left as stale.
 
 ## Documentation
 
