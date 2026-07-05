@@ -10,12 +10,12 @@ synthesized stimuli, and psychometric-threshold analysis. See `paper/` and
 ## What's here
 
 - **Stimulus generation** — camouflaged-target stimuli over binned edge power, with
-  Portilla-Simoncelli texture synthesis (`+experiment`, `por_sim_tx_synth/`, root `+lib`).
+  Portilla-Simoncelli texture synthesis (`+experiment`, `por_sim_tx_synth/`, `+lib`).
 - **Human experiments (Psychtoolbox)** — a detection task with session/level/trial
   structure, optional EyeLink eye tracking, and per-subject output
   (`+experiment/+main`, `exp_files/`).
 - **Ideal-observer / edge model** — edge-power and spectral decision variables and model
-  fits (`+general`, root `+lib`).
+  fits (`+general`, `+lib`).
 - **Scene statistics** — filter-bank scene statistics infrastructure (`+stats`).
 - **Analysis & visualization** — psychometric fitting, thresholds vs edge power,
   plotting (`+experiment/+analysis`, `+vis`).
@@ -25,9 +25,9 @@ synthesized stimuli, and psychometric-threshold analysis. See `paper/` and
 - **[vision-commons](https://github.com/abhranildas/vision-commons)** — the lab's shared MATLAB library (a
   sibling folder next to this repo; `setup.m` clones it automatically if it's missing). Provides `vislib.*` (optics,
   filters, normalization) and `nat_stat_bayes.*` (decision-variable toolkit).
-- **lab-root `+lib`** — *temporary*: camouflage-domain code (`lib.stimulus`,
-  `lib.target_mask`, `lib.edge_measures*`, filter-bank builders) still lives there.
-  Extracting it into this repo and dropping this dependency is tracked in `CLEANUP.md`.
+- **`+lib`** — this repo's own package of camouflage-domain helpers (`lib.stimulus`,
+  `lib.target_mask`, `lib.edge_measures*`, filter-bank builders), extracted from the old
+  shared lab-root `+lib` so the repo is self-contained (like texture-segmentation's `+lib`).
 - **[IntClassNorm](https://github.com/abhranildas/IntClassNorm)** and
   **[gx2](https://github.com/abhranildas/gx2)** — installed MATLAB **add-on toolboxes**
   (`classify_normals`, `quad2fun`); `setup.m` verifies/self-heals them.
@@ -37,7 +37,8 @@ synthesized stimuli, and psychometric-threshold analysis. See `paper/` and
   bins), a sibling folder like vision-commons but **too large to auto-download** — obtain it separately and
   place it next to this repo (`setup.m` warns if it's missing; edit `cfg.paths.data_root` if elsewhere).
 - **Psychtoolbox-3** (+ EyeLink toolbox for peripheral runs) — required only to *run*
-  the experiments. MATLAB with Image Processing / Statistics toolboxes.
+  the experiments.
+- **MATLAB** with the Image Processing and Statistics & Machine Learning toolboxes.
 
 ## Setup
 
@@ -60,6 +61,7 @@ Subject data is written to `exp_files/<exp_type>/subject_out/<subject>.mat`; ana
 ```
 camouflage_detection/
 ├── setup.m, config.m     path bootstrap + central configuration
+├── +lib/                 camouflage-domain helpers (stimulus, target_mask, edge measures, filters)
 ├── +experiment/          PTB detection experiment (+main runtime, +analysis fitting) + stimulus gen
 ├── +general/             edge/spectral model fits, edge-power computation, analysis scripts
 ├── +stats/               scene-statistics infrastructure (filter banks)
@@ -82,9 +84,10 @@ texture-learning / texture-segmentation repos; see `../REORGANIZATION_PLAN.md`).
 - **Done:** `setup.m` + `config.m` added (was ambient path + stale hardcoded paths);
   `nat_stat_bayes.dv_spatial` promoted to commons; the Psychtoolbox harness unified onto the shared
   `vision-commons/+psychframework`; removed the redundant `edgecode/` and dead/duplicate `+experiment`
-  functions (`occludingTarget`, `saveCurrentSession`, `subjectExperimentFile_alpha`).
-- **Intentionally left as-is** (owner's decision — see `CLEANUP.md` for details): the camouflage-domain
-  code still lives in the lab-root `+lib` (not extracted into this repo); the
+  functions (`occludingTarget`, `saveCurrentSession`, `subjectExperimentFile_alpha`); extracted the
+  camouflage-domain code into this repo's own `+lib` (56 functions, the reachable set) and dropped the
+  shared lab-root `+lib` dependency — `otf_filter` now repoints to `vislib.otf_filter`.
+- **Intentionally left as-is** (owner's decision — see `CLEANUP.md` for details): the
   `generate_camouflage_stimuli_*`/`sessionSettings_*`/`setUpExperiment_*` variant families are not merged;
   the exploratory `+tinker` prototypes (with some dead `lib.*` references) are kept; and
   `computeBootstrappedThreshold` is left as stale.

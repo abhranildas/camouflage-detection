@@ -4,17 +4,15 @@ function setup()
 %       >> setup
 %
 %   Adds to the path:
-%     * this repo (its +experiment, +general, +stats, +tests, +tinker, +vis
-%       packages and root helper scripts)
+%     * this repo (its +lib, +experiment, +general, +stats, +tests, +tinker, +vis
+%       packages and root helper scripts). +lib holds the camouflage-domain helpers
+%       (lib.stimulus, lib.target_mask, lib.edge_measures*, lib.gabor2D, ...),
+%       extracted from the old shared lab-root +lib so this repo is self-contained
+%       (mirrors texture-segmentation's own +lib).
 %     * vision-commons (the shared lab library) -- a git submodule inside this
-%       repo, or a sibling folder next to it (the lab's local dev layout)
+%       repo, or a sibling folder next to it (the lab's local dev layout). Generic
+%       optics live there now: lib.otf_filter was repointed to vislib.otf_filter.
 %     * the vendored Portilla-Simoncelli texture-synthesis toolbox (por_sim_tx_synth)
-%     * the lab-root +lib, which camouflage-detection still depends on heavily
-%       (lib.stimulus, lib.target_mask, lib.edge_measures*, lib.gabor2D, ...). This
-%       is a TEMPORARY dependency: the camouflage-domain code in root +lib should be
-%       moved into this repo and the generic DV/optics code adopted from
-%       vision-commons (see CLEANUP.md); root +lib is retired once all consumers
-%       migrate. This repo is added AFTER root +lib so it shadows it on any collision.
 %
 %   Also VERIFIES/self-heals the required MATLAB add-on toolboxes (installed via
 %   the Add-On Explorer / File Exchange -- NOT bundled or fetched as source):
@@ -39,12 +37,6 @@ function setup()
              'Clone it next to this repo:  git clone https://github.com/abhranildas/vision-commons']);
     else
         addpath(commons);                                    % exposes vislib.*, nat_stat_bayes.*
-    end
-
-    % --- lab-root +lib (TEMPORARY legacy dependency; see header + CLEANUP.md) ---
-    root_parent = fullfile(repo_root, '..');
-    if isfolder(fullfile(root_parent, '+lib'))
-        addpath(root_parent);                                % exposes root lib.*
     end
 
     % --- vendored Portilla-Simoncelli texture synthesis ---
