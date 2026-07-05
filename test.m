@@ -2,7 +2,7 @@
 
 % generate stimulus
 % addpath(genpath('por_sim_tx_synth'))
-% input_img='vislab_data/natural/foliage.jpg';
+% input_img='vislab-common/data/natural/foliage.jpg';
 % im0=double(im2gray(imread((input_img))));
 % Nsc = 4; % Number of scales
 % Nor = 4; % Number of orientations

@@ -11,8 +11,8 @@ kernel_sd=1;
 n_edge=1e3; % # of elements in edge vector
 n_spec=floor(n_edge/2)+1; % # of items in edge spectrum
 
-if exist('vislab_data/edges_bark.mat','file')==2
-    load('vislab_data/edges_bark.mat')
+if exist('vislab-common/data/edges_bark.mat','file')==2
+    load('vislab-common/data/edges_bark.mat')
     sample_start=size(edges,1)+1;
     edge_powers=[edge_powers;nan(n_samples,2)];
     
@@ -37,7 +37,7 @@ end
 
 % bark texture with Portilla-Simoncelli
 addpath(genpath('por_sim_tx_synth'))
-input_img='vislab_data/bark.png';
+input_img='vislab-common/data/bark.png';
 im0=double(im2gray(imread(input_img)));
 Nsc = 4; % Number of scales
 Nor = 4; % Number of orientations
@@ -76,7 +76,7 @@ edges=cat(3,edges_b,edges_t);
 edge_ps=cat(3,edge_ps_b,edge_ps_t);
 clear edges_b edges_t edge_ps_b edge_ps_t
 
-%save('vislab_data/edges_bark.mat','edges','edge_powers','edge_ps','-v7.3')
+%save('vislab-common/data/edges_bark.mat','edges','edge_powers','edge_ps','-v7.3')
 %% Verify that phases have no structure
 
 n_samples=1e3;
@@ -207,8 +207,8 @@ n_samples=8e5;
 n_edge=bg_size;
 n_spec=floor(n_edge/2)+1; % # of items in spectrum
 
-% if exist('vislab_data/edge_measures.mat','file')==2
-%     load('vislab_data/edge_measures.mat')
+% if exist('vislab-common/data/edge_measures.mat','file')==2
+%     load('vislab-common/data/edge_measures.mat')
     sample_start=size(edge_powers,1)+1;
     edge_powers=[edge_powers; nan(n_samples,2)];
     edge_ps_b=[edge_ps(:,:,1); nan(n_samples,n_spec)];    

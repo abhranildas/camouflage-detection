@@ -29,7 +29,7 @@ function setUpExperiment(exp_type,subjectStr)
         %         seed_energy_file='edge_strengths_bark';
         % for bark texture with portilla simoncelli:
         addpath(genpath('por_sim_tx_synth'))
-        input_img=['vislab_data/images/',exp_type,'.png'];
+        input_img=['vislab-common/data/images/',exp_type,'.png'];
         im0=double(im2gray(imread(input_img)));
         
         Nsc = 4; % Number of scales
@@ -44,7 +44,7 @@ function setUpExperiment(exp_type,subjectStr)
     end
     
     % load edge power file
-    load(['vislab_data/edge_powers/',exp_type,'.mat'],'edgePowerBlockEdges');
+    load(['vislab-common/data/edge_powers/',exp_type,'.mat'],'edgePowerBlockEdges');
     
     % find the widest span around the mean edge power,
     % such that 10 equal-width bins each have >=80 samples (to be safe; exp. needs

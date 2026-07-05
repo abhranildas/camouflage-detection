@@ -9,8 +9,8 @@ kernel_sd=1;
 n_edge=1e4; % # of elements in edge vector
 n_spec=floor(n_edge/2)+1; % # of items in edge spectrum
 
-if exist('vislab_data/edge_powers_bark.mat','file')==2
-    load('vislab_data/edge_powers_bark.mat')
+if exist('vislab-common/data/edge_powers_bark.mat','file')==2
+    load('vislab-common/data/edge_powers_bark.mat')
     sample_start=size(edge_powers,1)+1;
     edge_powers=[edge_powers;nan(n_samples,2)];
     
@@ -35,7 +35,7 @@ end
 
 % Portilla-Simoncelli texture
 addpath(genpath('por_sim_tx_synth'))
-input_img='vislab_data/bark.png';
+input_img='vislab-common/data/bark.png';
 im0=double(imread(input_img));
 Nsc = 4; % Number of scales
 Nor = 4; % Number of orientations
@@ -81,4 +81,4 @@ toc
 % 
 % edge_lpr=[edge_ps(:,:,1)*template',edge_ps(:,:,2)*template']+sum(const);
 
-save('vislab_data/edge_powers_bark.mat','edge_powers')
+save('vislab-common/data/edge_powers_bark.mat','edge_powers')

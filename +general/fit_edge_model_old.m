@@ -1,7 +1,7 @@
 subj_id=3; % 0 for optimal
 
 % Load edge model data
-load('vislab_data/edge_model.mat','edge_model');
+load('vislab-common/data/edge_model.mat','edge_model');
 
 [~,~,~,bdry_strip]=lib.target_mask();
 n_bdry_pixels=nnz(bdry_strip); % number of boundary pixels

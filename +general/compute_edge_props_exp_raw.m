@@ -5,7 +5,7 @@ exp_paths={'pink_noise'};
 % filepaths={'all'};
 
 % load the efficient-coding histogram bins of gradient magnitude computed from natural images
-load('vislab_data/nat_im_eff_coding.mat') 
+load('vislab-common/data/nat_im_eff_coding.mat') 
 
 % dumb down the efficient bins to only use equispaced bins at the middle scale
 n_bins=size(grad_m_bins,2)-1;

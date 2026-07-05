@@ -22,9 +22,9 @@ synthesized stimuli, and psychometric-threshold analysis. See `paper/` and
 
 ## Dependencies
 
-- **[vislab](https://github.com/abhranildas/vislab)** — the lab's shared MATLAB library (a
-  sibling folder next to this repo; `setup.m` clones it automatically if it's missing). Provides `vislab.lib.*` (optics,
-  filters, normalization) and `vislab.nat_stat_bayes.*` (decision-variable toolkit).
+- **[vislab-common](https://github.com/abhranildas/vislab-common)** — the lab's shared MATLAB library
+  (the `+vislab` package inside the sibling `vislab-common` folder; `setup.m` clones it automatically if
+  it's missing). Provides `vislab.lib.*` (optics, filters, normalization) and `vislab.nat_stat_bayes.*` (decision-variable toolkit).
 - **`+lib`** — this repo's own package of camouflage-domain helpers (`lib.stimulus`,
   `lib.target_mask`, `lib.edge_measures*`, filter-bank builders), extracted from the old
   shared lab-root `+lib` so the repo is self-contained (like texture-segmentation's `+lib`).
@@ -33,7 +33,7 @@ synthesized stimuli, and psychometric-threshold analysis. See `paper/` and
   (`classify_normals`, `quad2fun`); `setup.m` verifies/self-heals them.
 - **por_sim_tx_synth** — vendored Portilla-Simoncelli texture-synthesis toolbox
   (`matlabPyrTools` + `textureSynth`); `setup.m` adds it to the path.
-- **vislab_data** — the shared data store (~23 GB: natural images, textures, source images, edge-power
+- **vislab-common/data** — the shared data store (~23 GB: natural images, textures, source images, edge-power
   bins), a sibling folder like vislab but **too large to auto-download** — obtain it separately and
   place it next to this repo (`setup.m` warns if it's missing; edit `cfg.paths.data_root` if elsewhere).
 - **Psychtoolbox-3** (+ EyeLink toolbox for peripheral runs) — required only to *run*
@@ -96,7 +96,7 @@ texture-learning / texture-segmentation repos; see `../REORGANIZATION_PLAN.md`).
 
 - `CLEANUP.md` — the full migration/cleanup checklist and old→new mapping.
 - `../vislab/ARCHITECTURE.md` — how the repos, the shared library, the
-  toolboxes, and `vislab_data` fit together.
+  toolboxes, and `vislab-common/data` fit together.
 
 ## License
 

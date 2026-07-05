@@ -8,8 +8,8 @@ n_samples=9890000;
 
 kernel_size=[1 3];
 
-if exist('vislab_data/seed_energy_pink_noise_whitened.mat','file')==2
-    load('vislab_data/seed_energy_pink_noise_whitened.mat')
+if exist('vislab-common/data/seed_energy_pink_noise_whitened.mat','file')==2
+    load('vislab-common/data/seed_energy_pink_noise_whitened.mat')
     sample_start=seed_energy(end,1)+1;
     seed_energy=[seed_energy;nan(n_samples,3)];
 else
@@ -49,4 +49,4 @@ parfor seed=sample_start:sample_start+n_samples-1
 end
 toc
 
-save('vislab_data/seed_energy_pink_noise_whitened.mat','seed_energy');
+save('vislab-common/data/seed_energy_pink_noise_whitened.mat','seed_energy');

@@ -76,7 +76,7 @@ either, so they were already broken before the extraction — the local `+lib` d
   fold into one parameterized generator/settings/setup per family.
 
 ## 7. Data reconciliation
-- `data/edge_powers/natural/*.mat` (source/derivation) vs `vislab_data/edge_powers/*.mat` (deployed,
+- `data/edge_powers/natural/*.mat` (source/derivation) vs `vislab-common/data/edge_powers/*.mat` (deployed,
   read by `experiment.setUpExperiment`). Keep one canonical location to avoid drift.
 
 ## 8. Optics constant

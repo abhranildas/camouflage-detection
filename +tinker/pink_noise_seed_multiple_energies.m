@@ -8,8 +8,8 @@ n_samples=1e5;
 
 kernel_size=[1 3];
 
-if exist('vislab_data/seed_multiple_energies_symmetric.mat','file')==2
-    load('vislab_data/seed_multiple_energies_symmetric.mat')
+if exist('vislab-common/data/seed_multiple_energies_symmetric.mat','file')==2
+    load('vislab-common/data/seed_multiple_energies_symmetric.mat')
     sample_start=seed_energy(end,1)+1;
     seed_energy=[seed_energy;nan(n_samples,15)];
 else
@@ -49,4 +49,4 @@ parfor seed=sample_start:sample_start+n_samples-1
 end
 toc
 
-save('vislab_data/seed_multiple_energies_symmetric.mat','seed_energy');
+save('vislab-common/data/seed_multiple_energies_symmetric.mat','seed_energy');

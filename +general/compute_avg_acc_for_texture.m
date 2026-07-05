@@ -1,7 +1,7 @@
 exp_name='pink_noise';
 
 % load edge powers
-load(['vislab_data/edge_powers/' exp_name '.mat'],'edge_powers')
+load(['vislab-common/data/edge_powers/' exp_name '.mat'],'edge_powers')
 
 [blank_ep_counts,blank_ep_bins]=histcounts(edge_powers(:,1));
 blank_ep_counts=blank_ep_counts/max(blank_ep_counts);

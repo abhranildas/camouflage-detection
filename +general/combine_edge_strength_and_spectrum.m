@@ -7,8 +7,8 @@
 % This requires having labelled (blank/target) observations.
 
 % Pink
-load('vislab_data/edge_strengths.mat')
-load('vislab_data/edge_spectra_LLR.mat','edge_spectra_LLR_pink')
+load('vislab-common/data/edge_strengths.mat')
+load('vislab-common/data/edge_spectra_LLR.mat','edge_spectra_LLR_pink')
 
 % blank gaussian
 x_b=[edge_strengths(:,2),edge_spectra_LLR_pink(:,2)];
@@ -28,8 +28,8 @@ l_t=lib.gauss_llr(x_t,mu_t,v_t,mu_b,v_b);
 results_llr=bayes_classify(l_b,l_t,'type','obs');
 
 % White
-load('vislab_data/edge_strengths_whitened.mat')
-load('vislab_data/edge_spectra_LLR.mat','edge_spectra_LLR_white')
+load('vislab-common/data/edge_strengths_whitened.mat')
+load('vislab-common/data/edge_spectra_LLR.mat','edge_spectra_LLR_white')
 
 % blank gaussian
 x_b_w=[edge_strengths_w(:,2),edge_spectra_LLR_white(:,2)];

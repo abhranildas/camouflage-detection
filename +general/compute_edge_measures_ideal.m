@@ -3,8 +3,8 @@ n_samples=1e4;
 n_edge=1e3; % # of elements in edge vector
 n_spec=floor(n_edge/2)+1; % # of items in edge spectrum
 
-% if exist('vislab_data/edge_powers_pn.mat','file')==2
-%     load('vislab_data/edge_powers_pn.mat')
+% if exist('vislab-common/data/edge_powers_pn.mat','file')==2
+%     load('vislab-common/data/edge_powers_pn.mat')
 %     sample_start=size(edge_powers,1)+1;
 %     edge_powers=[edge_powers;nan(n_samples,2)];
 
@@ -29,7 +29,7 @@ texture.type='pink_noise';
 
 % Portilla-Simoncelli texture
 % addpath(genpath('por_sim_tx_synth'))
-% input_img='vislab_data/bark.png';
+% input_img='vislab-common/data/bark.png';
 % im0=double(im2gray(imread(input_img)));
 % Nsc = 4; % Number of scales
 % Nor = 4; % Number of orientations
@@ -82,5 +82,5 @@ results=classify_normals(edge_powers(:,1),edge_powers(:,2),'input_type','samp');
 
 % edge_lpr=[edge_ps(:,:,1)*template',edge_ps(:,:,2)*template']+sum(const);
 
-% save('vislab_data/edge_measures_8.mat','edges','edge_powers','edge_ps','edge_lpr','-v7.3')
-% save('vislab_data/edge_powers_pn.mat','edge_powers')
+% save('vislab-common/data/edge_measures_8.mat','edges','edge_powers','edge_ps','edge_lpr','-v7.3')
+% save('vislab-common/data/edge_powers_pn.mat','edge_powers')

@@ -4,8 +4,8 @@ function cfg = config()
 %   constants. Pass it to code that needs paths or parameters instead of relying
 %   on hardcoded absolute paths or the ambient MATLAB path.
 %
-%   EDIT cfg.paths.data_root below if the shared vislab_data store is not a
-%   sibling of this repo.
+%   EDIT cfg.paths.data_root below if the shared data store (vislab-common/data)
+%   is not next to this repo.
 %
 %   (Mirrors the config.m convention in the sibling texture-learning /
 %   texture-segmentation repos so the three projects share one layout.)
@@ -14,7 +14,7 @@ function cfg = config()
 
     % --- data locations ---
     cfg.paths.repo_root      = repo_root;
-    cfg.paths.data_root      = fullfile(repo_root, '..', 'vislab_data');   % shared lab data store
+    cfg.paths.data_root      = fullfile(repo_root, '..', 'vislab-common', 'data');   % shared lab data store
     cfg.paths.natural_images = fullfile(cfg.paths.data_root, 'CPS natural images');
     cfg.paths.textures       = fullfile(cfg.paths.data_root, 'textures');
     cfg.paths.images         = fullfile(cfg.paths.data_root, 'images');      % source images for texture synthesis
