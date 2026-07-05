@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite both the software and the associated work below."
+title: camouflage_detection
+type: software
+authors:
+  - family-names: Das
+    given-names: Abhranil
+    affiliation: "Center for Perceptual Systems, The University of Texas at Austin"
+license: MIT
+repository-code: "https://github.com/abhranildas/camouflage-detection"
+preferred-citation:
+  type: thesis
+  title: "Camouflage detection & signal discrimination: theory, methods & experiments"
+  authors:
+    - family-names: Das
+      given-names: Abhranil
+  year: 2022
+  institution:
+    name: "The University of Texas at Austin"
