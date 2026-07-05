@@ -33,8 +33,9 @@ synthesized stimuli, and psychometric-threshold analysis. See `paper/` and
   (`classify_normals`, `quad2fun`); `setup.m` verifies/self-heals them.
 - **por_sim_tx_synth** — vendored Portilla-Simoncelli texture-synthesis toolbox
   (`matlabPyrTools` + `textureSynth`); `setup.m` adds it to the path.
-- **global_data** — shared data store (natural images, textures, source images,
-  edge-power bins). Point `config.m` at it if it isn't a sibling folder.
+- **global_data** — the shared data store (~23 GB: natural images, textures, source images, edge-power
+  bins), a sibling folder like vision-commons but **too large to auto-download** — obtain it separately and
+  place it next to this repo (`setup.m` warns if it's missing; edit `cfg.paths.data_root` if elsewhere).
 - **Psychtoolbox-3** (+ EyeLink toolbox for peripheral runs) — required only to *run*
   the experiments. MATLAB with Image Processing / Statistics toolboxes.
 
