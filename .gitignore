@@ -1,5 +1,5 @@
 *.asv
-global_data/
+vislab_data/
 exp_files/
 Presentations, reports, abstracts/
 experiment_tracker.xlsx

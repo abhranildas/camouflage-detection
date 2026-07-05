@@ -22,9 +22,9 @@ synthesized stimuli, and psychometric-threshold analysis. See `paper/` and
 
 ## Dependencies
 
-- **[vision-commons](https://github.com/abhranildas/vision-commons)** — the lab's shared MATLAB library (a
-  sibling folder next to this repo; `setup.m` clones it automatically if it's missing). Provides `vislib.*` (optics,
-  filters, normalization) and `nat_stat_bayes.*` (decision-variable toolkit).
+- **[vislab](https://github.com/abhranildas/vislab)** — the lab's shared MATLAB library (a
+  sibling folder next to this repo; `setup.m` clones it automatically if it's missing). Provides `vislab.lib.*` (optics,
+  filters, normalization) and `vislab.nat_stat_bayes.*` (decision-variable toolkit).
 - **`+lib`** — this repo's own package of camouflage-domain helpers (`lib.stimulus`,
   `lib.target_mask`, `lib.edge_measures*`, filter-bank builders), extracted from the old
   shared lab-root `+lib` so the repo is self-contained (like texture-segmentation's `+lib`).
@@ -33,8 +33,8 @@ synthesized stimuli, and psychometric-threshold analysis. See `paper/` and
   (`classify_normals`, `quad2fun`); `setup.m` verifies/self-heals them.
 - **por_sim_tx_synth** — vendored Portilla-Simoncelli texture-synthesis toolbox
   (`matlabPyrTools` + `textureSynth`); `setup.m` adds it to the path.
-- **global_data** — the shared data store (~23 GB: natural images, textures, source images, edge-power
-  bins), a sibling folder like vision-commons but **too large to auto-download** — obtain it separately and
+- **vislab_data** — the shared data store (~23 GB: natural images, textures, source images, edge-power
+  bins), a sibling folder like vislab but **too large to auto-download** — obtain it separately and
   place it next to this repo (`setup.m` warns if it's missing; edit `cfg.paths.data_root` if elsewhere).
 - **Psychtoolbox-3** (+ EyeLink toolbox for peripheral runs) — required only to *run*
   the experiments.
@@ -43,7 +43,7 @@ synthesized stimuli, and psychometric-threshold analysis. See `paper/` and
 ## Setup
 
 ```matlab
-setup            % adds this repo + vision-commons + por_sim_tx_synth; self-heals the toolboxes
+setup            % adds this repo + vislab + por_sim_tx_synth; self-heals the toolboxes
 cfg = config;    % data paths + shared constants; edit cfg.paths.data_root if needed
 ```
 
@@ -73,20 +73,20 @@ camouflage_detection/
 └── paper/                write-up
 ```
 
-Shared low-level code lives in `vision-commons` (not here), so it isn't duplicated
+Shared low-level code lives in `vislab` (not here), so it isn't duplicated
 across the lab's repos.
 
 ## Status & caveats — reorganization in progress
 
-This repo is mid-migration onto `vision-commons` (aligning it with the
+This repo is mid-migration onto `vislab` (aligning it with the
 texture-learning / texture-segmentation repos; see `../REORGANIZATION_PLAN.md`).
 
 - **Done:** `setup.m` + `config.m` added (was ambient path + stale hardcoded paths);
-  `nat_stat_bayes.dv_spatial` promoted to commons; the Psychtoolbox harness unified onto the shared
-  `vision-commons/+psychframework`; removed the redundant `edgecode/` and dead/duplicate `+experiment`
+  `vislab.nat_stat_bayes.dv_spatial` promoted to commons; the Psychtoolbox harness unified onto the shared
+  `vislab/+psychframework`; removed the redundant `edgecode/` and dead/duplicate `+experiment`
   functions (`occludingTarget`, `saveCurrentSession`, `subjectExperimentFile_alpha`); extracted the
   camouflage-domain code into this repo's own `+lib` (56 functions, the reachable set) and dropped the
-  shared lab-root `+lib` dependency — `otf_filter` now repoints to `vislib.otf_filter`.
+  shared lab-root `+lib` dependency — `otf_filter` now repoints to `vislab.lib.otf_filter`.
 - **Intentionally left as-is** (owner's decision — see `CLEANUP.md` for details): the
   `generate_camouflage_stimuli_*`/`sessionSettings_*`/`setUpExperiment_*` variant families are not merged;
   the exploratory `+tinker` prototypes (with some dead `lib.*` references) are kept; and
@@ -95,8 +95,8 @@ texture-learning / texture-segmentation repos; see `../REORGANIZATION_PLAN.md`).
 ## Documentation
 
 - `CLEANUP.md` — the full migration/cleanup checklist and old→new mapping.
-- `../vision-commons/ARCHITECTURE.md` — how the repos, the shared library, the
-  toolboxes, and `global_data` fit together.
+- `../vislab/ARCHITECTURE.md` — how the repos, the shared library, the
+  toolboxes, and `vislab_data` fit together.
 
 ## License
 

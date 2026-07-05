@@ -4,7 +4,7 @@ filepaths={'natural/moth','natural/rock','natural/camo_large','natural/spots','n
 % filepaths={'all'};
 
 % load the efficient-coding histogram bins of gradient magnitude, and pca coeffs, computed from natural images
-load('global_data/nat_im_eff_coding.mat') 
+load('vislab_data/nat_im_eff_coding.mat') 
 
 % dumb down the efficient bins to only use equispaced bins at the middle scale
 % n_bins=size(grad_m_bins,2)-1;

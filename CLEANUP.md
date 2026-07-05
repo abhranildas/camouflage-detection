@@ -1,6 +1,6 @@
 # CLEANUP.md — camouflage_detection
 
-Tracked removals/reconciliations for the vision-commons migration. Per the user's
+Tracked removals/reconciliations for the vislab migration. Per the user's
 directive, nothing here has been **deleted** — this file *flags* everything for a
 later batch review/approval. Items marked **DONE** were purely additive.
 
@@ -14,7 +14,7 @@ mostly the shared PTB harness (deferred) plus the flagged items below.
 ## 1. `edgecode/` — REMOVED (done)
 - Deleted the whole `edgecode/` folder (`Rp/Rh/Re/Rs`, `mk_contour.m`, `texture_discrimination.m`): a
   redundant 4th copy of the DV code, not on the live experiment path. `Rs` was already promoted to
-  `nat_stat_bayes.dv_spatial` (verified identical). Recoverable in git history if ever needed.
+  `vislab.nat_stat_bayes.dv_spatial` (verified identical). Recoverable in git history if ever needed.
 
 ## 2. Root `+lib` dependency (extract camouflage-domain code into this repo) — DONE
 Camo now has its **own local `+lib`** (mirrors texture-segmentation's structure); it no
@@ -26,21 +26,21 @@ longer depends on the lab-root `+lib`. What was done this pass:
   `discrim_accuracy`, `coloured_noise`, `pinken`, `samplePositions`, `csf_filter`,
   `correlations_across_same`, `create_porsim_square`, `integer_partition`) were **not**
   copied. **Nothing was deleted from root `+lib`** — it stays intact for texture-segmentation.
-- **`otf_filter` → repointed to `vislib.otf_filter`** at all camo call sites
+- **`otf_filter` → repointed to `vislab.lib.otf_filter`** at all camo call sites
   (`test.m`, `+general/compute_edge_props_pink_noise.m`,
   `+general/compute_nat_img_eff_coding_bins.m`) and inside the copied
   `+lib/edge_props_stim.m`. Verified numerically equivalent to root's copy for camo's
   usage (grayscale, and per-channel for the texture case); vislib's version additionally
   handles color images in one call.
-- **`edge_props_stim` kept in local `+lib`** (not promoted to vision-commons): it pulls in
+- **`edge_props_stim` kept in local `+lib`** (not promoted to vislab): it pulls in
   camouflage-domain code (`target_mask`, `steerable_grad`, `detect_edge_pixels`,
   `trace_contours`), so it doesn't belong in the generic shared library.
 - **`setup.m` no longer adds the lab-root `+lib`** (`root_parent` addpath removed); the
   header + README were updated to describe the local `+lib`.
 - **LATENT BUG carried over as-is (not fixed):** `+lib/ptch_norm.m` — its mean+contrast
   branch (`ntype==2`) references an undefined variable `m` and would error. Copied faithfully
-  to preserve current behavior; camo's live path doesn't hit `ntype==2`. (vision-commons has
-  a corrected `vislib.ptch_norm` with a different signature; a future pass could repoint to it
+  to preserve current behavior; camo's live path doesn't hit `ntype==2`. (vislab has
+  a corrected `vislab.lib.ptch_norm` with a different signature; a future pass could repoint to it
   after checking camo's call sites.)
 
 ## 3. Dangling `lib.*` references (BROKEN — fix or drop as dead) — LEFT AS-IS (user's call)
@@ -67,7 +67,7 @@ either, so they were already broken before the extraction — the local `+lib` d
   (`setUpExperiment_shape_exponent`, `setUpExperiment_texture_exponent`) to `experiment.subjectExperimentFile`.
 - `.asv` autosaves — already git-ignored (`*.asv` in `.gitignore`); not in the repo, nothing to do.
 - **Pending:** `gammaCorrect` exists **three** ways — `+experiment/gammaCorrect.m`, `lib.gammaCorrect`,
-  and `vislib.gamma_compress`/`gamma_expand`. Consolidate (touches experiment code; do with the +lib pass).
+  and `vislab.lib.gamma_compress`/`gamma_expand`. Consolidate (touches experiment code; do with the +lib pass).
 
 ## 6. Copy-paste experiment-variant families (canonicalize with a parameter) — LEFT AS-IS (user's call)
 - `generate_camouflage_stimuli{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m`,
@@ -76,20 +76,20 @@ either, so they were already broken before the extraction — the local `+lib` d
   fold into one parameterized generator/settings/setup per family.
 
 ## 7. Data reconciliation
-- `data/edge_powers/natural/*.mat` (source/derivation) vs `global_data/edge_powers/*.mat` (deployed,
+- `data/edge_powers/natural/*.mat` (source/derivation) vs `vislab_data/edge_powers/*.mat` (deployed,
   read by `experiment.setUpExperiment`). Keep one canonical location to avoid drift.
 
 ## 8. Optics constant
-- Some legacy scripts pass wavelength **555 nm** (`test.m`: `vislib.otf_filter(stim,ppd,4,555)`); the
+- Some legacy scripts pass wavelength **555 nm** (`test.m`: `vislab.lib.otf_filter(stim,ppd,4,555)`); the
   other repos and `config.m` use 550. **User's own call** (camo is the user's repo — not a Geisler question).
 
-## 9. Experiment harness → `vision-commons/+psychframework` (separate pass, needs PTB testing)
+## 9. Experiment harness → `vislab/+psychframework` (separate pass, needs PTB testing)
 - camo's single-copy `+experiment` (`+main` runtime, `+analysis` offline, root stimulus/session code)
   is the **better template** for the shared harness than texseg's duplicated one. Unify the loop
   skeleton + intervals + session resume/save + **optional EyeLink** plug-in into `+psychframework`; keep
   camo's dependency-injected `loadSessionStimuli` pattern; leave `runCamouflageExperiment_search.m`
   as a standalone escape hatch.
-- **DONE:** `vision-commons/+psychframework` (shared session→level→trial loop) added; `runCamouflageExperiment.m`
+- **DONE:** `vislab/+psychframework` (shared session→level→trial loop) added; `runCamouflageExperiment.m`
   now delegates the loop/screen/teardown to it, wiring camo's interval functions + EyeLink lifecycle
   (session/level/trial pre/post hooks, gated by `S.bFovea`) as hooks. The superseded `runSession.m` and
   `runTrial.m` were **deleted** (commit `5301e73`). Parse-verified; not headless-testable (Psychtoolbox) —

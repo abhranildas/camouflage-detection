@@ -12,8 +12,8 @@ mask=lib.circular_mask(bg_size,target_radius,'center');
 x2=repmat((0:bg_size-1).^2,[bg_size,1]); % array of x^2
 d=sqrt(unique(x2+x2'));
 
-if exist('global_data/pink_noise_stim_blank_autocorr.mat','file')==2
-    load('global_data/pink_noise_stim_blank_autocorr.mat')
+if exist('vislab_data/pink_noise_stim_blank_autocorr.mat','file')==2
+    load('vislab_data/pink_noise_stim_blank_autocorr.mat')
     seed_start=size(corr_same,2)+1;
     %corr_same=[corr_same,nan(numel(d),n_seeds)];
     corr_cross=[corr_cross,nan(numel(d),n_seeds)];    
@@ -39,7 +39,7 @@ figure; hold on
 plot(d,mean(corr_cross,2),'r')
 %xlim([0 150])
 
-save('global_data/pink_noise_stim_blank_autocorr.mat','d','corr_cross');
+save('vislab_data/pink_noise_stim_blank_autocorr.mat','d','corr_cross');
 
 
 %% log-likelihood-ratio decision variable based on autocorrelations
@@ -64,7 +64,7 @@ end
 
 lib.compute_dPrime_pCorrect(LLR_blank,LLR_target,100,1);
 
-%save('global_data/pink_noise_stim_corrs.mat','d','corr_blank_cross','corr_target_cross','LLR_blank','LLR_target');
+%save('vislab_data/pink_noise_stim_corrs.mat','d','corr_blank_cross','corr_target_cross','LLR_blank','LLR_target');
 
 %% d' as a function of distance
 dPrime=nan(numel(d),4);

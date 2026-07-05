@@ -6,7 +6,7 @@ textures={'sand','moth','rock','spots','coral','bark','leaf','leather','foliage'
 addpath(genpath('por_sim_tx_synth'))
 
 for i=2:length(textures)
-    input_img=['global_data/' textures{i} '.jpg'];
+    input_img=['vislab_data/' textures{i} '.jpg'];
     im0=double(im2gray(imread(input_img)));
     Nsc = 4; % Number of scales
     Nor = 4; % Number of orientations

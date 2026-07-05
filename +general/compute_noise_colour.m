@@ -1,5 +1,5 @@
 addpath(genpath('por_sim_tx_synth'))
-input_img='global_data/bark.png';
+input_img='vislab_data/bark.png';
 im0=double(im2gray(imread(input_img)));
 Nsc = 4; % Number of scales
 Nor = 4; % Number of orientations

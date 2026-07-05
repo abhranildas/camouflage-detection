@@ -23,13 +23,13 @@ start_idx=floor((patch_extra_sz-patch_sz)/2)+1;
 end_idx=start_idx+patch_sz-1;
 
 % load the PCA coefficients
-% load('global_data/nat_im_eff_coding.mat');
+% load('vislab_data/nat_im_eff_coding.mat');
 
 % image size, original and after gradient border crop
 img_sz = [2844 4284];
 img_sz_crop = img_sz-2*kernel_sd_max*kernel_nsd;
 
-files=dir('global_data/CPS natural images/*.png');
+files=dir('vislab_data/CPS natural images/*.png');
 n_files=10; %numel(files);
 n_patches=n_files*n_samp;
 num_el=n_files*n_samp*patch_sz^2; % no. of array elements to store
@@ -54,12 +54,12 @@ i_patch=1;
 for i_file=1:n_files
     fprintf('%d of %d\n', i_file, n_files);
     % load image
-    name=['global_data/CPS natural images/' files(i_file).name];
+    name=['vislab_data/CPS natural images/' files(i_file).name];
     img_rgb=double(imread(name))*255/mxval;
     % make greyscale
     img_grey = mean(img_rgb,3);
     % apply OTF
-    img_otf=vislib.otf_filter(img_grey,ppd,4,555);
+    img_otf=vislab.lib.otf_filter(img_grey,ppd,4,555);
 
 
     % now sample patches
@@ -235,7 +235,7 @@ for i_scale=1:num_scales
 end
 
 %% save efficient-coding bins and PCA coeffs and filters
-save('global_data/nat_im_eff_coding.mat','grey_hist_bins',...
+save('vislab_data/nat_im_eff_coding.mat','grey_hist_bins',...
     'grad_m_bins','grad_o_bins','grad_p_bins',...
     'grad_pca_m_bins','grad_pca_o_bins','grad_pca_p_bins',...
     'pca_coeffs')

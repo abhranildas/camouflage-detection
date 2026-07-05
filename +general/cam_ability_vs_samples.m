@@ -1,4 +1,4 @@
-load ('global_data/seed_energy_pink_noise.mat')
+load ('vislab_data/seed_energy_pink_noise.mat')
 n_list=round(10.^(1:.1:4));
 nTrials=100;
 n_stats=zeros(numel(n_list),4);

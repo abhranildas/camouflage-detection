@@ -51,7 +51,7 @@ function [mu, threshold, b, c, mu_sd, threshold_sd, b_sd, c_sd, sessions_complet
     [mu,a,b,c] = experiment.analysis.fitPsychometric_trials(mu_init, a_init, b_init, c_init, target_means, exp_values, response);
     threshold=mu+a;
     
-    load(['global_data/edge_powers_' expTypeStr '.mat'],'edge_powers');
+    load(['vislab_data/edge_powers_' expTypeStr '.mat'],'edge_powers');
     [~,~,~,y_blanks]=experiment.analysis.psychometricFun(edge_powers(:,1),mu,a,b,c);
     
     %% Figure properties

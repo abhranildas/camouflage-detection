@@ -6,8 +6,8 @@ ml=0.5;                                   % image mean luminance
 
 n_edge=1e3;
 
-% if exist('global_data/seed_energy_pn_gradbynorm.mat','file')==2
-%     load('global_data/seed_energy_pn_gradbynorm.mat')
+% if exist('vislab_data/seed_energy_pn_gradbynorm.mat','file')==2
+%     load('vislab_data/seed_energy_pn_gradbynorm.mat')
 %     sample_start=seed_energy(end,1)+1;
 %     seed_energy=[seed_energy;nan(n_samples,3)];
 % else
@@ -31,7 +31,7 @@ texture_params.type='pink_noise';
 
 % for bark texture with portilla simoncelli:
 % addpath(genpath('por_sim_tx_synth'))
-% input_img='global_data/bark.png';
+% input_img='vislab_data/bark.png';
 % im0=double((imread(input_img)));
 % 
 % Nsc = 4; % Number of scales
@@ -105,7 +105,7 @@ end
 
 toc
 
-% save('global_data/seed_energy_pn_gradbynorm.mat', 'seed_energy');
+% save('vislab_data/seed_energy_pn_gradbynorm.mat', 'seed_energy');
 
 
 %% d' with 1, 2 and 3 scales

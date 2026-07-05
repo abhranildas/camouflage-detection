@@ -9,9 +9,9 @@ function setup()
 %       (lib.stimulus, lib.target_mask, lib.edge_measures*, lib.gabor2D, ...),
 %       extracted from the old shared lab-root +lib so this repo is self-contained
 %       (mirrors texture-segmentation's own +lib).
-%     * vision-commons (the shared lab library) -- a git submodule inside this
+%     * vislab (the shared lab library) -- a git submodule inside this
 %       repo, or a sibling folder next to it (the lab's local dev layout). Generic
-%       optics live there now: lib.otf_filter was repointed to vislib.otf_filter.
+%       optics live there now: lib.otf_filter was repointed to vislab.lib.otf_filter.
 %     * the vendored Portilla-Simoncelli texture-synthesis toolbox (por_sim_tx_synth)
 %
 %   Also VERIFIES/self-heals the required MATLAB add-on toolboxes (installed via
@@ -25,18 +25,18 @@ function setup()
 
     repo_root = fileparts(mfilename('fullpath'));
 
-    % --- shared lab library (vision-commons): a sibling folder next to this repo.
+    % --- shared lab library (vislab): a sibling folder next to this repo.
     %     If not found, try to clone it automatically (needs git + network). ---
-    commons = locate_folder(repo_root, 'vision-commons');
+    commons = locate_folder(repo_root, '+vislab');
     if isempty(commons)
         commons = fetch_commons(repo_root);
     end
     if isempty(commons)
         warning('camouflage_detection:setup:noCommons', ...
-            ['vision-commons not found and could not be fetched automatically. ', ...
-             'Clone it next to this repo:  git clone https://github.com/abhranildas/vision-commons']);
+            ['vislab not found and could not be fetched automatically. ', ...
+             'Clone it next to this repo:  git clone https://github.com/abhranildas/vislab +vislab']);
     else
-        addpath(commons);                                    % exposes vislib.*, nat_stat_bayes.*
+        addpath(fileparts(commons));                                    % exposes vislab.lib.*, vislab.nat_stat_bayes.*
     end
 
     % --- vendored Portilla-Simoncelli texture synthesis ---
@@ -54,34 +54,34 @@ function setup()
     ensure_addon_on_path('classify_normals', 'Integrate and Classify Normal Distributions*', ...
         'Integrate and Classify Normal Distributions', 'https://github.com/abhranildas/IntClassNorm');
 
-    % --- shared data store: global_data (a sibling folder; ~23 GB, obtained manually) ---
-    if ~isfolder(fullfile(repo_root, '..', 'global_data'))
+    % --- shared data store: vislab_data (a sibling folder; ~23 GB, obtained manually) ---
+    if ~isfolder(fullfile(repo_root, '..', 'vislab_data'))
         warning('camouflage_detection:setup:noData', ...
-            ['global_data not found next to this repo. It is the large (~23 GB) shared data store ', ...
+            ['vislab_data not found next to this repo. It is the large (~23 GB) shared data store ', ...
              '(natural images + textures); obtain it separately and place it beside this repo ', ...
              '(see README). Code that reads it will fail until then.']);
     end
 end
 
 function folder = fetch_commons(repo_root)
-% Auto-fetch vision-commons as a sibling folder (../vision-commons) by cloning it
+% Auto-fetch vislab as a sibling folder (../vislab) by cloning it
 % with git. Needs git on the PATH and network access; returns '' if the clone fails
 % (the caller then warns with manual instructions).
     folder = '';
-    target = fullfile(repo_root, '..', 'vision-commons');
-    url = 'https://github.com/abhranildas/vision-commons.git';
-    fprintf('vision-commons not found; trying to clone it to %s ...\n', target);
+    target = fullfile(repo_root, '..', '+vislab');
+    url = 'https://github.com/abhranildas/vislab.git';
+    fprintf('vislab not found; trying to clone it to %s ...\n', target);
     [status, out] = system(sprintf('git clone "%s" "%s"', url, target));
-    if status == 0 && isfolder(fullfile(target, '+vislib'))
+    if status == 0 && isfolder(fullfile(target, '+lib'))
         folder = target;
-        fprintf('Cloned vision-commons.\n');
+        fprintf('Cloned vislab.\n');
     else
-        fprintf(2, 'Could not auto-fetch vision-commons (git missing or offline?).\n%s\n', out);
+        fprintf(2, 'Could not auto-fetch vislab (git missing or offline?).\n%s\n', out);
     end
 end
 
 function folder = locate_folder(repo_root, name)
-% Find vision-commons as a sibling folder next to the repo (or inside it, if present).
+% Find vislab as a sibling folder next to the repo (or inside it, if present).
     candidates = {fullfile(repo_root, name), fullfile(repo_root, '..', name)};
     folder = '';
     for i = 1:numel(candidates)

@@ -36,10 +36,10 @@ epsl=1e-10;
 % filter with OTF:
 if otf_ppd
     if strcmpi(stim_type,'camo')
-        stim=vislib.otf_filter(stim_raw,otf_ppd);
+        stim=vislab.lib.otf_filter(stim_raw,otf_ppd);
     elseif strcmpi(stim_type,'tex')
-        stim(:,:,1)=vislib.otf_filter(stim_raw(:,:,1),otf_ppd);
-        stim(:,:,2)=vislib.otf_filter(stim_raw(:,:,2),otf_ppd);
+        stim(:,:,1)=vislab.lib.otf_filter(stim_raw(:,:,1),otf_ppd);
+        stim(:,:,2)=vislab.lib.otf_filter(stim_raw(:,:,2),otf_ppd);
     end
 else
     stim=stim_raw;
