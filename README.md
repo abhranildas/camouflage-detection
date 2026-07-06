@@ -33,9 +33,11 @@ synthesized stimuli, and psychometric-threshold analysis. See `paper/` and
   (`classify_normals`, `quad2fun`); `setup.m` verifies/self-heals them.
 - **por_sim_tx_synth** — vendored Portilla-Simoncelli texture-synthesis toolbox
   (`matlabPyrTools` + `textureSynth`); `setup.m` adds it to the path.
-- **vislab-common/data** — the shared data store (~23 GB: natural images, textures, source images, edge-power
-  bins), a sibling folder like vislab but **too large to auto-download** — obtain it separately and
-  place it next to this repo (`setup.m` warns if it's missing; edit `cfg.paths.data_root` if elsewhere).
+- **vislab-common/data** — the shared data store, a sibling folder alongside this repo. Its texture sheets
+  and colour transforms ship inside the `vislab-common` repo; only the large calibrated **natural-image**
+  set (~19 GB) is **too large for GitHub** and must be obtained separately. (Some camo-specific inputs used
+  by older analysis scripts — source images, edge-power bins — are not part of this store.) `setup.m` warns
+  if the store is missing; edit `cfg.paths.data_root` if elsewhere.
 - **Psychtoolbox-3** (+ EyeLink toolbox for peripheral runs) — required only to *run*
   the experiments.
 - **MATLAB** with the Image Processing and Statistics & Machine Learning toolboxes.
