@@ -1,44 +1,78 @@
-function SessionSettings = sessionSettings_diff_bg(exp_type, target_exponent, bg_exponents, ml, cont, bg_size, target_radius, monitor_distance)
-    %SESSIONSETTINGS Loads settings and stimuli for each experimental session
-    %
-    % Example:
-    %  ExpSettings = SESSIONSETTINGS([5 5 5], linspace(0.05, 0.2, 5));
-    %
-    % Output:
-    %  ExpSettings Structure containing stimuli and experiment settings
-    %
-    % See also:
-    %   LOADSTIMULIADDITIVE
-    %
-    % v1.0, 1/22/2016, Steve Sebastian <sebastian@utexas.edu>
-    % v1.1, 2/4/2016,  R. Calen Walshe <calen.walshe@utexas.edu> Added
-    % peripheral settings.
-    
+function SessionSettings = sessionSettings_diff_bg(exp_type, target_exponent, bg_exponents, ...
+    ml, cont, bg_size, target_radius, monitor_distance)
+% SESSIONSETTINGS_DIFF_BG  Settings and stimuli for the different-background variant.
+%   SessionSettings = experiment.sessionSettings_diff_bg(exp_type, target_exponent, ...
+%       bg_exponents, ml, cont, bg_size, target_radius, monitor_distance)
+%
+%   Variant of experiment.sessionSettings whose levels are background 1/f
+%   exponents rather than edge-power bands. The target's exponent is fixed;
+%   one level is one background exponent, so nLevels follows from the length
+%   of bg_exponents. Edge power is measured from each stimulus after it is
+%   made rather than chosen in advance, so there are no edgePowerBlockEdges.
+%
+%   Inputs
+%     exp_type         - experiment name, also the exp_files/ subdirectory.
+%     target_exponent  - target texture's 1/f exponent, dimensionless.
+%     bg_exponents     - background 1/f exponent per level, dimensionless.
+%     ml               - mean luminance, normalised, in [0, 1].
+%     cont             - RMS contrast, dimensionless fraction.
+%     bg_size          - stimulus side, in pixels.
+%     target_radius    - target radius, in pixels.
+%     monitor_distance - misnamed: pixels per degree, not a distance (B3.8).
+%
+%   Output
+%     SessionSettings - the ExpSettings struct, as in experiment.
+%                       sessionSettings but with .target_exponent and
+%                       .bg_exponents in place of .edgePowerBlockEdges.
+%
+%   ml and cont keep their abbreviated names, unlike the base variant's
+%   luminance/contrast, because the corrected names would equal the
+%   'luminance' and 'contrast' field-name string literals in the struct call
+%   below — a rename Stage 1 cannot make. The callers and the generator use
+%   the expanded names.
+%
+%   Every field name here is serialised into exp_settings.mat, so none may be
+%   renamed without a migration (zone 3, S3.10), including the misspelled
+%   .moniter_brightness and the local responseInvervalMs feeding
+%   .responseIntervalMs.
+%
+%   The texture struct built here describes the target only, records just its
+%   type, and is stored under the .texture_params name the other variants use.
+%
+%   This is one of five near-duplicate sessionSettings variants; S3.3
+%   collapses them.
+%
+%   See also experiment.SETUPEXPERIMENT_DIFF_BG,
+%   experiment.GENERATE_CAMOUFLAGE_STIMULI_DIFF_BG, experiment.SESSIONSETTINGS.
+
     stimulusIntervalMs = 200;
     responseInvervalMs = 1000;
     fixationIntervalMs = 100;
-    blankIntervalMs    = 0;
-    
+    blankIntervalMs = 0;
+
     monitorMaxPix = 255;
     bgPixVal = ml*255;
-    monitor_brightness=50;
-    monitor_contrast=100;
-    
+    monitor_brightness = 50;
+    monitor_contrast = 100;
+
     nLevels = length(bg_exponents);
     nTrials = 30;
     nSessions = 4;
-    
+
     stimPosDeg = zeros(nTrials, nLevels, nSessions, 2);
     fixPosDeg = zeros(nTrials, nLevels, nSessions, 2);
-    
+
     loadSessionStimuli = @experiment.loadStimuliCamouflage;
-    texture.type='pink_noise';
+    texture.type = 'pink_noise';
     pTarget = .5;
-    
+
     % generate stimuli
-    bTargetPresent = logical(experiment.generateTargetPresentMatrix(nTrials, nLevels, nSessions, pTarget));
-    [stimuli, seeds, edgePowers, pClipped] = experiment.generate_camouflage_stimuli_diff_bg(target_exponent,bg_exponents,nTrials,nSessions,bg_size,target_radius,ml,cont,bTargetPresent);
-    
+    bTargetPresent = logical(experiment.generateTargetPresentMatrix(nTrials, nLevels, ...
+        nSessions, pTarget));
+    [stimuli, seeds, edgePowers, pClipped] = ...
+        experiment.generate_camouflage_stimuli_diff_bg(target_exponent, bg_exponents, ...
+        nTrials, nSessions, bg_size, target_radius, ml, cont, bTargetPresent);
+
     SessionSettings = struct(...
         'exp_type', exp_type,...
         'texture_params', texture,...
@@ -70,5 +104,4 @@ function SessionSettings = sessionSettings_diff_bg(exp_type, target_exponent, bg
         'fixationIntervalMs', fixationIntervalMs,...
         'blankIntervalMs', blankIntervalMs...
         );
-    
 end

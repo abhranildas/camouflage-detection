@@ -1,47 +1,84 @@
-function SessionSettings = sessionSettings_shape_exponent(exp_type,texture, exponents, ml, cont, bg_size, target_radius, monitor_distance)
-    %SESSIONSETTINGS Loads settings and stimuli for each experimental session
-    %
-    % Example:
-    %  ExpSettings = SESSIONSETTINGS([5 5 5], linspace(0.05, 0.2, 5));
-    %
-    % Output:
-    %  ExpSettings Structure containing stimuli and experiment settings
-    %
-    % See also:
-    %   LOADSTIMULIADDITIVE
-    %
-    % v1.0, 1/22/2016, Steve Sebastian <sebastian@utexas.edu>
-    % v1.1, 2/4/2016,  R. Calen Walshe <calen.walshe@utexas.edu> Added
-    % peripheral settings.
-    
+function SessionSettings = sessionSettings_shape_exponent(exp_type, texture, shape_exponents, ...
+    ml, cont, bg_size, target_radius, monitor_distance)
+% SESSIONSETTINGS_SHAPE_EXPONENT  Settings and stimuli for the shape-roughness variant.
+%   SessionSettings = experiment.sessionSettings_shape_exponent(exp_type, texture, ...
+%       shape_exponents, ml, cont, bg_size, target_radius, monitor_distance)
+%
+%   Variant of experiment.sessionSettings whose levels are target-boundary 1/f
+%   exponents rather than edge-power bands: one level is one shape exponent,
+%   so nLevels follows from the length of shape_exponents. Edge power is
+%   measured from each stimulus after it is made, so there are no
+%   edgePowerBlockEdges.
+%
+%   Inputs
+%     exp_type         - experiment name, also the exp_files/ subdirectory.
+%     texture          - texture struct for lib.stimulus (.type, .exponent).
+%     shape_exponents  - target-boundary 1/f exponent per level, dimensionless.
+%     ml               - mean luminance, normalised, in [0, 1].
+%     cont             - RMS contrast, dimensionless fraction.
+%     bg_size          - stimulus side, in pixels.
+%     target_radius    - target radius, in pixels.
+%     monitor_distance - misnamed: pixels per degree, not a distance (B3.8).
+%
+%   Output
+%     SessionSettings - the ExpSettings struct, as in experiment.
+%                       sessionSettings but with the shape exponents in place
+%                       of .edgePowerBlockEdges.
+%
+%   The shape exponents are stored in a field named .alphas, which the texture-
+%   exponent variant uses for a different quantity (a texture exponent). The
+%   local is named shape_exponents throughout this family to keep the two
+%   apart; the field name is frozen on disk (zone 3, S3.10).
+%
+%   ml and cont keep their abbreviated names, unlike the base variant's
+%   luminance/contrast, because the corrected names would equal the
+%   'luminance' and 'contrast' field-name string literals in the struct call
+%   below — a rename Stage 1 cannot make.
+%
+%   This variant runs 16 sessions rather than the usual 4.
+%
+%   Every field name here is serialised into exp_settings.mat, so none may be
+%   renamed without a migration (zone 3, S3.10), including the misspelled
+%   .moniter_brightness and the local responseInvervalMs feeding
+%   .responseIntervalMs.
+%
+%   This is one of five near-duplicate sessionSettings variants; S3.3
+%   collapses them.
+%
+%   See also experiment.SETUPEXPERIMENT_SHAPE_EXPONENT,
+%   experiment.GENERATE_CAMOUFLAGE_STIMULI_SHAPE_EXPONENT, experiment.SESSIONSETTINGS.
+
     stimulusIntervalMs = 200;
     responseInvervalMs = 1000;
     fixationIntervalMs = 100;
-    blankIntervalMs    = 0;
-    
+    blankIntervalMs = 0;
+
     monitorMaxPix = 255;
     bgPixVal = ml*255;
-    monitor_brightness=50;
-    monitor_contrast=100;
-    
-    nLevels = length(exponents);
+    monitor_brightness = 50;
+    monitor_contrast = 100;
+
+    nLevels = length(shape_exponents);
     nTrials = 30;
     nSessions = 16;
-    
+
     stimPosDeg = zeros(nTrials, nLevels, nSessions, 2);
     fixPosDeg = zeros(nTrials, nLevels, nSessions, 2);
-    
+
     loadSessionStimuli = @experiment.loadStimuliCamouflage;
     pTarget = .5;
-    
+
     % generate stimuli
-    bTargetPresent=logical(experiment.generateTargetPresentMatrix(nTrials, nLevels, nSessions, pTarget));
-    [stimuli,seeds,edgePowers,pClipped]=experiment.generate_camouflage_stimuli_shape_exponent(exponents,texture,nTrials,nSessions,bg_size,target_radius,ml,cont,bTargetPresent);
-    
+    bTargetPresent = logical(experiment.generateTargetPresentMatrix(nTrials, nLevels, ...
+        nSessions, pTarget));
+    [stimuli, seeds, edgePowers, pClipped] = ...
+        experiment.generate_camouflage_stimuli_shape_exponent(shape_exponents, texture, ...
+        nTrials, nSessions, bg_size, target_radius, ml, cont, bTargetPresent);
+
     SessionSettings = struct(...
         'exp_type', exp_type,...
         'texture_params', texture,...
-        'alphas', exponents,...
+        'alphas', shape_exponents,...
         'luminance', ml,...
         'contrast', cont,...
         'target_radius', target_radius,...
@@ -68,5 +105,4 @@ function SessionSettings = sessionSettings_shape_exponent(exp_type,texture, expo
         'fixationIntervalMs', fixationIntervalMs,...
         'blankIntervalMs', blankIntervalMs...
         );
-    
 end

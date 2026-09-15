@@ -1,52 +1,77 @@
-function setUpExperiment_shape_exponent(exp_type,subjectStr)
-%SETUPEXPERIMENT Creates and saves all experimental stimuli and settings
+function setUpExperiment_shape_exponent(exp_type, subjectStr)
+% SETUPEXPERIMENT_SHAPE_EXPONENT  Set up the target-shape-roughness variant of the experiment.
+%   experiment.setUpExperiment_shape_exponent(exp_type, subjectStr)
 %
-% Example:
-%  SETUPEXPERIMENT();
+%   Variant of experiment.setUpExperiment in which the level is the 1/f
+%   exponent of the target boundary's shape, so the target's outline runs from
+%   rough to smooth while its texture stays fixed. There is no edge-power
+%   file; each stimulus's edge power is measured after it is made.
 %
-% Output:
-%  None
+%   Inputs
+%     exp_type   - experiment name, also the exp_files/ subdirectory.
+%     subjectStr - nSubjects x 2 char array of subject initials, one row per
+%                  subject, each becoming a subject_out/<initials>.mat file.
 %
-% See also:
-%   SESSIONSETTINGS
+%   Output
+%     none (side effects: creates exp_files/<exp_type>/exp_settings.mat and
+%     exp_files/<exp_type>/subject_out/<initials>.mat for each subject).
 %
-% v1.0, 2/18/2016, Steve Sebastian <sebastian@utexas.edu>
+%   Fixed here rather than passed in: luminance 0.5 and contrast 0.15
+%   (normalised / dimensionless), a 512-pixel stimulus with a 128-pixel target
+%   radius, 120 pixels per degree, a pink-noise texture of exponent 1.1, and a
+%   single shape exponent of 0.8249 — so as written this "variant over shape
+%   exponents" has one level.
+%
+%   The manipulation this variant exists for does not currently reach the
+%   stimulus: lib.create_pink_noise_line ignores the exponent it is handed, so
+%   every target boundary is generated at exponent 1 whatever is asked for
+%   (B1.3). Whether the stimuli already on disk predate that regression is
+%   unverified.
+%
+%   The settings file is saved with '-v7.3' here, unlike the other variants,
+%   because a 512-pixel stimulus set exceeds the 2 GB limit of the default
+%   MAT-file format.
+%
+%   This is one of five near-duplicate setUpExperiment variants; S3.3 collapses
+%   them into one function taking a level-variable specification.
+%
+%   See also experiment.SETUPEXPERIMENT, experiment.SESSIONSETTINGS_SHAPE_EXPONENT,
+%   experiment.SUBJECTEXPERIMENTFILE.
 
-%% CAMOUFLAGE
+    %% CAMOUFLAGE
+    luminance = 0.5;
+    contrast = 0.15;
+    bg_size = 512; % in px
+    target_radius = 128; % in px
+    shape_exponents = .8249;
+    monitor_distance = 120; % in PPD
 
-luminance=0.5;
-contrast=0.15;
-bg_size=512; % in px
-target_radius=128; % in px
-shape_exponents=.8249;
-monitor_distance=120; % in PPD
-
-% for checking clipping in boundary ribbon region
+    % for checking clipping in boundary ribbon region
 %     kernel_size=[1 3];
 
-texture.type='pink_noise';
-texture.exponent=1.1;
+    texture.type = 'pink_noise';
+    texture.exponent = 1.1;
 
 %     global bdry_ribbon;
 %     [~,~,~,bdry_ribbon]=lib.circular_mask(bg_size,target_radius,'center',kernel_size);
 
-%% Session files
-ExpSettings = experiment.sessionSettings_shape_exponent(exp_type,texture, shape_exponents, luminance, contrast, bg_size, target_radius, monitor_distance);
-folderOut= ['exp_files/' exp_type];
-mkdir(folderOut);
-fpOut = [folderOut '/exp_settings.mat'];
-save(fpOut,'ExpSettings','-v7.3');
-
-%% Subject experiment files
-%subjectStr = ['ad'; 'cw'; 'es'; 'wg'];
-
-nSubjects = size(subjectStr, 1);
-
-for iSubject = 1:nSubjects
-    SubjectExpFile = experiment.subjectExperimentFile(ExpSettings);
-    folderOut= ['exp_files/' exp_type '/subject_out'];
+    %% Session files
+    ExpSettings = experiment.sessionSettings_shape_exponent(exp_type, texture, ...
+        shape_exponents, luminance, contrast, bg_size, target_radius, monitor_distance);
+    folderOut = ['exp_files/' exp_type];
     mkdir(folderOut);
-    fpOut = [folderOut '/' subjectStr(iSubject,:) '.mat'];
-    save(fpOut, 'SubjectExpFile');
-end
+    filePathOut = [folderOut '/exp_settings.mat'];
+    save(filePathOut, 'ExpSettings', '-v7.3');
+
+    %% Subject experiment files
+    %subjectStr = ['ad'; 'cw'; 'es'; 'wg'];
+    nSubjects = size(subjectStr, 1);
+
+    for iSubject = 1:nSubjects
+        SubjectExpFile = experiment.subjectExperimentFile(ExpSettings);
+        folderOut = ['exp_files/' exp_type '/subject_out'];
+        mkdir(folderOut);
+        filePathOut = [folderOut '/' subjectStr(iSubject, :) '.mat'];
+        save(filePathOut, 'SubjectExpFile');
+    end
 end

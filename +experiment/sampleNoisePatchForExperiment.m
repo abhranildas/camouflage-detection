@@ -1,40 +1,72 @@
-function [stimuli, pIndex] = sampleNoisePatchForExperiment(ImgStats, targetKeyStr, binIndex, binContrast, nTrials, nLevels, nBlocks, sampleMethod)
-%SAMPLEPATCHESFOREXPERIMENT Sample patches for use in the detection experiment
-% 
-% Example: 
-%  [stimiuli pIndex] = SAMPLEPATCHESFOREXPERIMENT(ImgStats, 'gabor', [5 5 5], 'uniform'); 
+function [stimuli, patchIndex] = sampleNoisePatchForExperiment(ImgStats, targetKeyStr, ...
+    binIndex, binContrast, nTrials, nLevels, nBlocks, sampleMethod)
+% SAMPLENOISEPATCHFOREXPERIMENT  Build 1/f-noise stimuli for a detection experiment.
+%   [stimuli, patchIndex] = experiment.sampleNoisePatchForExperiment(ImgStats, ...
+%       targetKeyStr, binIndex, binContrast, nTrials, nLevels, nBlocks)
+%   [...] = experiment.sampleNoisePatchForExperiment(..., sampleMethod)
 %
-% v1.0, 1/5/2016, R. Calen Walshe <calen.walshe@utexas.edu>
+%   The synthetic-background control condition: instead of cropping natural
+%   image patches, every stimulus is a fresh 241 x 241 pink-noise field
+%   rescaled to the RMS contrast of the contrast bin named by binIndex(2).
+%   No source patches are drawn, so the returned index array is all zeros and
+%   exists only to match the signature of the sibling samplers.
+%
+%   Inputs
+%     ImgStats     - image-statistics struct; uses .Settings (for
+%                    .surroundSizePix, the stimulus side in pixels) and the
+%                    target key list.
+%     targetKeyStr - target name, e.g. 'gabor'; resolved to an index but not
+%                    otherwise used on this path.
+%     binIndex     - [luminance, contrast, similarity] bin indices, each
+%                    1-10; only the second is used here.
+%     binContrast  - RMS contrast at each contrast-bin centre, dimensionless.
+%     nTrials      - trials per level, count.
+%     nLevels      - levels per session, count.
+%     nBlocks      - sessions, count.
+%     sampleMethod - kept for signature compatibility with the sibling
+%                    samplers; unused here. Default 'uniform'.
+%
+%   Output
+%     stimuli    - surroundSizePix x surroundSizePix x nTrials x nLevels x
+%                  nBlocks array of 16-bit pixel values.
+%     patchIndex - nTrials x nLevels x nBlocks array of zeros; there is no
+%                  source patch for a synthesised field.
+%
+%   Note that lib.pink_noise_2d does not exist anywhere in the tree (B2.9), so
+%   this function cannot currently run; the call is left as written, since
+%   repointing it would be a real change and not a Stage 1 rename. nPatches
+%   is likewise computed and never used.
+%
+%   See also experiment.SAMPLEPATCHESFOREXPERIMENT, experiment.SAMPLEUNIFORMPATCHFOREXPERIMENT.
 
-%% Set up
+    %% Set up
+    if(nargin < 7)
+        sampleMethod = 'uniform';
+    end
 
-if(nargin < 7)
-    sampleMethod = 'uniform';
-end
+    targetKeyIndex = lib.getTargetIndexFromString(ImgStats.Settings, targetKeyStr);
+    nPatches = nBlocks*nLevels*nTrials;
+    maskContrast = binContrast(binIndex(2));
 
+    %% Load, crop and save images
+    stimuli = zeros(ImgStats.Settings.surroundSizePix, ImgStats.Settings.surroundSizePix, ...
+        nTrials, nLevels, nBlocks);
 
-targetKeyIndex = lib.getTargetIndexFromString(ImgStats.Settings, targetKeyStr);
-nPatches = nBlocks*nLevels*nTrials;
-maskContrast = binContrast(binIndex(2));
+    for iTrial = 1:nTrials
+        for iLevel = 1:nLevels
+            for iBlock = 1:nBlocks
+                noisePatch = lib.pink_noise_2d(241, 241, 60);
 
-%% Load, crop and save images
-stimuli = zeros(ImgStats.Settings.surroundSizePix, ImgStats.Settings.surroundSizePix, nTrials, nLevels, nBlocks);
+                noisePatch = (noisePatch - min(noisePatch(:)));
+                noisePatch = round((noisePatch ./ max(noisePatch(:))) .* (2^16 - 1));
 
-for iTrials = 1:nTrials
-    for iLevels = 1:nLevels
-        for iBlocks = 1:nBlocks                                                         
-            nPatch = lib.pink_noise_2d(241, 241, 60);
-            
-            nPatch = (nPatch - min(nPatch(:)));
-            nPatch= round((nPatch./ max(nPatch(:))) .* (2^16 - 1));
+                noisePatch = (noisePatch - mean(noisePatch(:))) ./ std(noisePatch(:)) ...
+                    .* maskContrast .* floor((2^16 - 1)/2) + floor((2^16 - 1)/2);
 
-            nPatch = (nPatch - mean(nPatch(:))) ./ std(nPatch(:)) .* maskContrast .* floor((2^16 - 1)/2) + floor((2^16 - 1)/2);
-            
-            stimuli(:,:, iTrials, iLevels, iBlocks) = ...
-                nPatch;            
+                stimuli(:, :, iTrial, iLevel, iBlock) = noisePatch;
+            end
         end
     end
+
+    patchIndex = zeros([nTrials, nLevels, nBlocks]);
 end
-
-pIndex = zeros([nTrials, nLevels, nBlocks]);
-
