@@ -1,50 +1,83 @@
-function [tSigma, smallSample] = computeTemplateResponseSigma(ImgStats, targetTypeStr, bScale)
+function [templateSigma, smallSample] = computeTemplateResponseSigma(ImgStats, ...
+    targetTypeStr, bScale)
+%COMPUTETEMPLATERESPONSESIGMA  Per-bin sd of template-match response, across one or more targets.
+%
+%   [templateSigma, smallSample] = ...
+%       experiment.analysis.COMPUTETEMPLATERESPONSESIGMA(ImgStats, ...
+%       targetTypeStr, bScale)
+%
+% For each (luminance, contrast, similarity) bin, the sd of
+% ImgStats.tMatch over the patches indexed by ImgStats.patchIndex, optionally
+% scaled down by each target's own energy.
+%
+% B3.4 (pre-existing, not fixed here): the size(...) at the smallSample
+% guard below should be numel(...), and the iSimilarity loop bound should be
+% size(templateSigma,3), not size(templateSigma,1) — possibly harmless if
+% those dimensions happen to match, unverified.
+%
+% Inputs
+%   ImgStats        image-statistics struct, as built by the (out-of-scope,
+%                   excluded) +stats/ package
+%   targetTypeStr   target identifier, passed to lib.getTargetIndexFromString
+%   bScale          true to divide each target's response sd by its own
+%                   energy sum(target(:).^2)
+%
+% Output
+%   templateSigma   sd of template-match response, size(patchIndex{1}) x
+%                   n_targets (or size(patchIndex{1}) if n_targets == 1)
+%   smallSample     1 where the corresponding bin has fewer than 300
+%                   patches, same size as templateSigma
+%
+%   See also LIB.GETTARGETINDEXFROMSTRING, EXPERIMENT.ANALYSIS.COMPUTETHRESHOLDSVSSTATISTIC.
 
-targetIndex = lib.getTargetIndexFromString(ImgStats.Settings,targetTypeStr);
+targetIndex = lib.getTargetIndexFromString(ImgStats.Settings, targetTypeStr);
 
-nTargets = size(targetIndex,2);
+nTargets = size(targetIndex, 2);
 
-for iTar = 1:nTargets
+for iTarget = 1:nTargets
     if(nTargets == 1)
         targetIndexCurr = targetIndex;
     else
-        targetIndexCurr = targetIndex(iTar);
+        targetIndexCurr = targetIndex(iTarget);
     end
-    patchIndex{iTar} = ImgStats.patchIndex{targetIndexCurr};
-    tMatch(:,:,iTar) = ImgStats.tMatch(:,:,targetIndexCurr);
+    patchIndex{iTarget} = ImgStats.patchIndex{targetIndexCurr};
+    tMatch(:, :, iTarget) = ImgStats.tMatch(:, :, targetIndexCurr);
     if(bScale)
-        targetCurr = ImgStats.Settings.targets(:,:,targetIndexCurr);
-        scaleFactor(iTar) = sum(targetCurr(:).*targetCurr(:));
+        targetCurr = ImgStats.Settings.targets(:, :, targetIndexCurr);
+        scaleFactor(iTarget) = sum(targetCurr(:).*targetCurr(:));
     else
-        scaleFactor(iTar) = 1;
+        scaleFactor(iTarget) = 1;
     end
 end
 
 if(nTargets > 1)
-    tSigma = zeros([size(patchIndex{1}), nTargets]);
+    templateSigma = zeros([size(patchIndex{1}), nTargets]);
     smallSample = zeros([size(patchIndex{1}), nTargets]);
 else
-    tSigma = zeros(size(patchIndex{1}));
+    templateSigma = zeros(size(patchIndex{1}));
     smallSample = zeros(size(patchIndex{1}));
 end
 
-for iTar = 1:nTargets
+for iTarget = 1:nTargets
     if(nTargets > 1)
-        patchIndexCurr = patchIndex{iTar};
-        tMatchCurr = tMatch(:,:,iTar);
+        patchIndexCurr = patchIndex{iTarget};
+        tMatchCurr = tMatch(:, :, iTarget);
     else
         patchIndexCurr = patchIndex{1};
         tMatchCurr = tMatch;
     end
-    
-    for iLum = 1:size(tSigma,1)
-        for iCon = 1:size(tSigma,2)
-            for iSim = 1:size(tSigma,1)
-                tSigma(iLum, iCon, iSim,iTar) = std(tMatchCurr(patchIndexCurr{iLum, iCon, iSim}))./scaleFactor(iTar);
-                if(size(patchIndexCurr{iLum, iCon, iSim} < 300))
-                    smallSample(iLum, iCon, iSim,iTar) = 1;
+
+    for iLuminance = 1:size(templateSigma, 1)
+        for iContrast = 1:size(templateSigma, 2)
+            for iSimilarity = 1:size(templateSigma, 1)
+                templateSigma(iLuminance, iContrast, iSimilarity, iTarget) = ...
+                    std(tMatchCurr(patchIndexCurr{iLuminance, iContrast, iSimilarity})) ./ ...
+                    scaleFactor(iTarget);
+                if(size(patchIndexCurr{iLuminance, iContrast, iSimilarity} < 300))
+                    smallSample(iLuminance, iContrast, iSimilarity, iTarget) = 1;
                 end
             end
         end
     end
+end
 end

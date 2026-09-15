@@ -1,4 +1,15 @@
-lum_cont=[
+%COMPUTE_THRESHOLDS_VS_LUM_CONT  Fit and plot threshold as a surface over luminance/contrast.
+%
+% Ad-hoc script, not a function: loops over a fixed grid of (luminance,
+% contrast) conditions, fits each one's threshold via
+% analysis.computeThresholdInBin (unresolved — B2.9, pre-existing, not fixed
+% here: no top-level +analysis package exists, so this call errors), then
+% fits a thin-plate-spline surface to threshold vs. (luminance, contrast)
+% and plots it.
+%
+%   See also EXPERIMENT.ANALYSIS.COMPUTETHRESHOLDSVSSTATISTIC.
+
+lum_cont = [
 .01 .05;
 .01 .15;
 .01 .25;
@@ -23,30 +34,34 @@ lum_cont=[
 .7 .15
 ];
 
-thresholds_lum_cont=struct;
-for i=1:size(lum_cont,1)
-    luminance=lum_cont(i,1); contrast=lum_cont(i,2);
-    exp_name=['1fnoise_L' num2str(luminance) '_C' num2str(contrast)];
-    [a, aStd, sessions] = analysis.computeThresholdInBin(exp_name, 'ad', 1, 1);
-    thresholds_lum_cont(i).luminance=luminance;
-    thresholds_lum_cont(i).contrast=contrast;
-    thresholds_lum_cont(i).sessions=sessions;
-    thresholds_lum_cont(i).threshold=a;
-    thresholds_lum_cont(i).threshold_std=aStd;
+thresholds_lum_cont = struct;
+for iCondition = 1:size(lum_cont, 1)
+    luminance = lum_cont(iCondition, 1); contrast_val = lum_cont(iCondition, 2);
+    exp_name = ['1fnoise_L' num2str(luminance) '_C' num2str(contrast_val)];
+    [fit_threshold, fit_threshold_std, sessions] = ...
+        analysis.computeThresholdInBin(exp_name, 'ad', 1, 1);
+    thresholds_lum_cont(iCondition).luminance = luminance;
+    thresholds_lum_cont(iCondition).contrast = contrast_val;
+    thresholds_lum_cont(iCondition).sessions = sessions;
+    thresholds_lum_cont(iCondition).threshold = fit_threshold;
+    thresholds_lum_cont(iCondition).threshold_std = fit_threshold_std;
 end
 
-[xData, yData, zData] = prepareSurfaceData([thresholds_lum_cont.luminance],[thresholds_lum_cont.contrast],[thresholds_lum_cont.threshold]);
-sf = fit( [xData, yData], zData, 'thinplateinterp', 'Normalize', 'on' );
+[xData, yData, zData] = prepareSurfaceData([thresholds_lum_cont.luminance], ...
+    [thresholds_lum_cont.contrast], [thresholds_lum_cont.threshold]);
+sf = fit([xData, yData], zData, 'thinplateinterp', 'Normalize', 'on');
 %Or use Thin-plate spline interpolant with centering and scaling from the
 %curve fitting toolbox. This code is doing the same thing.
-[xq,yq] = meshgrid(.1:.03:.7, .05:.03:.35);
+[xq, yq] = meshgrid(.1:.03:.7, .05:.03:.35);
 
-zq = sf(xq,yq);
+zq = sf(xq, yq);
 
 figure;
-surf(xq,yq,zq,'EdgeAlpha', .2,'FaceAlpha',.7);
+surf(xq, yq, zq, 'EdgeAlpha', .2, 'FaceAlpha', .7);
 hold on
-plot3([thresholds_lum_cont.luminance],[thresholds_lum_cont.contrast],[thresholds_lum_cont.threshold],'.','MarkerSize',12,'MarkerEdgeColor','black','MarkerFaceColor','black')
+plot3([thresholds_lum_cont.luminance], [thresholds_lum_cont.contrast], ...
+    [thresholds_lum_cont.threshold], '.', 'MarkerSize', 12, 'MarkerEdgeColor', 'black', ...
+    'MarkerFaceColor', 'black')
 hold off
 xlim([.1 .7])
 xlabel 'luminance'
@@ -57,5 +72,4 @@ ylabel 'contrast'
 zlim([0 1])
 
 zlabel 'threshold'
-set(gca,'FontSize',13)
-    
+set(gca, 'FontSize', 13)
