@@ -19,7 +19,7 @@ Read every in-scope `.m` file in the repo and clean it in place — better names
 Comments, header docs, whitespace, reflow, file-local renames, and triaging any commented-out code found in each tranche's files (verdict only, nothing deleted). Checked by `isequal` on a canonical AST fingerprint — no execution needed.
 
 - [x] **0.1.0.** Tooling: `canon`/`check_stage1`/`assert_rename_bijection`, golden-output harness, repo-wide rename map. → `matlab-cleanup-lead`
-- [ ] **0.1.1.** `+lib/` edge & stimulus core — 14 files, 948 lines. **Sets the naming conventions for everything downstream.** → `matlab-cleanup-lead`
+- [x] **0.1.1.** `+lib/` edge & stimulus core — 14 files, 948 lines. **Sets the naming conventions for everything downstream.** → `matlab-cleanup-lead`
 - [ ] **0.1.2.** `+lib/edge_props_stim.m` — 1 file, 535 lines. → `matlab-cleanup-lead`
 - [ ] **0.1.3.** `+lib/` remainder — 41 files, 1484 lines. → `matlab-cleanup-mechanical` (`model: "sonnet"`)
 - [ ] **0.1.4.** `+experiment/+main/` — 11 files, 714 lines. → `matlab-cleanup-mechanical` (`model: "sonnet"`)
@@ -133,6 +133,8 @@ Everything below was found *before* this plan started, during the survey that pr
 - [ ] 🟠 **B2.10.** **`levelCompleted` is incremented rather than set.** **[read]** `+experiment/saveCurrentLevel.m:20-22` does `levelCompleted(...) = levelCompleted(...) + 1`, so a five-argument re-run of an already-completed level overshoots the true count.
 - [ ] 🟠 **B2.11.** **Hardcoded absolute paths on other people's machines.** `+experiment/+analysis/computeBootstrappedThreshold.m:37,41` reference `/Users/steve/Dropbox/...` and `C:\Users\sebastian\Dropbox\...`. Already recorded in `CLEANUP.md` §4 as deliberately left stale; carried here so it is not lost.
 - [ ] 🟠 **B2.12.** **`lib.stimulus` with `target_radius = 0` and more than three outputs errors** **[ran]** — `mask` through `wn_t` are never assigned on that branch (`+lib/stimulus.m:158,204`). Reachable from any caller that asks for the mask outputs on a blank stimulus.
+- [ ] 🟠 **B2.13.** **`lib.stimulus`'s target branch tests the *background* texture struct to decide how to build the *target*.** **[read]** Found in tranche 0.1.1. Pre-edit `+lib/stimulus.m:159` asks `~isfield(texture_bg,'img')||isempty(texture_bg.img)` to decide whether the target is a synthesised texture or an image reference, and `:186` branches on `strcmp(texture_bg.type,'crop')` inside a block whose own `if` at `:166` already tested `texture.type`. Compare the background branch at `:101`, which correctly consults `texture_bg`. So a call giving an image-referenced `texture` and a plain pink-noise `texture_bg` takes the synthesis branch at `:160-164` and then errors in `textureSynthesis(texture.stats, ...)`, because `.stats` was never computed. Same family as B1.4 (`:182-184`), which is the silent half of the same confusion; this entry is the half that errors. Both are in the `_diff_bg` path, which was run.
+- [ ] 🟠 **B2.14.** **`lib.compute_pClipped` always says "boundary ribbon".** **[read]** `+lib/compute_pClipped.m:6` warns `'%.2f%% of boundary ribbon clipped\n'` whatever it is handed, but the function is a general clipping fraction and is called on whole stimuli. Display-only, hence severity 2. Noted in the tooling entry (section 4.1.3, step 0) as "a header/message wording fix, well inside Stage 1" — **that was wrong**: the text is a string literal and therefore part of the syntax tree, so `canon` sees it change and Stage 1 forbids it. It is filed here instead.
 
 **Severity 3 — latent**
 
@@ -148,6 +150,9 @@ Everything below was found *before* this plan started, during the survey that pr
 - [ ] 🟡 **B3.10.** **Undefined-variable blocks.** All **[read]**: `+experiment/+analysis/computeThreshold_edgeResponse.m:102-132` (`exp_values`, `a`, `b`, `c`, `target_means`, `target_sds`, `threshold`); `+general/compute_nat_img_eff_coding_bins.m:123` (`pca_coeffs`, used about 20 lines *before* it is computed at `:144`, with the alternative `load` at `:26` commented out) and `:283` (`pca(rgb)` where `rgb` is all-NaN because its only write at `:74` is commented out).
 - [ ] 🟡 **B3.11.** **About 15 top-level scripts in `+general/` depend on workspace variables they never define** — `ExpSettings`, `SubjectExpFile`, `edge_powers`, `texture_list`, `seed_energy`, `centers`, `alphas`, and others. Opening one and pressing Run always fails. The individual files were not enumerated in the original survey; enumerating them is part of S3.7.
 - [ ] 🟡 **B3.12.** **Bugs inside the `_`-prefixed dead files**, recorded so that reviving one does not reintroduce them unnoticed. `+stats/_loadStatisticsSettings.m:59,60,119,180` hold absolute paths (`D:\sebastian\natural_images\...`, `~/occluding/...`) that make `+stats` **silently produce an all-zeros `ImgStats`** rather than erroring, because `dir()` on a missing path returns empty — these are *not* in `CLEANUP.md`. `+general/_compute_edges.m:152,157,160,165,194,250` and `_compute_edge_strengths_multiscale.m:113-121` pass `'type','samp'` where the parameter is `input_type`, so it silently falls back to `'norm'` and sample matrices are interpreted as distribution parameters; `'bplot',false` at `_compute_edges.m:194` should be `plotmode` and opens 501 figures. `_fit_edge_model.m:184` uses `sqerr`, whose only assignment at `:160` is commented out, so cell 1 dies at its last line after about 20 minutes of work. `_fit_edge_model_old.m` has at least 11 undefined variables including `bBootstrap` on its live path. `_computeThreshold_trials.m:87-96` uses undefined `hit` and `correct_reject` and makes a 9-input/4-output call to an 8-input/3-output `fitPsychometric`. Worst of all, `+general/_changepower.m:17-18` **overwrites `exp_settings.mat` and a subject file in place with no backup** while `edge_powers` is never loaded (`:5`).
+
+- [ ] 🟡 **B3.13.** **`lib.edge_measures` builds its default boundary ribbon from a hardcoded image size.** **[read]** Found in tranche 0.1.1. `+lib/edge_measures.m:6` calls `lib.target_mask()` with no arguments to supply the default for the `'bdry_strip'` parameter, so that default is always a 256-pixel image with a 64-pixel-radius circular target, whatever `stim` actually is — the same failure mode as B3.1 in `edge_props_stim.m`, and correct today only because every stimulus in the repo happens to be 256/64. It is also evaluated on **every** call, including calls that pass `'bdry_strip'` explicitly and throw the result away.
+- [ ] 🟡 **B3.14.** **`lib.target_mask` swaps row and column in the non-circular branch.** **[read]** Found in tranche 0.1.1. Pre-edit `+lib/target_mask.m:45-46` does `[x,y]=meshgrid(1:bg_size)` — so `x` is the column index — and then `cart2pol(x-mask_center(1), y-mask_center(2))`, pairing the column with `mask_center(1)`. The circular branch at `:34` pairs `mask_center(1)` with the **row** (`norm([i,j]-mask_center)`). For an off-centre non-circular target the mask is therefore displaced to the transposed location. Latent because `target_loc` is `'center'` everywhere in the repo, where both components are equal. A second, harmless consequence of the same swap: theta runs the opposite way round for a noisy target than for a circular one, which only relabels a noise realisation.
 
 **Recorded and disproved.** For the record, one plausible-sounding hypothesis is *false*: `edge` called unqualified inside `+lib/detect_edge_pixels.m:20` and `+lib/edge_measures.m:18` does **not** resolve to `lib.edge`. `lib.detect_edge_pixels(stim)` runs correctly and returns 1814 edge pixels **[ran]** — MATLAB resolves it to the Image Processing Toolbox `edge`. Do not "fix" these call sites.
 
@@ -466,6 +471,103 @@ Four decisions inside the harness that later tranches inherit:
 
 </details>
 
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Tranche 0.1.1 — <code>+lib/</code> edge &amp; stimulus core (14 files, 948 lines)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+**Done**, under **MATLAB 24.2.0.2923080 (R2024b) Update 6**. Files: `stimulus.m`, `target_mask.m`, `edge.m`, `edge_vector_ideal.m`, `edge_measures_ideal.m`, `edge_measures.m`, `edge_energy.m`, `edge_shape.m`, `edge_response.m`, `edge_fit_cost.m`, `steerable_grad.m`, `steerable_filter.m`, `local_sd.m`, `compute_pClipped.m`. **This entry is binding on tranches 0.1.2–0.1.11**; the conventions below were chosen once, here, and later tranches follow them rather than re-deriving them.
+
+**Baseline: HEAD, for all 14.** `git status` showed no in-scope `+lib/` file dirty, and `git diff HEAD -- '+lib/'` was empty before any edit, so the tooling entry's rule applies unchanged. The pre-edit copies were extracted with `git show HEAD:+lib/<f>.m` into a scratch directory and `check_stage1` was run against those. The two files carrying uncommitted `colorbarpzn` repoints are both in `+general/` and were not touched.
+
+**Verbatim checker output.** The sweep script builds each file's rename map, runs `assert_rename_bijection` (inside `check_stage1`) and then the reverse-rename comparison:
+
+```
+24.2.0.2923080 (R2024b) Update 6
+check_stage1 stimulus               1  (24 renames)
+check_stage1 target_mask            1  (14 renames)
+check_stage1 edge                   1  (13 renames)
+check_stage1 edge_vector_ideal      1  (18 renames)
+check_stage1 edge_measures_ideal    1  (4 renames)
+check_stage1 edge_measures          1  (5 renames)
+check_stage1 edge_energy            1  (5 renames)
+check_stage1 edge_shape             1  (10 renames)
+check_stage1 edge_response          1  (7 renames)
+check_stage1 edge_fit_cost          1  (1 renames)
+check_stage1 steerable_grad         1  (12 renames)
+check_stage1 steerable_filter       1  (3 renames)
+check_stage1 local_sd               1  (6 renames)
+check_stage1 compute_pClipped       1  (0 renames)
+files checked : 14
+check_stage1 true : 14
+check_stage1 false: 0
+```
+
+Stage 1 does not require a runtime check, but eight of these files are inside the golden harness, so it was replayed as a free extra confirmation:
+
+```
+golden_harness: replay matched all 32 fields
+```
+
+`checkcode` over the 14 files gives **the same 8 messages before and after**, the same ids in the same files — `stimulus` ASGLU ×3, `edge` NANMEAN, `edge_vector_ideal` NANMEAN, `edge_energy` DSPNORM, `compute_pClipped` LOGSUM ×2. No lint was introduced and none was fixed; all 8 are Stage 2 or Stage 4 work.
+
+---
+
+**Binding convention 1 — one old name maps to exactly one new name, per file.** This is a hard constraint, not a preference: `check_stage1` reverse-renames the canonical text globally, and `assert_rename_bijection` rejects a map where two new names share an old one. So where one file reuses a letter for two different roles, **you get one name for both**. It bit three files here. `+lib/edge.m` and `+lib/edge_vector_ideal.m` each use `i` as a pixel row index in the circular branch and as an index into a list of edge pixels in the other branch; `+lib/edge_shape.m` uses `i` for pixel rows and then for autocorrelation lags. In all three the name chosen was `i_row`, fitting the first use, with a two-line comment at the second site saying plainly that `i_row` indexes something else there and why it cannot be renamed separately. **Splitting such a variable into two is a Stage 3 change; do not attempt it in Stage 1, and do not "solve" it by leaving the counter as `i`.**
+
+**Binding convention 2 — loop counters.** In the snake_case directories (`+lib/`, `+general/`, `+tinker/`), a loop counter is `i_<thing>`: `i_row`, `i_col`, `i_lag`, `i_exp`, `i_longest`, `i_unique_theta`. This is not invented — `+lib/edge_fit_cost.m` already wrote `i_exp` and `+lib/edge_props_stim.m` already writes `i_scale`. In `+experiment/` the equivalent is the existing camelCase `iTrial`/`iLevel`, which stays. **Pixel loops are `i_row`/`i_col`, never `row`/`col`**, because `row`/`col` is already taken in this code for *vectors* of found pixel coordinates (`[row,col] = find(mask_edge)`), and using the same words for a scalar index and a vector is what forces the collision in convention 1. Those coordinate vectors were renamed to `edge_rows`/`edge_cols`.
+
+**Binding convention 3 — a local variable that mirrors a zone-2 name-value parameter keeps the parameter's exact name.** `bg_size`, `target_radius`, `target_shape`, `target_loc`, `target_or`, `kernel_size`, `n_edge`, `mask`, `mask_edge`, `mask_normal`, `ml_b`, `cont_b`, `ml_t`, `cont_t`, `texture`, `texture_bg`, `seed`, `pad_val`, `normalize`, `bdry_strip`, `edge_kernel`, `target_radius_cont` were all left alone for this reason, even where the name is poor (`ml_b`, `cont_b`). Renaming the local would pass the check — `parser.Results.ml_b` is dot-qualified and the regex skips it — and would leave the file reading `mean_lum_bg = parser.Results.ml_b`, which is worse than either name alone. Section 4.1.1's promised `ml`→`mean_lum` and `cont`→`contrast_rms` expansions therefore **do not happen in Stage 1 anywhere the name is a parameter**; they belong to S3.9, which renames the parameter and every call site together. A local that merely *holds* a parameter's value under a different name of its own is still free.
+
+**Binding convention 4 — header shape.** Exactly the exemplar's: `% FUNCTION_NAME  One-line summary.`, then the fully-qualified call signature(s) indented three spaces, a blank comment line, prose, an `Inputs` block, an `Output`/`Outputs` block, then `See also`. `See also` targets are written **package-lowercase, function-uppercase** — `lib.STEERABLE_GRAD`, matching `vislab.lib.OTF_FILTER` in the exemplar. Every input and output line states a unit or says the quantity is dimensionless. Where a recorded bug makes the documented behaviour a lie, the header says so and cites the bug id, rather than quietly documenting the intent.
+
+**Binding convention 5 — function bodies are indented four spaces, and every function file ends with `end`.** Half of these files indented the body and half did not; the exemplar indents, so all 14 now do. The terminal `end` was likewise inconsistent. Both were verified to round-trip clean through `canon` on a probe file before being applied — `tree2str` supplies a missing `end` and normalises indentation, so neither is visible to the check.
+
+**Binding convention 6 — author attribution moves to the bottom of the header**, just above `See also`, instead of sitting between the summary line and the examples. It was only present in `stimulus.m` and `edge.m`; both now carry it in the new position. Later tranches should place any attribution block the same way and should not add one where none existed.
+
+**Binding convention 7 — cross-boundary names are harmonised toward the caller's word, not the callee's**, when the two disagree and both are file-local. The concrete case here: `lib.target_mask` returned `target_normal` and `bd_strip`, while every caller catches them as `mask_normal` and (in `lib.stimulus`) `mask_strip`. The outputs are now `mask_normal` and `mask_strip`, so the whole `mask`/`mask_edge`/`mask_normal`/`mask_strip` family reads as one family on both sides of every call. The one caller that disagrees is `lib.edge_measures`, whose local is `bdry_strip` — but that is its zone-2 parameter name, so convention 3 wins there and the mismatch stays until S3.9. It is noted in that file's header.
+
+**The concrete vocabulary set here**, to be reused rather than re-invented:
+
+| meaning | name | notes |
+|---|---|---|
+| boundary parameter / polar angle | `theta`, `theta_grid`, `theta_field`, `theta_edge`, `theta_lags` | never `th`. `th` meant *threshold*, not theta, in `edge_response.m` — check the file, not the name |
+| steerable kernel pair | `filter_kernel` | in both `steerable_filter.m` (output, was `filter`, a builtin shadow) and `steerable_grad.m` (local, was `filt`) |
+| image gradient, rows × cols × 2 | `stim_grad` | `steerable_grad`'s output was `grad`; every caller already wrote `stim_grad` |
+| normal component of the gradient | `grad_normal` | `edge_energy.m` called it `edge_normal`; `edge_shape.m` already said `grad_normal`. Pairs with the existing `grad_tangent` |
+| gradient magnitude | `..._magnitude` | never `mag` |
+| amplitude / spectrum | `edge_amplitude_spectrum`, `edge_power_spectrum`, `edge_phase_spectrum` | never `as`, `ps`, `spec` |
+| white noise that generates a texture | `white_noise_bg`, `white_noise_target` | was `wn_b`, `wn_t` |
+| background image | `stim_bg` | was `stim_b`. `_b`/`_t` suffixes expand to `_bg`/`_target` throughout |
+| a loaded source image on disk | `source_image` | was `img`. Section 4.1.1's suggested `image_data` was not used — `source` carries the useful distinction from the synthesised `stim` |
+| boundary/texture prefix | `boundary_`, `texture_` | never `bdry_`, `txtr_` |
+| P–S texture-synthesis knobs | `n_scales`, `n_orientations`, `neighborhood_size`, `n_synthesis_iter` | were `Nsc`, `Nor`, `Na`, `Niter`. The **struct field** `texture.Niter` is untouched — it is dot-qualified and is written to disk |
+| disc-shaped neighbourhood in `local_sd` | `disc_mask`, `disc_size`, `disc_center`, `disc_radius` | section 2's trial run used `disc_mask` + `mask_size`; `disc_*` throughout is more consistent and is what shipped |
+
+**A correction to section 4.1.1.** It says the variable `filter_radius` in `+lib/local_sd.m` "is actually the *product* `kernel_size(1)*kernel_size(2)`" and offers it as an example of a name that is a lie. On reading, that is not right: `kernel_size` is `[sigma, n_sigma]`, so that product *is* the kernel's truncation radius in pixels, and `+lib/steerable_filter.m:8` computes the identical quantity under the identical name. The name was accurate. It was still renamed, to `disc_radius`, but for a different reason — to match the `disc_*` neighbourhood family in that file — and `filter_radius` was deliberately **kept** in `steerable_filter.m`, where it describes the filter rather than a neighbourhood. `ExpSettings.monitor_distance` (B3.8) remains a genuine example of the misnaming class; this one was not.
+
+**Deliberately left alone.**
+
+- **`compute_pClipped`'s camelCase name**, in an otherwise snake_case package. It is the filename, and renaming a file is a cross-file change, out of Stage 1's scope. The reason is written into the file's header so the next reader does not "fix" it.
+- **`lib.edge` shadowing the Image Processing Toolbox `edge`**, and the unqualified `edge(stim,'zerocross',...)` call inside `+lib/edge_measures.m`, which resolves to the toolbox function. Section 0.4's "recorded and disproved" note says so; both files now say so in their headers too, because this is the single most inviting wrong "fix" in the package.
+- **`mask` as a variable name.** It is the zone-2 parameter name in `lib.edge`, so convention 3 settles it regardless of whether it shadows anything.
+- **`bPlot`** in `edge_shape.m`. The `b`-prefix boolean is an established repo convention (`bTargetPresent`, `bFovea`, `bBootstrap`); keep it in every tranche.
+- **All eight `checkcode` messages**, listed above.
+
+**Line-length exceptions — three, all in `+lib/edge_measures.m`**, at post-edit lines 68 (115 chars), 83 (117) and 84 (124). All three are **commented-out code** that step 2c triaged as *unfinished*. They were left byte-identical rather than reflowed: rewrapping dead code makes it harder to restore verbatim if S3.16 decides to revive it, and the wrapping would be invented by this pass rather than the author's. Every live line in all 14 files is under 100 characters; four function signatures and about a dozen expressions were wrapped with `...` and a four-space hanging indent to get there.
+
+**Contents.m — deferred to tranche 0.1.3, deliberately.** The "done" checklist asks for a `Contents.m` in each package touched, but this tranche cleans 14 of `+lib/`'s 56 files. A `Contents.m` written now would list a quarter of the package and be stale within two tranches. **Tranche 0.1.3, the last `+lib/` tranche, writes the one `+lib/Contents.m` covering all 56 files**, following `vislab-common/+vislab/+lib/Contents.m`. Tranche 0.1.2 should not write one either. Later packages that are cleaned in a single tranche should write theirs in that tranche.
+
+**Stage 2 not attempted**, per the plan: `+lib/` Stage 2 is item 0.2.1, done after the whole `+lib/` Stage 1 is complete. The four patterns are visible here and are left for it — `AGROW` none, `NOSEMI` none, `find` none convertible, and the `NASGU`/`ASGLU` targets are `stimulus.m`'s three unused `*_tight` outputs.
+
+**Bugs found: four, all recorded in section 0.4 and none fixed** — 🟠 B2.13 (`stimulus.m` target branch tests the background texture struct), 🟠 B2.14 (`compute_pClipped`'s warning text, which the tooling entry had wrongly called a Stage 1 fix), 🟡 B3.13 (`edge_measures.m`'s hardcoded default boundary ribbon), 🟡 B3.14 (`target_mask.m` swaps row and column in the non-circular branch). Two observations that are *not* filed as bugs, recorded so they are not re-discovered: `lib.edge_energy` leaves its output unassigned if `measure_type` matches none of its eight strings, which errors loudly and only on a file that already cannot run (B2.3); and `lib.edge_fit_cost` depends on `sumsqr` from the Deep Learning Toolbox, which is a dependency, not a defect. Both are noted in their files' headers.
+
+**A note for tranche 0.1.2.** `+lib/edge_props_stim.m` calls into four files cleaned here. It should adopt `theta`, `grad_normal`, `stim_grad`, `filter_kernel` and the `i_<thing>` counters, and it will hit convention 1 hard, since it reuses short names across a 535-line body.
+
+</div>
+
+</details>
+
 </div>
 
 </details>
@@ -525,9 +627,32 @@ Two things to know before triaging these. **`+lib/edge_props_stim.m:275-534` is 
 
 Acting on a verdict — deleting or converting — is Stage 3 (S3.16), never done here. Note that `check_stage1` **cannot see a commented-out block disappear**, because `canon` strips comments before comparing; triaging inside the same tranche that touches the file is what closes that gap, by judging each block at the one moment nothing has had a chance to make it vanish unassessed.
 
+Line numbers in the `file:lines` column are **pre-edit**, matching the sizing table above, so that a row can still be found in `git show` of the commit before its tranche.
+
 | block | file:lines | tranche | what the surrounding code says it was for | verdict |
 |---|---|---|---|---|
-| | | | | |
+| T1.1 | `+lib/edge.m:115-134` | 1 | A complete, working computation that splits the edge vector into runs of constant sign — "contour groups" — and returns each group's length and mean squared edge. Nothing in the live code does this. It is not abandoned downstream: `+general/compute_edge_group_measures.m:20` still destructures `lib.edge`'s outputs 3 and 4 as `l_groups, e_groups` (that is B1.5), and `lib.edge_response(l, e, th, n)` consumes exactly that pair of vectors. So the author switched the function's outputs 3 and 4 to a field and an angle grid and left the group code commented, but the model chain was never switched with it. | **alternative** — a real method the author switched away from and that a live caller still expects. Keep. S3.16 converts it, and S3.4 should decide whether the group statistic is part of the canonical edge measure before anything is deleted. |
+| T1.2 | `+lib/edge_measures.m:17` | 1 | `all_edges=edge(stim,'canny',[.2 .3]); % threshold for foliage` — a Canny detector with a hand-tuned threshold, sitting directly above the live `edge(stim,'zerocross',1e-3,edge_kernel)` on the next line, which carries the same trailing comment. Two detectors for one job; the author kept the zero-crossing one. | **alternative** — a different method with its own tuning. Convert to a documented `'method'` option, or record the switch and its threshold in the header. |
+| T1.3 | `+lib/edge_measures.m:30,33` | 1 | `d_n=(n_bdry_edges-n_bdry*txtr_edge_density)/sqrt(...)` and `response=d_n;`, under a live section header `%% compute edge density d'`. It references `n_bdry_edges`, `n_bdry` and `sig_n`, none of which exist in the function — the live code computes `n_bdry_edge_pixels` and `txtr_edge_density` but never combines them. This is the d' the section header promises and the function never delivers. | **unfinished** — a sketch that was never completed and cannot run as written. Keep, rewritten as a prose TODO naming the two live quantities it would combine. |
+| T1.4 | `+lib/edge_measures.m:35,39-51` | 1 | A per-contour loop computing each contour's length and mean squared edge, using `lib.contour_props`, `stim_grad_x`, `stim_grad_y` and `stim_std`. None of those four exist in this function — no gradient is ever computed here — so the block was pasted in from a context that had them (it is close kin to T1.1) and never wired up. | **unfinished** — keep, as a prose TODO. Do not treat it as superseded by T1.1: they compute over different contour sets (all image contours here, boundary groups there). |
+| T1.5 | `+lib/target_mask.m:51-56` | 1 | Explicitly labelled "check if boundary point (old method)": an 8-neighbour test inside the pixel loop, setting `mask_edge_old`. The live line 65, `mask_edge=bwperim(mask,4)|bwperim(~mask,4)`, computes the same boundary with a library call and works for both shape branches. | **superseded** by `+lib/target_mask.m:65`. Delete. |
+| T1.6 | `+lib/target_mask.m:58-61` | 1 | Labelled "new method" by the author: a 3×3 `unique` test, again per pixel. Same job as T1.5 and same job as the live `bwperim` pair, which is what actually shipped — so the author's "new method" was itself superseded before it went live. | **superseded** by `+lib/target_mask.m:65`. Delete. |
+| T1.7 | `+lib/target_mask.m:74,80` | 1 | A commented `if mask_edge(i,j)` / `end` wrapping the normal-vector assignment in the circular branch. With it commented out, the branch fills a unit normal at *every* interior pixel rather than only on the boundary; the noisy branch does mask to the boundary (`:93`). Every caller indexes the normals by `mask_edge` anyway, so the difference is invisible in output and costs only time. Whether it was commented out for speed, for debugging, or by accident cannot be told from the code. | **unknown** — the evidence runs out. Leave exactly as is. The resulting circular-vs-noisy asymmetry is documented in the file's header instead. |
+| T1.8 | `+lib/target_mask.m:84-85` | 1 | `imgradientxy(mask)` with a sign flip on the x component, directly above the live `imgradient(~mask)` plus `cosd`/`sind` at `:86-88`. Same normals, obtained from the gradient direction instead of its components; the live version avoids the manual sign flip. | **superseded** by `+lib/target_mask.m:86-88`. Delete. |
+| T1.9 | `+lib/target_mask.m:90-92` | 1 | A third route to the same normals, `lib.steerable_grad(~mask,[1 3])` followed by `vecnorm` normalisation. Note the call is positional and would error today for the reason in B2.3, so it is not even revivable as written. | **superseded** by `+lib/target_mask.m:86-88`. Delete. |
+| T1.10 | `+lib/target_mask.m:6,15` | 1 | A commented `'seed'` name-value parameter and its retrieval. The function's only randomness comes from `lib.create_pink_noise_line`, and the live design seeds the whole stimulus once in `lib.stimulus` (`rng('default'); rng(seed)`) before calling here — so a second seed on this function would be at best redundant and at worst would break the one-seed-one-stimulus property S3.1 depends on. | **superseded** by the seeding at `+lib/stimulus.m:82-83`. Delete. |
+| T1.11 | `+lib/steerable_filter.m:21-24` | 1 (the sizing table says 3; the file is in tranche 1's list, so it was triaged here) | Normalising the two kernels by their L2 norm, with the author's own reason attached — "so that larger filter responses aren't bigger simply due to size". That is a real alternative normalisation convention, and the live code instead normalises the *response* in `lib.steerable_grad`, which is not the same thing. | **alternative** — the reasoning is already moved into the file's header by this tranche; S3.16 should delete the code and keep the prose, or promote it to an option. |
+| T1.12 | `+lib/steerable_filter.m:26-30` | 1 | Five lines that gamma-correct and `image()` one kernel page to look at it. | **scaffolding** — delete, or promote to a `bPlot` flag if anyone actually wants to see the kernel. |
+| T1.13 | `+lib/steerable_grad.m:47-50` | 1 | An earlier version of the paste-the-valid-region step, padding by `kernel_size(1)*kernel_size(2)`. The live code at `:35-45` derives the paste indices from the actual kernel's row and column counts, which is correct for a non-square kernel and for an even width; the commented version assumes the radius formula and is wrong whenever a `'filter'` is passed in directly instead of a `kernel_size`. | **superseded** by `+lib/steerable_grad.m:35-45`. Delete. |
+| T1.14 | `+lib/steerable_grad.m:64` | 1 | `% stim_sd=std(stim(:));` — normalise by the image's global sd instead of the per-pixel local sd on the line above. That is a materially different model of contrast normalisation, and it is exactly the axis B1.1 turns on. | **alternative** — keep. Do not delete this one until S3.4 has picked a canonical edge-power definition; it is evidence about what the author was weighing. |
+| T1.15 | `+lib/edge_vector_ideal.m:51-54` | 1 | A `scatteredInterpolant` nearest-neighbour theta field over the whole image, then masked to the edge. The live `knnsearch` at `:50` plus the loop at `:55-57` assigns theta only at edge pixels — same result where it matters, without interpolating 65k pixels. | **superseded** by `+lib/edge_vector_ideal.m:50,55-57`. Delete. |
+| T1.16 | `+lib/edge_vector_ideal.m:73` | 1 | `% th_edge=th_edge(unique_idx_1,:);` — deduplicate thetas by keeping the first row of each. `unique_idx_1` exists nowhere in the file, and the live `unique` + `groupsummary` pair at `:79-80` deduplicates by *averaging* the degenerate thetas instead, which is the better answer and is what `lib.edge` also does. | **superseded** by `+lib/edge_vector_ideal.m:79-80`. Delete. |
+| T1.17 | `+lib/edge_response.m:8-9` | 1 | Two lines. `e_sup(isinf(e_sup))=e_tot(isinf(e_sup))-log(1+k);` patches infinities in the suppressed powers, but `e_tot` and `k` exist nowhere in the file, so it cannot be switched back on. `r=mean(e_sup);` is a complete earlier pooling rule — an unweighted mean, against the live length-weighted sum divided by `numel(e)+n`. | **unfinished** for the `e_sup(isinf(...))` line; **alternative** for `r=mean(e_sup)`. Keep both: TODO prose for the first, a header note for the second recording that pooling was changed from an unweighted mean to a length-weighted, count-offset sum. |
+| T1.18 | `+lib/edge_shape.m:44` | 1 | `%th_lags=th_lags(1:end-1);` — trim the last lag. The live code sizes `n_corr=floor(n_th/2)+1` and allocates `edge_autocorr` to exactly that length, so trimming `th_lags` alone would leave the two vectors mismatched. The off-by-one this line was reaching for is already handled by the sizing. | **superseded** by `+lib/edge_shape.m:42,45`. Delete. |
+| T1.19 | `+lib/edge_energy.m:78` | 1 | `%e=rms(edge_normal(:));` directly under the live `e=rms(edge_normal(:))/rms(edge_mag(:))` — the same measure without the normalisation by gradient magnitude. | **alternative** — a normalised/unnormalised pair, the same choice as B1.1 in miniature. Convert to a note in the header rather than deleting silently. |
+| T1.20 | `+lib/stimulus.m:78-79` | 1 | `seed_struct=rng('shuffle'); seed=seed_struct.Seed;` above the live `seed=randi(intmax)`. Both produce an unpredictable seed; only the live one produces a seed drawn from the *current* stream, and `rng('shuffle')` is precisely the pattern the plan's harness rules warn about. | **superseded** by `+lib/stimulus.m:80`. Delete. |
+| T1.21 | `+lib/stimulus.m:124` and `:181` | 1 | `% texture_bg=struct;` and `% texture=struct;`, each immediately before the line that writes `.stats` into that struct. Reinstating either would wipe `.type` and `.img`, which the following lines and the later branches still read — `:186` branches on `texture_bg.type`. So the author tried clearing the struct and the surrounding code depends on not clearing it. | **superseded** by the live `texture_bg.stats = ...` / `texture.stats = ...` lines, which deliberately preserve the other fields. Delete. |
+| T1.22 | `+lib/compute_pClipped.m:8` | 1 | `%fprintf('%f of boundary ribbon clipped\n', pClipped);`, the entire content of an otherwise empty `else` branch: print the clipping fraction when it is below the 1 % warning threshold. | **scaffolding** — delete, together with the now-empty `else`, or promote to a verbosity flag. Note the message text is the same one B2.14 is about, so fix that wording at the same time. |
 
 </div>
 
