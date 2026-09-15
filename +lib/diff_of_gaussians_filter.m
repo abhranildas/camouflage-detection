@@ -1,27 +1,38 @@
-function filter=diff_of_gaussians_filter(sd_cent,sd_surr,n_sd)
-% creates a center-surround difference-of-gaussians filter
-% n_sd: extent of the filter, in units of surround sd
+function filter_kernel = diff_of_gaussians_filter(sigma_center, sigma_surround, n_sigma)
+% DIFF_OF_GAUSSIANS_FILTER  Center-surround difference-of-Gaussians filter.
+%   filter_kernel = lib.diff_of_gaussians_filter(sigma_center, sigma_surround, n_sigma)
+%
+%   Inputs
+%     sigma_center   - Gaussian sd of the center kernel, in pixels.
+%     sigma_surround - Gaussian sd of the surround kernel, in pixels.
+%     n_sigma        - extent of the filter, in units of surround sd.
+%
+%   Output
+%     filter_kernel - width x width square kernel, where
+%                     width = 2*ceil(sigma_surround*n_sigma) + 1 pixels.
+%
+%   See also lib.LAPLACIAN_OF_GAUSSIAN_FILTER, lib.STEERABLE_FILTER.
 
-filter_radius=sd_surr*n_sd;                       
-filter_size=2*ceil(filter_radius)+1;
-filter_origin=(floor(filter_size/2)+1)*[1 1];
+    filter_radius = sigma_surround*n_sigma;
+    filter_width = 2*ceil(filter_radius) + 1;
+    filter_origin = (floor(filter_width/2)+1)*[1 1];
 
-filter_cent=zeros(filter_size);
-filter_surr=zeros(filter_size);
+    filter_center = zeros(filter_width);
+    filter_surround = zeros(filter_width);
 
-for i=1:filter_size
-    for j=1:filter_size
-        X=[i,j]-filter_origin;
-        if norm(X)<=filter_radius
-            filter_cent(i,j)=mvnpdf(X,[],eye(2)*sd_cent^2);
-            filter_surr(i,j)=mvnpdf(X,[],eye(2)*sd_surr^2);
+    for i_row = 1:filter_width
+        for i_col = 1:filter_width
+            offset = [i_row, i_col] - filter_origin;
+            if norm(offset) <= filter_radius
+                filter_center(i_row, i_col) = mvnpdf(offset, [], eye(2)*sigma_center^2);
+                filter_surround(i_row, i_col) = mvnpdf(offset, [], eye(2)*sigma_surround^2);
+            end
         end
     end
+
+    % normalize each filter to 1
+    filter_center = filter_center/sum(filter_center(:));
+    filter_surround = filter_surround/sum(filter_surround(:));
+
+    filter_kernel = filter_center - filter_surround;
 end
-
-% normalize each filter to 1
-filter_cent=filter_cent/sum(filter_cent(:));
-filter_surr=filter_surr/sum(filter_surr(:));
-
-filter=filter_cent-filter_surr;
-

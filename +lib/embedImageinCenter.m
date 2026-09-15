@@ -1,76 +1,81 @@
-function [imgOut, percentClipped] = embedImageinCenter(imgIn, target, bAdditive, bitsIn, offsetPix, bClip, tWin)
-%EMBEDIMAGEINCENTER Embeds a target in the center of the input image
+function [output_image, percent_clipped] = embedImageinCenter(source_image, target, ...
+    bAdditive, n_bits, offset_px, bClip, target_window)
+% EMBEDIMAGEINCENTER  Embeds a target in the center of the input image.
+%   [output_image, percent_clipped] = lib.embedImageinCenter(source_image, target, ...
+%       bAdditive, n_bits, offset_px, bClip, target_window)
 %
-% Example: 
-%   [imgOut, percentClupped] = lib.EMBEDIMAGEINCENTER(I, T, 1, 8, 0, 0);
-% 
-% Output:
-%   imgOUt:         imput with target embedded
-%   percentClipped: If bAdditive == 1, the % of clipped pixels
+%   Output
+%     output_image   - source_image with target embedded (or blended, in the
+%                      windowed case).
+%     percent_clipped - if bAdditive == 1, the % of clipped pixels.
 %
-% v1.0, 1/5/2016, Steve Sebastian <sebastian@utexas.edu>
+%   v1.0, 1/5/2016, Steve Sebastian <sebastian@utexas.edu>
+%
+%   See also lib.DIFFERENCEOFGAUSSIANS2D.
 
-%% Set defaults
-if(~exist('bAdditive', 'var'))
-    bAdditive = 0;
-end;
-    
-if(~exist('bitsIn', 'var') || isempty(bitsIn))
-    bitsIn = 16;
-end;
-
-if(~exist('offsetPix', 'var')) || isempty(offsetPix)
-    offsetPix = 0;
-end;
-
-if(~exist('bClip', 'var')) || isempty(bClip)
-    bClip = 0;
-end;
-
-if(~exist('tWin', 'var')) || isempty(tWin)
-%     warning('If you are using an occluding target you need a window. Execution may crash if no window is supplied');
-end;
-
-percentClipped = 0;
-
-maxPixVal = 2^bitsIn - 1;
-
-% get the patch sizes
-inSize = size(imgIn);
-tgSize = size(target);
-
-if(tgSize(1) > inSize(1) || tgSize(2) > inSize(2))
-    error('ERROR: Target is larger than image');
-end;
-
-% get the location of the center of the image
-centerLocation = floor(inSize./2) + 1;
-
-centerLocation(2) = centerLocation(2) + offsetPix;
-
-% get the x and y areas over which to embed the target
-targetRangeX = (centerLocation(1) - floor(tgSize(1)./2)):(centerLocation(1) + ceil(tgSize(1)./2) - 1);
-targetRangeY = (centerLocation(2) - floor(tgSize(2)./2)):(centerLocation(2) + ceil(tgSize(2)./2) - 1);
-
-% embed the target
-if(bAdditive)
-    imgIn(targetRangeX, targetRangeY) = imgIn(targetRangeX, targetRangeY) + target;
-    % check for clipping
-    percentClipped = (sum(imgIn(:) > maxPixVal) + sum(imgIn(:) < 0))./(length(target(:)))*100;
-    % clip the image
-    if(bClip)
-        imgIn(imgIn < 0) = 0;
-        imgIn(imgIn > maxPixVal) = maxPixVal;
+    %% Set defaults
+    if (~exist('bAdditive', 'var'))
+        bAdditive = 0;
     end
-else
-    patch = imgIn(targetRangeX, targetRangeY);
-    patch(tWin) = target(tWin);
-    
-    imgIn(targetRangeX, targetRangeY) = patch;
-    
-end;
 
-imgOut = imgIn;
+    if (~exist('n_bits', 'var') || isempty(n_bits))
+        n_bits = 16;
+    end
 
+    if (~exist('offset_px', 'var')) || isempty(offset_px)
+        offset_px = 0;
+    end
 
+    if (~exist('bClip', 'var')) || isempty(bClip)
+        bClip = 0;
+    end
 
+    if (~exist('target_window', 'var')) || isempty(target_window)
+        %     warning('If you are using an occluding target you need a window. Execution may crash if no window is supplied');
+    end
+
+    percent_clipped = 0;
+
+    max_pixel_val = 2^n_bits - 1;
+
+    % get the patch sizes
+    input_size = size(source_image);
+    target_size = size(target);
+
+    if (target_size(1) > input_size(1) || target_size(2) > input_size(2))
+        error('ERROR: Target is larger than image');
+    end
+
+    % get the location of the center of the image
+    center_location = floor(input_size./2) + 1;
+
+    center_location(2) = center_location(2) + offset_px;
+
+    % get the x and y areas over which to embed the target
+    target_range_x = (center_location(1) - floor(target_size(1)./2)): ...
+        (center_location(1) + ceil(target_size(1)./2) - 1);
+    target_range_y = (center_location(2) - floor(target_size(2)./2)): ...
+        (center_location(2) + ceil(target_size(2)./2) - 1);
+
+    % embed the target
+    if (bAdditive)
+        source_image(target_range_x, target_range_y) = ...
+            source_image(target_range_x, target_range_y) + target;
+        % check for clipping
+        percent_clipped = (sum(source_image(:) > max_pixel_val) + ...
+            sum(source_image(:) < 0))./(length(target(:)))*100;
+        % clip the image
+        if (bClip)
+            source_image(source_image < 0) = 0;
+            source_image(source_image > max_pixel_val) = max_pixel_val;
+        end
+    else
+        patch = source_image(target_range_x, target_range_y);
+        patch(target_window) = target(target_window);
+
+        source_image(target_range_x, target_range_y) = patch;
+
+    end
+
+    output_image = source_image;
+end

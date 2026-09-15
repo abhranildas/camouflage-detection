@@ -1,20 +1,28 @@
-function posPix = monitorDegreesToPixels(posDeg, monitorSize, pixPerDeg)
-%MONITORDEGREESTOPIXELS Convert a position in degrees to pixels (center is
-% at 0,0).
+function position_px = monitorDegreesToPixels(position_deg, monitor_size, ppd)
+% MONITORDEGREESTOPIXELS  Convert a position in degrees to pixels.
+%   position_px = lib.monitorDegreesToPixels(position_deg, monitor_size, ppd)
 %
-% Example: 
-%   posPix = MONITORDEGREESTOPIXELS(ImgStats)
-%   
-% Outout: 
-%   posPix  Absolute position in pixels
+%   The center of the monitor is at (0, 0).
 %
-% v1.0, 1/19/2016, Steve Sebastian <sebastian@utexas.edu>
+%   Inputs
+%     position_deg - position(s) relative to the center, in degrees. Third
+%                    dimension indexes (x, y).
+%     monitor_size - [width, height] of the monitor, in pixels.
+%     ppd          - pixels per degree.
+%
+%   Output
+%     position_px - absolute position, in pixels, same size as position_deg.
+%
+%   v1.0, 1/19/2016, Steve Sebastian <sebastian@utexas.edu>
+%
+%   See also experiment.LOADSTIMULICAMOUFLAGE.
 
-%% 
-% Point in the center is (0,0)
-zeroPointPix = round(monitorSize./2);
+    %%
+    % Point in the center is (0,0)
+    center_px = round(monitor_size./2);
 
-posPixRelative = posDeg.*pixPerDeg;
+    position_px_relative = position_deg.*ppd;
 
-posPix(:,:,1) = zeroPointPix(1) + posPixRelative(:,:,1); 
-posPix(:,:,2) = zeroPointPix(2) + posPixRelative(:,:,2); 
+    position_px(:, :, 1) = center_px(1) + position_px_relative(:, :, 1);
+    position_px(:, :, 2) = center_px(2) + position_px_relative(:, :, 2);
+end

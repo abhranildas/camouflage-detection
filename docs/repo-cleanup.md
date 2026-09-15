@@ -21,7 +21,7 @@ Comments, header docs, whitespace, reflow, file-local renames, and triaging any 
 - [x] **0.1.0.** Tooling: `canon`/`check_stage1`/`assert_rename_bijection`, golden-output harness, repo-wide rename map. → `matlab-cleanup-lead`
 - [x] **0.1.1.** `+lib/` edge & stimulus core — 14 files, 948 lines. **Sets the naming conventions for everything downstream.** → `matlab-cleanup-lead`
 - [x] **0.1.2.** `+lib/edge_props_stim.m` — 1 file, 535 lines. → `matlab-cleanup-lead`
-- [ ] **0.1.3.** `+lib/` remainder — 41 files, 1484 lines. → `matlab-cleanup-mechanical` (`model: "sonnet"`)
+- [x] **0.1.3.** `+lib/` remainder — 41 files, 1484 lines. → `matlab-cleanup-mechanical` (`model: "sonnet"`)
 - [ ] **0.1.4.** `+experiment/+main/` — 11 files, 714 lines. → `matlab-cleanup-mechanical` (`model: "sonnet"`)
 - [ ] **0.1.5.** `+experiment/+analysis/` — 12 files, 787 lines. → `matlab-cleanup-mechanical` (`model: "sonnet"`)
 - [ ] **0.1.6.** `+experiment/` top level, including the variant families — 26 files, 1390 lines. → `matlab-cleanup-lead`
@@ -135,6 +135,7 @@ Everything below was found *before* this plan started, during the survey that pr
 - [ ] 🟠 **B2.12.** **`lib.stimulus` with `target_radius = 0` and more than three outputs errors** **[ran]** — `mask` through `wn_t` are never assigned on that branch (`+lib/stimulus.m:158,204`). Reachable from any caller that asks for the mask outputs on a blank stimulus.
 - [ ] 🟠 **B2.13.** **`lib.stimulus`'s target branch tests the *background* texture struct to decide how to build the *target*.** **[read]** Found in tranche 0.1.1. Pre-edit `+lib/stimulus.m:159` asks `~isfield(texture_bg,'img')||isempty(texture_bg.img)` to decide whether the target is a synthesised texture or an image reference, and `:186` branches on `strcmp(texture_bg.type,'crop')` inside a block whose own `if` at `:166` already tested `texture.type`. Compare the background branch at `:101`, which correctly consults `texture_bg`. So a call giving an image-referenced `texture` and a plain pink-noise `texture_bg` takes the synthesis branch at `:160-164` and then errors in `textureSynthesis(texture.stats, ...)`, because `.stats` was never computed. Same family as B1.4 (`:182-184`), which is the silent half of the same confusion; this entry is the half that errors. Both are in the `_diff_bg` path, which was run.
 - [ ] 🟠 **B2.14.** **`lib.compute_pClipped` always says "boundary ribbon".** **[read]** `+lib/compute_pClipped.m:6` warns `'%.2f%% of boundary ribbon clipped\n'` whatever it is handed, but the function is a general clipping fraction and is called on whole stimuli. Display-only, hence severity 2. Noted in the tooling entry (section 4.1.3, step 0) as "a header/message wording fix, well inside Stage 1" — **that was wrong**: the text is a string literal and therefore part of the syntax tree, so `canon` sees it change and Stage 1 forbids it. It is filed here instead.
+- [ ] 🟠 **B2.15.** **`lib.cropImage`'s always-overridden `indColorChannels` (B3.2) is reachable in display code, not just latent.** **[read]** Found in tranche 0.1.3. `+lib/cropImage.m:21` (pre-edit numbering) tests `~exist('indColorChannel','var') || isempty(indColorChannels)` — missing the trailing `s`, so the guard is always true and `indColorChannels` is always overwritten to `1:size(source_image,3)`. `+vis/examplePatches.m:43`, `+vis/presentpatches.m:28` and `+vis/viewpatches.m:39` all pass `indColorChannels = 1` explicitly, intending a single colour channel, and get every channel instead. Confined to `+vis/` display scripts, so severity 2 rather than 1. Filed as its own item rather than relabelling B3.2, per the plan's re-filing rule — B3.2 stays as originally recorded.
 
 **Severity 3 — latent**
 
@@ -615,6 +616,107 @@ The golden harness does not cover this function (it cannot run — B2.2), so no 
 
 </details>
 
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Tranche 0.1.3 — <code>+lib/</code> remainder (41 files, 1484 lines)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+**Done**, under **MATLAB 24.2.0.2923080 (R2024b) Update 6**. 41 files named in the tranche table; two of them, `ptch_norm.m` and `watson_otf.m`, are the filename collisions with the shared library excluded from cleaning per 0.1.1/0.1.2's housekeeping note (S3.11's problem) and were not touched — **39 files were actually cleaned**. Tranches 0.1.1/0.1.2's conventions were read in full and applied as written, not re-derived; the decisions below are applications of those conventions to files/situations 0.1.1/0.1.2 did not cover, not new conventions.
+
+**Baseline: HEAD, for all 41.** `git status -- '+lib/'` was clean before this tranche started (confirmed empty `git diff HEAD -- '+lib/'`), so the tooling entry's default rule applies. Pre-edit copies of the 39 edited files were extracted with `git show HEAD:+lib/<f>.m` into a scratch directory and `check_stage1` was run against those copies.
+
+**Verbatim checker output**, from the sweep script that builds each file's rename map and runs `assert_rename_bijection` (inside `check_stage1`) then the reverse-rename comparison:
+
+```
+24.2.0.2923080 (R2024b) Update 6
+autocorr                         1  (4 renames)
+combine_pairwise_stats           1  (15 renames)
+correlations_across              1  (10 renames)
+cosdRadial                       1  (7 renames)
+cosWindow2                       1  (9 renames)
+create_averaging_filter          1  (5 renames)
+create_pink_noise_cube           1  (8 renames)
+create_pink_noise_line           1  (7 renames)
+create_pink_noise_square         1  (7 renames)
+cropImage                        1  (6 renames)
+csf_err                          1  (8 renames)
+csf_fitted                       1  (9 renames)
+csf_floating                     1  (10 renames)
+csf_spatial_filter               1  (5 renames)
+deg2rad                          1  (0 renames)
+detect_edge_pixels               1  (2 renames)
+diff_of_gaussians_filter         1  (10 renames)
+differenceOfGaussians2D          1  (8 renames)
+embedImageinCenter               1  (12 renames)
+fftconv2                         1  (7 renames)
+find_spot_centers                1  (7 renames)
+gabor2D                          1  (14 renames)
+gauss_llr                        1  (5 renames)
+getTargetIndexFromString         1  (3 renames)
+haar2D                           1  (10 renames)
+hyperexp_nll                     1  (1 renames)
+laplacian_of_gaussian_filter     1  (4 renames)
+loadPatchAtIndex                 1  (11 renames)
+maha_dist                        1  (3 renames)
+mismatch_template                1  (15 renames)
+monitorDegreesToPixels           1  (6 renames)
+pairwise_stats                   1  (7 renames)
+radialavg                        1  (11 renames)
+samplePatchCoordinates           1  (10 renames)
+spot2D                           1  (9 renames)
+stimulus_spots                   1  (0 renames)
+subplot_tight                    1  (0 renames)
+trace_contours                   1  (8 renames)
+whiten                           1  (7 renames)
+files checked : 39
+check_stage1 true : 39
+check_stage1 false: 0
+```
+
+The golden harness covers five of these files (`create_pink_noise_square`, `whiten`, `csf_fitted`, `autocorr`, plus `compute_pClipped` from 0.1.1), so it was replayed as a free extra confirmation: `golden_harness: replay matched all 32 fields` — both immediately after the renames and again after the line-length reflow pass below, to catch anything the reflow might have disturbed.
+
+`checkcode` over the 39 files gives the **same lint ids** before and after in every file except five, where the count only ever **drops**, never grows, and every drop is a formatting artifact the harmonisation pass naturally resolved rather than a deliberate Stage 2 fix: `cropImage` and `loadPatchAtIndex` each lost a `NOSEMI` ("extra semicolon is unnecessary") from dropping a stray `;` after `end`; `embedImageinCenter` lost six of the same; `differenceOfGaussians2D` and `gabor2D` each lost a `NOCOMMA`/`NCOMMA` pair from adding the missing comma between bracketed outputs (`[XX,YY]` → `[x_grid, y_grid]`) and dropping a trailing comma after a `for` header. None of these is a suppressing-semicolon insertion in the Stage 2 sense — they are semicolons and commas that were already inert — and all are confirmed still `check_stage1`-safe, since `canon` round-tripped every one of them.
+
+---
+
+**Binding-convention applications new to this tranche, recorded because later tranches will hit the same situations:**
+
+1. **A local variable can be renamed onto a name that is also frozen elsewhere in the repo, as long as this file does not itself freeze it.** `+lib/correlations_across.m`'s outputs are named `corr_cross` and `d` — both on the zone-3 frozen list (section 4.1.1), but frozen there because `+tinker/pink_noise_stimuli_autocorrelations.m:42` does `save(...,'d','corr_cross')` on **its own local variables** of those names. `check_stage1`'s regex only protects dot-qualified names and string literals; a plain output-variable name in a different file that merely produces the value is zone 1. Renamed to `corr_vs_distance` and `distances` here. **Check the file, not the name — same rule as the survey's warning about `d`.**
+2. **A whole-file camelCase style inside an otherwise snake_case package converts its internal variables, not its filename.** Several files here (`cosWindow2.m`, `cosdRadial.m`, `gabor2D.m`, `differenceOfGaussians2D.m`, `haar2D.m`, `spot2D.m`, `embedImageinCenter.m`, `cropImage.m`, `loadPatchAtIndex.m`, `samplePatchCoordinates.m`, `monitorDegreesToPixels.m`, `getTargetIndexFromString.m`, `find_spot_centers.m`) are written by other authors (Johannes Burge, Steve Sebastian, R. Calen Walshe, and others) entirely in camelCase, unlike the `edge`/`stimulus` core. The Stage 1 checklist already says `+lib/` files stay snake_case; the only precedent for *not* converting something is `compute_pClipped`'s **filename**, kept camelCase because renaming a file is a cross-file/out-of-scope change. That precedent does not extend to a file's internal locals, so every internal identifier in these files was converted to snake_case, same as the rest of the package. Filenames are untouched.
+3. **A struct field is frozen even when nothing in section 4.1.1's enumerated zone-3 list names it**, whenever it is set by a caller outside this tranche's files. `Parameters.dc`/`.std`/`.size`/`.envelope`/etc. in `gabor2D.m`/`differenceOfGaussians2D.m`/`haar2D.m` and `stimulusParams.*` in `spot2D.m` are all left untouched, and `Settings.targetKey` in `getTargetIndexFromString.m` likewise, because `Settings` there is built by the out-of-scope `+stats/_loadStatisticsSettings.m` (`_`-prefixed) and read by later, not-yet-cleaned `+experiment/`/`+experiment/+analysis/` files. The general rule (struct fields not covered by the rename regex) already covers this; it is recorded here because it bit several files that were not part of the survey's explicit zone-3 enumeration.
+4. **A zone-1 rename must not equal an existing string literal, checked per file, not just against the file's own addParameter keys.** No new instance of the exact `edge_props_stim.m` problem (0.1.2's decision A) came up, but it was checked in every file with a `switch`/`case` or `addParameter` (`gabor2D`, `differenceOfGaussians2D`, `haar2D`, `spot2D`, `detect_edge_pixels`) before choosing new names, since a case string like `'envelope'` or `'dc'` could otherwise have collided with a candidate local name.
+5. **`case('literal')` and other redundant-looking parentheses are not free to remove.** `canon`/`mtree` preserves explicit grouping parentheses as real nodes: `if (nargin<4) || isempty(x)` and `if nargin<4 || isempty(x)` are **different** ASTs, and `case('horizontal')` vs `case 'horizontal'` likewise. This is not mentioned in the skill or in 0.1.1/0.1.2 because neither happened to touch a file with this pattern. It cost a first failed check-run on 11 of this tranche's files (`subplot_tight`, `cropImage`, `cosdRadial`, `embedImageinCenter`, `loadPatchAtIndex`, `getTargetIndexFromString`, `radialavg`, `fftconv2`, `differenceOfGaussians2D`, `gabor2D`, `haar2D`, `spot2D`) before every stray removed paren was put back exactly where the source had it. **Later tranches: do not "clean up" a redundant `if(...)`/`case(...)` paren as a formatting improvement — leave every parenthesization exactly as found, even where it looks inconsistent within the same file (as it does in `embedImageinCenter.m`, which wraps only the `exist(...)` call in some guards and the whole condition in others).** A companion trap: adding `exist(x, 'var')`'s second argument where the source called `exist(x)` with one argument is also a real AST change (an added argument), not a formatting fix — `cosdRadial.m`'s `if ~exist('bPLOT')` stays one-argument.
+6. **A python text-mode file write can silently convert line endings.** One file (`gabor2D.m`) came out with CRLF line endings end-to-end after being rewritten via a Python one-liner running under Git Bash (Python's default text-mode newline translation on Windows); every other file in the tranche, written directly, stayed LF. Caught by an explicit end-of-tranche sweep (`file *.m` / trailing-byte check on every file), not by `check_stage1` (`canon` does not care about line-ending bytes). Converted back to LF before the final check-run and commit. **Any later tranche that shells out to a text-processing tool for a bulk edit should check line endings explicitly afterward — `check_stage1` will not catch it.**
+
+**The concrete vocabulary set here**, extending 0.1.1's table, to be reused rather than re-invented:
+
+| meaning | name | notes |
+|---|---|---|
+| CSF/ATF fit family (`csf_err`, `csf_fitted`, `csf_floating`, `csf_spatial_filter`) | `spatial_freq`, `pupil_diameter`, `wavelength`, `surround_shape_exponent`, `surround_strength`, `surround_size`, `center_size`, `params`, `atf`, `human_atf` | were `u`, `d`, `w`, `n`, `a`, `b`, `c`, `p`, `z`, `z0`. `pupil_diameter`/`wavelength` match the units already fixed by `vislab.lib.watson_otf`'s exemplar signature; this repo's own (excluded, uncleaned) `+lib/watson_otf.m` still reads `u,d,lambda` |
+| pink noise generation (`create_pink_noise_square/cube/line`, `whiten`) | `pink_noise`, `white_noise`, `pink_noise_filter`, `white_noise_fft`, `white_noise_filtered_fft` | were `img_1f`/`cube_1f`/`sig_1f`, `wn`, `fil_1f`, `wnf`, `wnf_fil`. Matches 4.1.1's predicted `wn`→`white_noise` |
+| pairwise-statistics family (`pairwise_stats`, `combine_pairwise_stats`, `correlations_across`) | `n_obs`, `mean_x`, `mean_y`, `mean_xy`, `mean_x2`, `mean_y2`, `corr_coeff`, plus `_list` for the per-group vectors | were the packed `n,xm,ym,xym,x2m,y2m,r` / `*_l` used identically in both functions |
+| patch/coordinate family (`cropImage`, `loadPatchAtIndex`, `samplePatchCoordinates`) | `patch_coords_rc` | was `PcoordsRC`/`PCoordsRC`, kept consistent across all three files since they pass this value to each other |
+| Gaussian/Gabor kernel family (`gabor2D`, `differenceOfGaussians2D`, `haar2D`, `spot2D`) | `x_grid`, `y_grid`, `envelope_radius`, `gabor_sd`, `amplitude` | were `XX`/`YY`, `envelopeRadius`, `GaborSD`, `amp` |
+| pixel-list index in a graph/contour trace | `i_pixel`/`j_pixel`, `pixel_idx`/`next_pixel_idx` | `trace_contours.m`; `i_pixel` is convention-1's collision again (pixel-list index, then reused as contour-position counter), noted at the second site |
+
+**Line-length exceptions — five, every one a commented-out or otherwise byte-preserved line**, left un-reflowed for the same reason as 0.1.1/0.1.2 (rewrapping dead code invents wrapping that was never the author's, and makes verbatim restoration harder for S3.16): `+lib/embedImageinCenter.m` post-edit line 34 (126 chars, the commented-out `warning(...)` call, T3.6 below). Every other over-100 line found during the pass was a live line and was wrapped with `...` and a four-space hanging indent; the worst was `+lib/embedImageinCenter.m`'s original 135-character signature/doc line.
+
+**Contents.m — written**, `+lib/Contents.m`, covering the full 56-file package as 0.1.1 deferred it to this tranche. Modelled on `vislab-common/+vislab/+lib/Contents.m`'s shape (namespace line, one-paragraph summary, call convention) and adds one repo-specific note: `ptch_norm.m`/`watson_otf.m` are this repo's own uncleaned copies of names that collide with the shared library, not aliases to it, per S3.11.
+
+**Stage 2 not attempted** — `+lib/` Stage 2 is item 0.2.1, done after all of `+lib/`'s Stage 1 (0.1.1–0.1.3) is complete. The four patterns, surveyed across all 39 files: `NOSEMI` none live (only the stale extras removed above); `AGROW` one, `+lib/find_spot_centers.m`'s `centers(end+1,:)`, already flagged `%#ok`-free but growing by one row per recursive call — a candidate, not fixed here; `find` none convertible (every `find` call either needs the index itself — `getTargetIndexFromString.m`, `trace_contours.m` — or is already reduced with a `1` count argument); unused assignments none beyond the pre-existing `combine_pairwise_stats`/`pairwise_stats` unused `corr_coeff`/`corr_coeff_list` argument (present before this tranche, not introduced by it, and not a Stage 2 deletion target since it is a function input, not a local assignment).
+
+**Bugs found: one new, recorded and not fixed; one existing re-confirmed with a severity question flagged, not re-filed.**
+
+- 🟠 **B2.15.** **`lib.cropImage`'s always-overridden `indColorChannels` (B3.2) is reachable, not just latent.** B3.2 (filed before any tranche started) already documents the root cause — `if ~exist('indColorChannel','var') || isempty(indColorChannels)` misspells the guard variable, so the branch always runs and always overwrites `indColorChannels` to `1:size(source_image,3)` regardless of what the caller passed. Filed at severity 3 as latent. Reading the actual call sites in this tranche shows it is not latent: `+vis/examplePatches.m:43`, `+vis/presentpatches.m:28`, and `+vis/viewpatches.m:39` all pass `indColorChannels = 1` explicitly, intending to crop a single colour channel, and the bug silently substitutes all channels instead — every one of those call sites is in `+vis/`, i.e. display-only. That fits B2's definition ("reachable, not silent... or it only touches plots, logging, or display") better than B3's "not reachable with the current config or inputs." Filed here as a new item rather than relabelling B3.2, per the skill's re-filing rule; B3.2 itself is left as originally recorded.
+
+Two things read and deliberately **not** filed as bugs: `+lib/hyperexp_nll.m`'s name/docstring-vs-code mismatch is already B3.6, re-confirmed by reading the density formula (it is the hypoexponential sum, not a hyperexponential mixture) and cited in the file's header rather than re-filed; and `+lib/find_spot_centers.m`'s `ismember(...,'row')` typo is already B3.5, likewise re-confirmed and cited rather than re-filed.
+
+**A note for later tranches.** `+lib/mismatch_template.m` and `+lib/stimulus_spots.m` both call `lib.circular_mask`, which does not exist anywhere in the tree (B2.9); neither function can currently run. `stimulus_spots.m` also duplicates most of `lib.stimulus`'s job under a different name (S3.3's near-duplicate-elimination territory) — not touched here, just flagged so S3.3 knows another candidate exists beyond the five `{setUpExperiment, sessionSettings, generate_camouflage_stimuli}` families already named in section 4.1.2.
+
+</div>
+
+</details>
+
 </div>
 
 </details>
@@ -708,6 +810,12 @@ Line numbers in the `file:lines` column are **pre-edit**, matching the sizing ta
 | T2.6 | `+lib/edge_props_stim.m:303-399` | 2 | The per-contour property loop: length in pixels, distance from the true target boundary, edge power at each of the five scales, cosine alignment with the target normal, and curvature sd. It is largely complete, but `:328` uses `target_center` and `target_radius`, neither of which is ever defined in this function, so it **cannot be revived verbatim**. It also contains the author's own nested deactivations at `:316-318` (true arc length, replaced by pixel count with the reason written down), `:333-344` (contour tangent and normal) and `:346-349` (absolute orientation, "not used in camouflage"). | **alternative** with a caveat — the method is recoverable but the position term is not, so it is partly **unfinished**. Keep both halves; S3.16 must not treat "it's all one block" as licence to revive it as-is. The three nested deactivations are themselves *alternative*/*scaffolding* and already carry the author's reasons, which should move into header prose. |
 | T2.7 | `+lib/edge_props_stim.m:401-534` | 2 | The summary half: placeholder structs when a region has no contours, the edge-pixel-count LLR, the contour-count LLR, and same/different LLRs for the exponential distributions of position, length, orientation alignment, curvature and the five edge powers. **This is the code that would assign the fifteen never-assigned outputs in the live signature** (`npix_llr` … `ep16_llr`), which is why `checkcode` reports fifteen `STOUT` messages. The interleaved `% contour_props_summary.*_mean=...` lines at `:419-433`, `:450`, `:452-453`, `:460` and `:470-474` are a *second*, earlier output convention (a summary struct) that the flat output list replaced. | **alternative** for the LLR computations — they are the declared-but-unfilled half of this function's contract and cannot be deleted without a signature change, which is Stage 3 anyway. Keep. **superseded** for the `contour_props_summary` fragments, by the flat `*_llr`/`*_sum` output list in the live signature. |
 | T2.8 | `+lib/edge_props_stim.m` — whole-file note | 2 | Recorded so a later reader does not re-derive it: `test.m:40` and `+general/compute_edge_props_pink_noise.m:22,35` call this function expecting **two** outputs named `contour_props`/`mean_contour_props`, a signature that no version in the tree has. Those call sites predate even the dead block. | — (not a block; context for T2.5–T2.7.) Neither call site is in this tranche; they belong to tranches 11 and 8. |
+| T3.1 | `+lib/csf_err.m:15-20` | 3 | `sz=size(z); for i=1:sz(2); if z(i)<=0; z(i)=10^-20; end; end` sits right after `z=z/max(z)` and right before `e=sum((log(z)-log(z0)).^2)`. It clamps non-positive model ATF values to a tiny positive number before the fit takes their log — a guard against `log(0)=-Inf` or a complex log of a negative value that the live code does not have. Whether the live code actually needs it (i.e. whether `lib.csf_floating`'s output can go non-positive over the frequency ranges this is fit against) is not answerable from the surrounding code alone. | **unfinished** — a defensive clamp the author sketched and never turned on. Keep, rewritten as a prose TODO naming the two live variables (`atf`, the normalised ATF, and the fit target `human_atf`) it would guard. |
+| T3.2 | `+lib/csf_spatial_filter.m` (post-edit line 34, pre-edit last line) | 3 | `h=h(128-50:128+50,128-50:128+50);` directly under the live `h=fftshift(ifft2(ifftshift(csf_fil)));`. Crops the 256x256 spatial filter down to a 101x101 window around its center; the live code keeps the full 256x256. | **alternative** — a smaller-output-size variant the author tried and left off. Keep. |
+| T3.3 | `+lib/subplot_tight.m:49-50` | 3 | `% h_subplot=subplot(m,n,p,varargin{:},'Position',pos_vec);` directly above the live `h_subplot=subplot('Position',pos_vec,varargin{:});`, with the author's own explanation on the next commented line: `subplot` ignores `'Position'` when the same `(m,n,p)` triple as an existing axes is passed. | **superseded** by the live line just below, reason already given inline by the author. Keep as documentation of why the call is shaped this way; nothing to convert beyond what the comment already says. |
+| T3.4 | `+lib/autocorr.m:12` (pre-edit) | 3 | `% c=corrcoef(stim(:),stim_shifted(:));` directly above the live `r(i,j)=dot(stim(:),stim_shifted(:));`. `corrcoef` returns a normalised correlation coefficient (mean-subtracted, scaled by variance); `dot` is a raw, unnormalised energy product — a materially different statistic, and the commented line's own result (`c`) is never read even where it is live. | **alternative** — a normalisation choice the author moved away from, same axis as the edge-power normalisation questions (B1.1/S3.4) in miniature. Keep, note added inline. |
+| T3.5 | `+lib/detect_edge_pixels.m:7` (pre-edit) | 3 | `% edge_detection_filter=lib.diff_of_gaussians_filter(2,4,2);` directly above the live `edge_detection_filter=lib.laplacian_of_gaussian_filter(2,3);`, both feeding the same `addParameter` default. Two edge-detection filter shapes for the same job; the author kept the Laplacian-of-Gaussian one. | **alternative** — a different filter with its own parameters. Convert to a documented filter-choice option, or record the switch in the header, per S3.16. |
+| T3.6 | `+lib/embedImageinCenter.m:30` (pre-edit `if(~exist('tWin', 'var')) || isempty(tWin) ... end`) | 3 | `%     warning('If you are using an occluding target you need a window. Execution may crash if no window is supplied');` — the entire body of an `if` branch that otherwise does nothing when `target_window` is not supplied. A stray warning the author considered and left off; the branch is a no-op either way. | **scaffolding** — delete, or promote to a real warning, per S3.16. |
 
 </div>
 

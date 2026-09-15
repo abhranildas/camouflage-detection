@@ -1,11 +1,25 @@
-function z = csf_fitted(u)
-% ATF based on Watson's descriptive OTF
-% u = vector of frequencies c/deg
+function atf = csf_fitted(spatial_freq)
+% CSF_FITTED  Amplitude transfer function at the fitted CSF parameters.
+%   atf = lib.csf_fitted(spatial_freq)
+%
+%   Inputs
+%     spatial_freq - vector of frequencies, in cycles/deg.
+%
+%   Output
+%     atf - amplitude transfer function at each spatial_freq, at a fixed set
+%           of previously-fitted parameters (pupil_diameter = 4 mm,
+%           wavelength = 555 nm, surround_shape_exponent = 2).
+%
+%   See also lib.CSF_FLOATING, lib.CSF_ERR.
 
-n = 2; d = 4; w = 555;
-a = 0.8563; b = 0.1516; c = 0.0651;
-p=[a b c];
+    surround_shape_exponent = 2;
+    pupil_diameter = 4;
+    wavelength = 555;
+    surround_strength = 0.8563;
+    surround_size = 0.1516;
+    center_size = 0.0651;
+    params = [surround_strength surround_size center_size];
 
-z = lib.csf_floating(p,u,d,w,n);
+    atf = lib.csf_floating(params, spatial_freq, pupil_diameter, wavelength, ...
+        surround_shape_exponent);
 end
-

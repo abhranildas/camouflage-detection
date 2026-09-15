@@ -1,11 +1,15 @@
 function rad = deg2rad(deg)
-%DEG2RAD Converts degrees to radian
+% DEG2RAD  Converts degrees to radians.
+%   rad = lib.deg2rad(deg)
 %
-% Example: 
-%   rad = lib.DEG2RAS(90);
-% 
-% Output:
-%   rad:  Value in radians
+%   Output
+%     rad - value in radians.
 %
+%   This shadows the MATLAB builtin DEG2RAD; every call in this repo is
+%   qualified (lib.deg2rad), so the shadow is harmless but worth knowing
+%   about before "simplifying" a call site to the bare name.
+%
+%   See also DEG2RAD, lib.GABOR2D.
 
-rad = deg./180.*pi;
+    rad = deg./180.*pi;
+end

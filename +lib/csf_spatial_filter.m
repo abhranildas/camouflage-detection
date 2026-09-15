@@ -1,22 +1,36 @@
-function h=csf_spatial_filter(ppd)
+function spatial_filter = csf_spatial_filter(ppd)
+% CSF_SPATIAL_FILTER  Invert the CSF to a spatial-domain filter.
+%   spatial_filter = lib.csf_spatial_filter(ppd)
+%
+%   Inputs
+%     ppd - pixels per degree.
+%
+%   Output
+%     spatial_filter - 256x256 spatial-domain filter, the inverse Fourier
+%                      transform of the (normalised) CSF spectral filter.
+%
+%   See also lib.CSF_FITTED.
+
     %% invert CSF to spatial filter
-    
-    bg_size=256;
-    
+
+    bg_size = 256;
+
     % array of frequencies (cyc/deg)
-    f = ones(bg_size);
-    for i=1:bg_size
-        for j=1:bg_size
-            f(i,j)=norm([i-bg_size/2-1,j-bg_size/2-1]); % cyc/img
+    spatial_freq_grid = ones(bg_size);
+    for i_row = 1:bg_size
+        for i_col = 1:bg_size
+            % cyc/img
+            spatial_freq_grid(i_row, i_col) = norm([i_row-bg_size/2-1, i_col-bg_size/2-1]);
         end
     end
-    f=f*ppd/bg_size; % cyc/deg
-    
+    spatial_freq_grid = spatial_freq_grid*ppd/bg_size;   % cyc/deg
+
     % CSF spectral filter
-    csf_fil=lib.csf_fitted(f);
-    csf_fil=csf_fil/max(csf_fil(:));
-    csf_fil(bg_size/2+1,bg_size/2+1)=1; % leave DC unchanged
-    
+    csf_filter = lib.csf_fitted(spatial_freq_grid);
+    csf_filter = csf_filter/max(csf_filter(:));
+    csf_filter(bg_size/2+1, bg_size/2+1) = 1;   % leave DC unchanged
+
     % CSF spatial filter
-    h=fftshift(ifft2(ifftshift(csf_fil)));
-%     h=h(128-50:128+50,128-50:128+50);
+    spatial_filter = fftshift(ifft2(ifftshift(csf_filter)));
+    %     h=h(128-50:128+50,128-50:128+50);
+end
