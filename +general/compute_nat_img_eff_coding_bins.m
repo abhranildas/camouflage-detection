@@ -153,7 +153,7 @@ r_raw=corrcoef(grad_flat);
 figure; imagesc(r_raw)
 axis square
 set(gca,'xtick',[],'ytick',[])
-c=colorbarpzn(-1,1);
+c=vislab.lib.colorbarpzn(-1,1);
 c.Ticks = [-1 0 1];
 title 'corr. coeff. of raw filter responses'
 
@@ -161,7 +161,7 @@ r_pca=corrcoef(pca_responses);
 figure; imagesc(r_pca)
 axis square
 set(gca,'xtick',[],'ytick',[])
-c=colorbarpzn(-1,1);
+c=vislab.lib.colorbarpzn(-1,1);
 c.Ticks = [-1 0 1];
 title 'corr. coeff. of PCA filter responses'
 
