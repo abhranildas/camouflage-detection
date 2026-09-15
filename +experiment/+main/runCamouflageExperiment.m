@@ -1,6 +1,9 @@
-function SessionData = runCamouflageExperiment(subjectStr, expTypeStr, condition, sessionNumber, levelNumber)
+function SessionData = runCamouflageExperiment(subjectStr, expTypeStr, condition, ...
+    sessionNumber, levelNumber)
 % RUNCAMOUFLAGEEXPERIMENT  Launch the camouflage detection experiment.
-%   runCamouflageExperiment(subjectStr, expTypeStr [, condition, sessionNumber, levelNumber])
+%   SessionData = experiment.main.runCamouflageExperiment(subjectStr, expTypeStr)
+%   SessionData = experiment.main.runCamouflageExperiment(subjectStr, expTypeStr, ...
+%       condition, sessionNumber, levelNumber)
 %
 %   Delegates the session->level->trial loop, screen setup, and teardown to the
 %   shared vislab harness (vislab.psychframework.run_experiment), wiring this repo's
@@ -11,11 +14,28 @@ function SessionData = runCamouflageExperiment(subjectStr, expTypeStr, condition
 %
 %   Run `setup` first (adds vislab). Requires Psychtoolbox (+ EyeLink for
 %   peripheral / non-foveal runs).
+%
+%   Inputs
+%     subjectStr    - subject identifier string.
+%     expTypeStr    - experiment type string (selects the settings/data path).
+%     condition     - (optional) condition to resume; with sessionNumber and
+%                     levelNumber, resumes a specific session/level instead of
+%                     the subject's current progress.
+%     sessionNumber - (optional) session index to resume.
+%     levelNumber   - (optional) level index to resume.
+%
+%   Output
+%     SessionData - struct returned by vislab.psychframework.run_experiment,
+%                   recording what ran this session.
+%
+%   See also experiment.LOADCURRENTSESSION, experiment.SAVECURRENTLEVEL,
+%   vislab.psychframework.RUN_EXPERIMENT.
 
     if nargin < 4
         ExpSettings = experiment.loadCurrentSession(subjectStr, expTypeStr);
     else
-        ExpSettings = experiment.loadCurrentSession(subjectStr, expTypeStr, condition, sessionNumber, levelNumber);
+        ExpSettings = experiment.loadCurrentSession(subjectStr, expTypeStr, condition, ...
+            sessionNumber, levelNumber);
     end
 
     hooks.load_session = @load_session;
