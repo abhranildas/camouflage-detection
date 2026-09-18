@@ -154,7 +154,6 @@ function [threshold, slope, bias, threshold_sd, slope_sd, bias_sd, sessions_comp
                 n_correct_rejections_boot);
         end
         threshold_boot = mu_boot + threshold_scale_boot;
-        mu_sd = std(mu_boot);
         threshold_sd = std(threshold_boot);
         slope_sd = std(slope_boot);
         bias_sd = std(bias_boot);

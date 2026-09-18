@@ -49,7 +49,7 @@
 
 - [x] **0.2.0.** Extend the golden harness to cover every tranche not yet in its 16-entry-point/32-field coverage — now 26 entry points / 57 fields.
 - [ ] **0.2.1.** `+lib/` (tranches 0.1.2–0.1.4) — golden-checked, 13 entry points.
-- [ ] **0.2.2.** `+experiment/+analysis/` (tranche 0.1.6) — golden-checked for 5 of its 12 files, pattern-only for the other 7 (all `.mat`-loading, plotting, or scripts).
+- [x] **0.2.2.** `+experiment/+analysis/` (tranche 0.1.6) — golden-checked for 5 of its 12 files, pattern-only for the other 7 (all `.mat`-loading, plotting, or scripts).
 - [x] **0.2.3.** `+experiment/` and `+experiment/+main/` (tranches 0.1.5, 0.1.7) — golden-checked for `gamma_correct` and `generate_target_present_matrix`, pattern-check only for the rest.
 - [x] **0.2.4.** `+general/` (tranches 0.1.8, 0.1.9) — golden-checked for `compute_nll_edge_model`, its only function; the other 30 files are scripts, pattern-check only.
 - [ ] **0.2.5.** `+vis/`, `+tests/`, `+tinker/`, root — golden-checked for `+tinker/`'s 5 functions; the rest pattern-check only.
@@ -970,6 +970,58 @@ golden_harness: replay matched all 57 fields
 **One pre-existing oddity, checked and cleared.** A capture run prints five bare `ans = <n>` lines. They are **not** from anything added here: the HEAD copy of the harness, run unchanged from a scratch directory, prints the same five, in a different order each time — they are the parallel-pool worker ids from `lib.autocorr`'s `parfor`. Noted, not fixed, not a new finding.
 
 **No bug, optimization, or structural item was found or acted on.** This step adds harness code and reads repo code; the three bugs it leans on (B2.9, B2.17, B3.4) were all already recorded.
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.2.2 — <code>+experiment/+analysis/</code> (tranche 0.1.6, 12 files)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+MATLAB R2024b Update 6. Baseline: clean HEAD, working tree clean at the start of this step. Scope: the 12 in-scope files (`Contents.m` and the 7 `_`-prefixed dead files excluded per 2). 5 golden-covered (`psychometric_fun`, `compute_neg_log_likelihood`, `fit_psychometric`, `compute_neg_log_likelihood_edge_response`, `compute_template_response_sigma`), 7 pattern-check-only (`compute_bootstrapped_threshold.m`, `compute_threshold_edge_power.m`, `compute_threshold_edge_response.m`, `compute_threshold_texture_exponent.m`, `compute_thresholds_vs_lum_cont.m`, `compute_thresholds_vs_statistic.m`, `plot_threshold_vs_condition.m`), per 0.2.0's log entry.
+
+**Pattern 1 (missing suppressing semicolons): none found.** Every candidate line surfaced by grep was a false positive of one of two shapes: a trailing `%` comment after an already-present `;` (`correct_reject = logical([]); % mirrors...`, `p_correct = mean(correct); % prob. of correct`, in all three `compute_threshold_*` files), or a void-output plotting/axis call (`xline`, `ylim`, `xlim`, `zlim`, `xlabel`, `set(gca, ...)`) called with no output captured — these print nothing regardless of the trailing `;`, so there is no suppression to add.
+
+**Pattern 2 (`find(...)` → logical indexing): none found.** No file in the tranche calls `find` at all.
+
+**Pattern 3 (unpreallocated growth, `x(end+1)`/`x{end+1}`): none found.** No file uses that idiom. Four files do grow arrays by repeated `var = [var; new_data]` concatenation in a loop (`compute_bootstrapped_threshold.m:72,74`; `compute_threshold_edge_power.m:72-76`; `compute_threshold_edge_response.m:94-100`; `compute_threshold_texture_exponent.m:73-77`) — but that is a different AST shape from the whitelisted `end+1` idiom, and the plan's own survey already filed exactly these instances as **O3.2** (0.5, Speed), not a Stage 2 target. Two more instances of the same concatenation/direct-index-growth shape turned up under `checkcode` in files O3.2 doesn't enumerate — `compute_template_response_sigma.m:43,44,47,49` (golden-covered) and `compute_thresholds_vs_statistic.m:41,87` (pattern-only) — consistent with O3.2's own text ("~40 instances across ~20 files, heaviest in...", not exhaustive); noted here, not added as a new O-item, and not touched.
+
+**Pattern 4 (unused assignments `checkcode` flags): 4 hits, all fixed.** `checkcode` flagged "Value assigned to variable might be unused" at 4 sites, all in pattern-only files, all confirmed by a repo-wide grep for the variable name to have no other read and no output-argument role:
+
+| file | line | statement removed | why safe |
+|---|---|---|---|
+| `compute_threshold_edge_power.m` | 157 | `mu_sd = std(mu_boot);` | `mu_boot` is always `zeros(1, n_boot)` (never reassigned before this line), so `mu_sd` is deterministically 0 and never read again; not an output. |
+| `compute_threshold_edge_response.m` | 198 | `mu_sd = std(mu_boot);` | same shape/reasoning. |
+| `compute_threshold_texture_exponent.m` | 65 | `blank_mean = 0;` | only other reference is inside a commented-out line (`%     mu_init=blank_mean;`, dead); not an output. |
+| `compute_threshold_texture_exponent.m` | 158 (156 pre-edit) | `mu_sd = std(mu_boot);` | same shape/reasoning as the other two. |
+
+Removing `compute_threshold_texture_exponent.m:65` left two adjacent blank lines; the following blank line was removed with it to keep formatting consistent with Stage 1's blank-line rule — the only edit in this tranche not itself one of the four literal statement deletions.
+
+Two other `checkcode` message families showed up repeatedly and were left alone as out of the closed list: "Function return value might be unset" (`x_pmf`/`y_pmf` and friends — pre-existing, already documented in each file's header, B3.10-adjacent) and "Input argument might be unused" (`compute_neg_log_likelihood_edge_response.m`'s `n_blanks`/`n_targets` — a signature-level question, Stage 3 territory, already explained in the header). `compute_bootstrapped_threshold.m:104`'s `'hist' is not recommended, use 'histogram' instead` was also left alone — a deprecation nit, not a missing-semicolon/find/growth/unused-assignment hit, and changing it risks a real behaviour difference (bin edges) that is a judgment call, not a Stage 2 edit.
+
+**Verification.** `check_stage1` with an empty rename map, baseline = clean HEAD for all 12: the 9 untouched files matched (`match=1`) confirming no accidental edits; the 3 edited files did not match (`match=1` was not expected — deleting a statement is a real, whitelisted AST change), and the `canon(old)` vs `canon(new)` diff was inspected directly for each and confirmed to be exactly the deleted line(s), nothing else:
+
+```
+compute_bootstrapped_threshold.m              match=1 expect=1 true
+compute_neg_log_likelihood.m                  match=1 expect=1 true
+compute_neg_log_likelihood_edge_response.m    match=1 expect=1 true
+compute_template_response_sigma.m             match=1 expect=1 true
+compute_threshold_edge_power.m                match=0 expect=0 true
+compute_threshold_edge_response.m             match=0 expect=0 true
+compute_threshold_texture_exponent.m          match=0 expect=0 true
+compute_thresholds_vs_lum_cont.m              match=1 expect=1 true
+compute_thresholds_vs_statistic.m             match=1 expect=1 true
+fit_psychometric.m                            match=1 expect=1 true
+plot_threshold_vs_condition.m                 match=1 expect=1 true
+psychometric_fun.m                            match=1 expect=1 true
+ALL AS EXPECTED: 1
+```
+
+Golden-harness replay (5 golden-covered functions among the 57-field/26-entry-point set): `golden_harness: replay matched all 57 fields` — clean, verbatim. The other 7 files are pattern-check-only, as stated above and per 0.2.0's log entry; none of the 4 edits touched them.
+
+No new bug, structural item, or optimization was found (the `checkcode` growth hits duplicate/extend O3.2, already on file; the `hist`/deprecation nit and the header-documented undefined-output/unused-argument messages are pre-existing and out of the closed pattern list, not new findings).
 
 </div>
 
