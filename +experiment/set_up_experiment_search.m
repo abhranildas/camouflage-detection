@@ -33,15 +33,16 @@ function set_up_experiment_search(exp_type, subject_str)
 %   The unsuppressed [i_session i_trial target_loc] line prints generation
 %   progress to the console; it is deliberate, not a missing semicolon.
 %
-%   lib.gammaCorrect does not exist anywhere in the tree (B2.9), so this
-%   function cannot run as committed; experiment.gamma_correct is the surviving
-%   copy of the same computation (S3.14).
+%   The gamma step used to call lib.gammaCorrect, which resolves to nothing
+%   anywhere in the tree (B2.9), so this function could not run at all. S1.14
+%   repointed it to experiment.gamma_correct, this repo's single
+%   gamma-compression implementation, whose signature it already matched.
 %
 %   S3.3 collapses the five near-duplicate experiment variants, but explicitly
 %   leaves this file alone: it is a genuinely different paradigm.
 %
-%   See also experiment.main.RUN_CAMOUFLAGE_EXPERIMENT_SEARCH, lib.STIMULUS,
-%   lib.FIND_SPOT_CENTERS.
+%   See also experiment.main.RUN_CAMOUFLAGE_EXPERIMENT_SEARCH,
+%   experiment.GAMMA_CORRECT, lib.STIMULUS, lib.FIND_SPOT_CENTERS.
 
     %% experiment settings
     ExpSettings.monitorBit = 8;
@@ -115,7 +116,7 @@ function set_up_experiment_search(exp_type, subject_str)
                     'bg_size', Stimulus.stimulus_sz, 'ml_b', Stimulus.ml, ...
                     'cont_b', Stimulus.cont);
             end
-            stim = uint8(lib.gammaCorrect(stim, ExpSettings.monitorGamma, ...
+            stim = uint8(experiment.gamma_correct(stim, ExpSettings.monitorGamma, ...
                 ExpSettings.monitorBit));
             Stimulus.stimuli(:, :, i_trial, i_session) = stim;
             Stimulus.seeds(i_trial, i_session) = seed;

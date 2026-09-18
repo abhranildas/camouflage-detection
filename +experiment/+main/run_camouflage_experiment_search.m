@@ -19,7 +19,14 @@ function run_camouflage_experiment_search(subject_str, exp_type)
 %     none (side effect: runs the experiment, saves SubjectExpFile after
 %     each session to exp_files/search/<exp_type>/subject_out/<subject_str>.mat).
 %
-%   See also experiment.main.RUN_CAMOUFLAGE_EXPERIMENT.
+%   S1.14 replaced this file's own inline gamma-compression formula with a
+%   call to experiment.gamma_correct, the repo's single implementation. That
+%   function also rounds to whole pixel values, which this file previously did
+%   only for the cue image, so the background sheet, the clear colour and the
+%   start screen are now rounded too — at most half a pixel value, and they
+%   are quantised by Psychtoolbox's 8-bit texture conversion anyway.
+%
+%   See also experiment.main.RUN_CAMOUFLAGE_EXPERIMENT, experiment.GAMMA_CORRECT.
 
     %% load experiment settings and subject results file
     load(['exp_files/search/' exp_type '/exp_settings.mat'], 'ExpSettings', 'Stimulus');
@@ -32,8 +39,12 @@ function run_camouflage_experiment_search(subject_str, exp_type)
         error('Congratulations! This experiment has been completed.');
     end
 
-    %% functions
-    gamma_correction = @(x, bit, gamma) (x./(2^bit-1)).^(1/gamma)*(2^bit-1);
+    %% gamma compression, bound to this monitor
+    % Everything here is in pixel values, while experiment.gamma_correct takes
+    % a normalised [0, 1] image, so scale on the way in.
+    max_pixel_val = 2^ExpSettings.monitorBit - 1;
+    gamma_correct_pixels = @(x) experiment.gamma_correct(x/max_pixel_val, ...
+        ExpSettings.monitorGamma, ExpSettings.monitorBit);
 
     %% Psychtoolbox initialization
     rng('default');
@@ -42,8 +53,7 @@ function run_camouflage_experiment_search(subject_str, exp_type)
     sca;
     PsychDefaultSetup(2);
     screen_number = max(Screen('Screens'));
-    bg_mean_gamma = gamma_correction(Stimulus.bgMean, ExpSettings.monitorBit, ...
-        ExpSettings.monitorGamma);
+    bg_mean_gamma = gamma_correct_pixels(Stimulus.bgMean);
     [win, win_rect] = Screen('OpenWindow', screen_number, bg_mean_gamma);
     ExpSettings.monitorPx = win_rect(3:4);
     % ExpSettings.blank=0.5;
@@ -53,8 +63,7 @@ function run_camouflage_experiment_search(subject_str, exp_type)
 
     %% Luminance sheet
     luminance_sheet = ones(ExpSettings.monitorPx(2), ExpSettings.monitorPx(1)) * Stimulus.bgMean;
-    luminance_sheet_gc = gamma_correction(luminance_sheet, ExpSettings.monitorBit, ...
-        ExpSettings.monitorGamma);
+    luminance_sheet_gc = gamma_correct_pixels(luminance_sheet);
     blank_tex = Screen('MakeTexture', win, luminance_sheet_gc);
     stimulus = luminance_sheet_gc;
 
@@ -114,8 +123,7 @@ function run_camouflage_experiment_search(subject_str, exp_type)
         circular_cue(fix_mask) = fix_dot_value;    % write the dot into the image
 
         circle_cues = luminance_sheet + circular_cue;
-        circle_cues = round(gamma_correction(circle_cues, ExpSettings.monitorBit, ...
-            ExpSettings.monitorGamma));
+        circle_cues = gamma_correct_pixels(circle_cues);
 
         cue_tex = Screen('MakeTexture', win, circle_cues);
 
@@ -125,8 +133,7 @@ function run_camouflage_experiment_search(subject_str, exp_type)
 
             %% show starting screen
             sample_stimulus = luminance_sheet + circular_cue;
-            sample_stimulus_gc = gamma_correction(sample_stimulus, ExpSettings.monitorBit, ...
-                ExpSettings.monitorGamma);
+            sample_stimulus_gc = gamma_correct_pixels(sample_stimulus);
             tex = Screen('MakeTexture', win, sample_stimulus_gc);
             Screen('DrawTexture', win, tex);
 

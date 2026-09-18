@@ -398,7 +398,6 @@ function state = check_package_resolution(state, repo_root)
         'lib.circular_mask',                                'B2.9'
         'lib.compute_dPrime_pCorrect',                      'B2.9'
         'lib.edge_vector',                                  'B2.9'
-        'lib.gammaCorrect',                                 'B2.9'
         'lib.new_edge',                                     'B2.9'
         'lib.pink_noise_2d',                                'B2.9'
         'lib.whiten_pink_noise_square',                     'B2.9'

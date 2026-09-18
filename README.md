@@ -204,9 +204,9 @@ Column 1 is the edge power of the *blank* rendering of that seed; column 2 is th
 
 This repo is mid-migration onto the shared `vislab-common` library, aligning it with the texture-learning and texture-segmentation repos. `texture-segmentation` finished the migration; this repo did not.
 
-**Done:** `setup.m` + `config.m` added; the camouflage-domain code extracted into this repo's own `+lib` (56 functions) so the repo is self-contained; the redundant `edgecode/` removed; the Psychtoolbox harness unified onto `vislab.psychframework`; `Rs` donated to `vislab.nat_stat_bayes.dv_spatial`.
+**Done:** `setup.m` + `config.m` added; the camouflage-domain code extracted into this repo's own `+lib` (56 functions) so the repo is self-contained; the redundant `edgecode/` removed; the Psychtoolbox harness unified onto `vislab.psychframework`; `Rs` donated to `vislab.nat_stat_bayes.dv_spatial`; the triplicated `gamma_correct` consolidated onto one implementation.
 
-**Not done:** the data paths (they point at a directory that was never created), the experiment-variant families, the triplicated `gamma_correct`, adoption of `config()`, and runtime validation of the Psychtoolbox harness. All of these are tracked as items in the cleanup plan.
+**Not done:** the data paths (they point at a directory that was never created), the experiment-variant families, adoption of `config()`, and runtime validation of the Psychtoolbox harness. All of these are tracked as items in the cleanup plan.
 
 ## Documentation
 

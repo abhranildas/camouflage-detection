@@ -47,7 +47,7 @@ longer depends on the lab-root `+lib`. What was done this pass:
 Mostly in `+tinker` prototypes and the `_texture_exponent`/`_shape_exponent` variant scripts:
 `lib.circular_mask`, `lib.pink_noise_2d`, `lib.edge_vector` (only `edge_vector_ideal` exists),
 `lib.whiten_pink_noise_square`, `lib.compute_dPrime_pCorrect`, `lib.new_edge`,
-`lib.cosWindowFlattop2`, `lib.reverse_pink_noise_square`, `lib.gammaCorrect`. Confirm they're
+`lib.cosWindowFlattop2`, `lib.reverse_pink_noise_square`, `lib.gammaCorrect` (fixed by S1.14). Confirm they're
 off the live path, then fix or delete. These name functions that don't exist in root `+lib`
 either, so they were already broken before the extraction — the local `+lib` doesn't change that.
 - A few live in functions that got copied into the local `+lib`: `circular_mask` (called by
@@ -66,8 +66,10 @@ either, so they were already broken before the extraction — the local `+lib` d
   byte-identical duplicate `+experiment/subjectExperimentFile_alpha.m` and repointed its two callers
   (`set_up_experiment_shape_exponent`, `set_up_experiment_texture_exponent`) to `experiment.subject_experiment_file`.
 - `.asv` autosaves — already git-ignored (`*.asv` in `.gitignore`); not in the repo, nothing to do.
-- **Pending:** `gamma_correct` exists **three** ways — `+experiment/gamma_correct.m`, `lib.gammaCorrect`,
-  and `vislab.lib.gamma_compress`/`gamma_expand`. Consolidate (touches experiment code; do with the +lib pass).
+- **DONE (S1.14):** `gamma_correct` existed **three** ways — `+experiment/gamma_correct.m`, `lib.gammaCorrect`,
+  and an inline formula in `run_camouflage_experiment_search.m`. All now call `+experiment/gamma_correct.m`.
+  `vislab.lib.gamma_compress` is the same power law on a fixed 0..255 scale with no rounding, so it is not
+  a drop-in; unifying with it is S3.19 in `docs/repo-cleanup.md`.
 
 ## 6. Copy-paste experiment-variant families (canonicalize with a parameter) — LEFT AS-IS (user's call)
 - `generate_camouflage_stimuli{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m`,

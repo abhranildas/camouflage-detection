@@ -1448,6 +1448,45 @@ Neither of those two reaches the logical-mask branch of `lib.edge`/`lib.edge_vec
 
 </details>
 
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">S1.14 &mdash; one gamma-compression implementation (4 files, 1 commit)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+**The item's premise was right about the math and wrong about the target.** All three spellings really are the same power law, confirmed by algebra rather than by eye:
+
+- `experiment.gamma_correct(x, γ, b)` = `round((2^b − 1)·x^(1/γ))`, input normalised to [0, 1].
+- the anonymous `gamma_correction(x, bit, γ)` at `run_camouflage_experiment_search.m:36` = `(2^bit − 1)·(x/(2^bit − 1))^(1/γ)`, input in pixel values, no rounding.
+- `vislab.lib.gamma_compress(x, γ)` = `(x·255^(γ−1))^(1/γ)`, which simplifies to `255·(x/255)^(1/γ)` — i.e. *identical* to the anonymous function at `bit = 8`, which is what `set_up_experiment_search.m:47` sets `monitorBit` to.
+
+So the answer to "did the anon function actually match `gamma_correct`'s math?" is **yes as a transform, no as a function**: same `x^(1/γ)` compression, but a different input scale (pixel values vs. [0, 1]) and no quantisation. It is not the *inverse* operation, which the dispatch flagged as worth checking — all three compress.
+
+**Why the consolidation did not go onto `vislab.lib.gamma_compress`.** Three reasons, in order of weight. (1) The shared function fixes its white level at 255 and never rounds, while every call site here is parameterised by bit depth and wants an integer pixel value — `+vis/show_patch_grid.m` asks for 14 bits. Expressing `round((2^b − 1)·x^(1/γ))` through it needs `round((2^b − 1)/255 · vislab.lib.gamma_compress(255·x, γ))`: two compensating rescalings by an unrelated constant, wrapped around a one-token power law. That is duplication-avoidance theatre, and it makes the code harder to read, not easier. (2) `vislab.lib.gamma_compress` has **zero live callers anywhere in the lab tree** — grepped across `vislab-common`, `texture-learning`, `texture-segmentation`, `IntClassNorm`, `gx2` and here, excluding the `Bill's old code*` ancestral trees; only `gamma_expand` is called, once, at `vislab.nat_stat_bayes.source_to_lms:69`. Nothing is diverging yet, so the urgency the 🔴 tier implies is about *this repo's* three copies, not about the lab-wide one. (3) Repointing would put the live Psychtoolbox experiment path behind a vislab-common dependency that `setup.m` only warns about when it is missing. The right cross-repo fix — an optional white-level argument on `vislab.lib.gamma_compress`, then a genuine one-line wrapper here — needs a commit in a sibling repo and a signature decision that is the user's, so it is re-filed as **S3.19** rather than forced through here.
+
+**What changed.** Three copies to one, `experiment.gamma_correct`, whose math and signature were left exactly as they were.
+
+- `+experiment/set_up_experiment_search.m:118` — `lib.gammaCorrect(stim, monitorGamma, monitorBit)` → `experiment.gamma_correct(...)`, same three arguments in the same order. The dangling name matched the surviving signature exactly, and `lib.stimulus`'s `ml_b`/`cont_b` are documented as fractions of the monitor maximum, so `stim` is already the normalised [0, 1] input `gamma_correct` wants. This file could not run at all before.
+- `+experiment/+main/run_camouflage_experiment_search.m:36` — the inline formula replaced by an anonymous *binding* (not a reimplementation) that fixes this monitor's gamma and bit depth and scales pixel values into [0, 1]. Its four call sites each shrink from two lines to one.
+- `+experiment/gamma_correct.m` — header rewritten; it also cited the item as "S3.14", which is not an id that exists.
+- `tools/smoke_test.m` — `lib.gammaCorrect` dropped from `known_dead`, since it is no longer written anywhere. The sweep now reports 97 package-qualified references rather than 98, which is the expected arithmetic.
+
+**One behaviour change, deliberate and disclosed.** `experiment.gamma_correct` rounds; the anonymous function did not. Of the run script's four sites, `:117` already wrapped the call in `round(...)` and is bit-identical; the other three (the window clear colour, the blank luminance sheet, the start screen) are now rounded where they were not. The difference is at most half a pixel value, and all three go straight into Psychtoolbox, which quantises a double texture to 8 bits regardless. Stated in that file's header too, so the next reader does not have to rediscover it.
+
+**Verification.** No mechanical check applies — `check_stage1` fails by design here, since call sites moved. Instead:
+
+- **Exhaustive call-site search, the claim and how it was made.** `gammaCorrect` grepped across every file type in the repo including the excluded `_`-prefixed dead set and the non-`.m` docs; the only hits left are prose. The power law itself grepped as `^(1/gamma…)` and `.^(1./…)` repo-wide: exactly **one** live occurrence remains, `gamma_correct.m:35`. `gamma_correct(` grepped repo-wide for callers before deciding whether to delete the file — five call sites (`load_current_session.m:81`, `load_stimuli_camouflage.m:91,106,119`, `show_patch_grid.m:37`), which is why it survives as a function rather than being inlined. The sibling repos and the archived root `+lib` (`retired_root_lib_backup.zip`, 69 files) were searched too: `gammaCorrect` never existed in either, which is the origin of B2.9's dead reference.
+- **Golden harness, replay**, MATLAB R2024b: `golden_harness: replay matched all 57 fields` — including `gamma_correct: [10984 2125250 427351 0 64]`. Expected, since the function's math is untouched. Neither edited experiment file has a golden entry point (both are Psychtoolbox- or `exp_files/`-bound).
+- **Smoke test:** `passed 50 / failed 0 / xfail 2 · smoke_test: PASS`, with `ok experiment.gamma_correct` and the reference sweep down to 97 as expected.
+- **Line endings** re-checked per the 0.1.9 decision: all four files were 100% CRLF before and after.
+
+**One new bug found and recorded, not fixed: B2.28** — `+vis/show_patch_grid.m:37` calls `experiment.gamma_correct` with four arguments. Git history explains it exactly: the function was written in 2016 as `(imgIn, gammaValue, bitDepthIn, bitDepthOut)` and commit `b38c8e7` dropped `bitDepthIn` in Nov 2021 without updating this caller. Nothing in this item changed any signature, so it is not a regression introduced here.
+
+**B2.9 partially closed.** Its `lib.gammaCorrect` entry is resolved by this item and annotated as such in 0.4; the entry itself is kept, and the other 14 references stand. No optimization and no other structural change was made.
+
+</div>
+
+</details>
+
 </div>
 
 </details>
