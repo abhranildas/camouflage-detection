@@ -1,10 +1,11 @@
 function [neg_log_likelihood, p_correct, d_prime] = compute_neg_log_likelihood_edge_response(p, ...
-    stim_l_groups, stim_e_groups, bTarget, bOpt, n_blanks, n_targets, n_hits, n_correct_rejections)
-%COMPUTE_NEG_LOG_LIKELIHOOD_EDGE_RESPONSE  Negative log likelihood of the edge-response detection model.
+    stim_l_groups, stim_e_groups, b_target, b_opt, n_blanks, n_targets, n_hits, ...
+    n_correct_rejections)
+%COMPUTE_NEG_LOG_LIKELIHOOD_EDGE_RESPONSE  Negative log likelihood of the edge-response model.
 %
 %   [neg_log_likelihood, p_correct, d_prime] = ...
 %       experiment.analysis.COMPUTE_NEG_LOG_LIKELIHOOD_EDGE_RESPONSE(p, ...
-%       stim_l_groups, stim_e_groups, bTarget, bOpt, n_blanks, n_targets, ...
+%       stim_l_groups, stim_e_groups, b_target, b_opt, n_blanks, n_targets, ...
 %       n_hits, n_correct_rejections)
 %
 % Pools per-contour-group lengths and edge energies into a per-trial edge
@@ -20,17 +21,17 @@ function [neg_log_likelihood, p_correct, d_prime] = compute_neg_log_likelihood_e
 %   stim_l_groups           per-trial cell array of contour-group lengths
 %   stim_e_groups           per-trial cell array of contour-group edge
 %                           energies
-%   bTarget                 trials x levels logical, true where a target is
+%   b_target                 trials x levels logical, true where a target is
 %                           present
-%   bOpt                    true for the optimal (noiseless-observer)
+%   b_opt                    true for the optimal (noiseless-observer)
 %                           likelihood; false to fit against n_hits/n_correct_rejections
 %   n_blanks                trial count with no target, per level (unused
-%                           when bOpt is true)
+%                           when b_opt is true)
 %   n_targets               trial count with a target, per level (unused on
 %                           either branch: see file header note)
-%   n_hits                  hit count, per level (unused when bOpt is true)
+%   n_hits                  hit count, per level (unused when b_opt is true)
 %   n_correct_rejections    correct-rejection count, per level (unused when
-%                           bOpt is true)
+%                           b_opt is true)
 %
 % Output
 %   neg_log_likelihood  negative log likelihood, +Inf outside the parameter
@@ -52,8 +53,8 @@ function [neg_log_likelihood, p_correct, d_prime] = compute_neg_log_likelihood_e
     exponent = p(2);
     sigma = p(3);
 
-    nTrials = size(bTarget, 1);
-    nLevels = size(bTarget, 2);
+    n_trials = size(b_target, 1);
+    n_levels = size(b_target, 2);
 
     if threshold > 0 && exponent > 0 && sigma > 0
         % edge responses
@@ -61,18 +62,18 @@ function [neg_log_likelihood, p_correct, d_prime] = compute_neg_log_likelihood_e
             stim_l_groups, stim_e_groups);
 
         % mean and sd of edge responses for blanks and targets in each level
-        response_blank_means = nan(1, nLevels);
-        response_blank_sds = nan(1, nLevels);
-        response_target_means = nan(1, nLevels);
-        response_target_sds = nan(1, nLevels);
-        for iLevel = 1:nLevels
-            response_level = edge_response(:, iLevel);
-            response_blank_level = response_level(~bTarget(:, iLevel));
-            response_target_level = response_level(bTarget(:, iLevel));
-            response_blank_means(iLevel) = mean(response_blank_level);
-            response_blank_sds(iLevel) = sqrt(var(response_blank_level) + sigma^2);
-            response_target_means(iLevel) = mean(response_target_level);
-            response_target_sds(iLevel) = sqrt(var(response_target_level) + sigma^2);
+        response_blank_means = nan(1, n_levels);
+        response_blank_sds = nan(1, n_levels);
+        response_target_means = nan(1, n_levels);
+        response_target_sds = nan(1, n_levels);
+        for i_level = 1:n_levels
+            response_level = edge_response(:, i_level);
+            response_blank_level = response_level(~b_target(:, i_level));
+            response_target_level = response_level(b_target(:, i_level));
+            response_blank_means(i_level) = mean(response_blank_level);
+            response_blank_sds(i_level) = sqrt(var(response_blank_level) + sigma^2);
+            response_target_means(i_level) = mean(response_target_level);
+            response_target_sds(i_level) = sqrt(var(response_target_level) + sigma^2);
         end
 
         % d'_e
@@ -81,10 +82,10 @@ function [neg_log_likelihood, p_correct, d_prime] = compute_neg_log_likelihood_e
 
         % ignoring bias
         p_correct = normcdf(d_prime / 2);
-        if bOpt
+        if b_opt
             log_likelihood = mean(p_correct);
         else
-            log_likelihood = sum(log(binopdf(n_hits + n_correct_rejections, nTrials, p_correct)));
+            log_likelihood = sum(log(binopdf(n_hits + n_correct_rejections, n_trials, p_correct)));
         end
 
         % incorporating bias (S3.16: T5.2)

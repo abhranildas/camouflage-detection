@@ -1,10 +1,10 @@
-function [threshC, threshStdC, threshCDist] = compute_bootstrapped_threshold(subjectStr, ...
-    binIndex, blocks, nBootIter, bPlot)
+function [threshold, threshold_sd, threshold_dist] = compute_bootstrapped_threshold(subject_str, ...
+    bin_index, blocks, n_boot_iter, b_plot)
 %COMPUTE_BOOTSTRAPPED_THRESHOLD  Computes experimental threshold with bootstrapped distribution.
 %
-%   [threshC, threshStdC, threshCDist] = ...
-%       experiment.analysis.COMPUTE_BOOTSTRAPPED_THRESHOLD(subjectStr, ...
-%       binIndex, blocks, nBootIter, bPlot)
+%   [threshold, threshold_sd, threshold_dist] = ...
+%       experiment.analysis.COMPUTE_BOOTSTRAPPED_THRESHOLD(subject_str, ...
+%       bin_index, blocks, n_boot_iter, b_plot)
 %
 % Loads one or more of a subject's saved block files (from a hardcoded,
 % machine-specific path — B2.11, pre-existing, not fixed here) and
@@ -14,20 +14,20 @@ function [threshC, threshStdC, threshCDist] = compute_bootstrapped_threshold(sub
 % repo or a sibling one (B2.9, pre-existing, not fixed here).
 %
 % Inputs
-%   subjectStr   subject identifier, names the loaded block file's folder
-%   binIndex     [luminance, contrast, similarity] bin index, 1x3
+%   subject_str   subject identifier, names the loaded block file's folder
+%   bin_index     [luminance, contrast, similarity] bin index, 1x3
 %   blocks       block numbers to pool, e.g. 1:2
-%   nBootIter    number of bootstrap iterations (default 500)
-%   bPlot        true to plot the bootstrapped threshold distribution
+%   n_boot_iter    number of bootstrap iterations (default 500)
+%   b_plot        true to plot the bootstrapped threshold distribution
 %                (default false)
 %
 % Output
-%   threshC        mean bootstrapped contrast threshold
-%   threshStdC     standard deviation of bootstrapped thresholds
-%   threshCDist    1 x nBootIter distribution of bootstrapped thresholds
+%   threshold        mean bootstrapped contrast threshold
+%   threshold_sd     standard deviation of bootstrapped thresholds
+%   threshold_dist    1 x n_boot_iter distribution of bootstrapped thresholds
 %
 % Example:
-%   [threshC, threshStdC, threshCDist] = ...
+%   [threshold, threshold_sd, threshold_dist] = ...
 %       COMPUTE_BOOTSTRAPPED_THRESHOLD('SUB', [5 5 5], 1:2, 100, 1);
 %
 %   See also NM.ANALYSIS.FITPSYCHOMETRIC.
@@ -36,72 +36,72 @@ function [threshC, threshStdC, threshCDist] = compute_bootstrapped_threshold(sub
 
 %% Input handling
 
-if(~exist('bPlot', 'var') || isempty(bPlot))
-    bPlot   = 0;
+if(~exist('b_plot', 'var') || isempty(b_plot))
+    b_plot = 0;
 end;
 
-if(~exist('nBootIter', 'var') || isempty(nBootIter))
-    nBootIter     = 500;
+if(~exist('n_boot_iter', 'var') || isempty(n_boot_iter))
+    n_boot_iter = 500;
 end;
 
 %% Variable setup
 
-contrast        = [];
-correctMat      = [];
-threshCDist   = zeros(1, nBootIter);
+contrast = [];
+correct_mat = [];
+threshold_dist = zeros(1, n_boot_iter);
 
 %% Load data from specified blocks
-for blockIndex = 1:length(blocks)
+for i_block = 1:length(blocks)
 
     % load in the subject's data
     if(ismac())
-        filePath = ['/Users/steve/Dropbox/Research/Jared_Project/exp_out/' subjectStr ...
-            '/' num2str(binIndex(1)) num2str(binIndex(2)) num2str(binIndex(3)) ...
-            '_' num2str(blocks(blockIndex)) '.mat'];
+        file_path = ['/Users/steve/Dropbox/Research/Jared_Project/exp_out/' subject_str ...
+            '/' num2str(bin_index(1)) num2str(bin_index(2)) num2str(bin_index(3)) ...
+            '_' num2str(blocks(i_block)) '.mat'];
     else
-        filePath = ['C:\Users\sebastian\Dropbox\Research\Jared_Project\exp_out\' subjectStr ...
-            '\' num2str(binIndex(1)) num2str(binIndex(2)) num2str(binIndex(3)) ...
-            '_' num2str(blocks(blockIndex)) '.mat'];
+        file_path = ['C:\Users\sebastian\Dropbox\Research\Jared_Project\exp_out\' subject_str ...
+            '\' num2str(bin_index(1)) num2str(bin_index(2)) num2str(bin_index(3)) ...
+            '_' num2str(blocks(i_block)) '.mat'];
     end;
-    load(filePath);
+    load(file_path);
 
     % get the contrast levels
-    contrastBlock = repmat(trialInfo.targetContrast', [1 size(trialInfo.correct, 2)]);
-    contrast = [contrast contrastBlock(:)];
+    contrast_block = repmat(trial_info.targetContrast', [1 size(trial_info.correct, 2)]);
+    contrast = [contrast contrast_block(:)];
 
-    correctMat  = [correctMat trialInfo.correct];
+    correct_mat = [correct_mat trial_info.correct];
 end;
 
 % build a row subscript index for indexing into the correct response matrix
-rowSub = repmat((1:size(correctMat, 1))', [1 size(correctMat, 2)]);
+row_sub = repmat((1:size(correct_mat, 1))', [1 size(correct_mat, 2)]);
 
 %% Bootstrap the threshold data
-for bootIndex = 1:nBootIter
+for i_boot = 1:n_boot_iter
 
     % get the random subscript
-    randSub     = randi(size(correctMat, 2), size(correctMat));
+    rand_sub = randi(size(correct_mat, 2), size(correct_mat));
 
     % convert to index
-    randIndex     = sub2ind(size(correctMat), rowSub, randSub);
+    rand_index = sub2ind(size(correct_mat), row_sub, rand_sub);
 
     % sample
-    correct     = correctMat(randIndex);
+    correct = correct_mat(rand_index);
 
-	% fit the data with a psychometric function
-    [threshCDist(bootIndex), ~] = nm.analysis.fitPsychometric(0.1, 2, contrast, correct(:));
+    % fit the data with a psychometric function
+    [threshold_dist(i_boot), ~] = nm.analysis.fitPsychometric(0.1, 2, contrast, correct(:));
 
 end;
 
-threshStdC = std(threshCDist);
-threshC     = mean(threshCDist);
+threshold_sd = std(threshold_dist);
+threshold = mean(threshold_dist);
 
 %% plot the distribution of thresholds
-if(bPlot)
+if(b_plot)
     figure; hold on;
 
-    hist(threshCDist, 20);
+    hist(threshold_dist, 20);
     formatFigure('Contrast Threshold', 'Count', ...
-        ['L: ' num2str(binIndex(1)) ' C: ' num2str(binIndex(2)) ' S: ' num2str(binIndex(3))], ...
+        ['L: ' num2str(bin_index(1)) ' C: ' num2str(bin_index(2)) ' S: ' num2str(bin_index(3))], ...
         0, 0, 28, 24);
     axis square;
 

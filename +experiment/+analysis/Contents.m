@@ -10,7 +10,7 @@
 %
 % Call functions as experiment.analysis.<function>. Requires the repo root
 % on the MATLAB path (see setup.m); the compute_threshold_* family also
-% requires a completed exp_files/<expType>/ session tree.
+% requires a completed exp_files/<exp_type>/ session tree.
 %
 % Several call sites in this package reference an "analysis.*" or
 % "nm.analysis.*" package that does not exist in this repo or a sibling one

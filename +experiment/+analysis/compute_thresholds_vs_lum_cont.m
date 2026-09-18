@@ -35,21 +35,21 @@ lum_cont = [
 ];
 
 thresholds_lum_cont = struct;
-for iCondition = 1:size(lum_cont, 1)
-    luminance = lum_cont(iCondition, 1); contrast_val = lum_cont(iCondition, 2);
+for i_condition = 1:size(lum_cont, 1)
+    luminance = lum_cont(i_condition, 1); contrast_val = lum_cont(i_condition, 2);
     exp_name = ['1fnoise_L' num2str(luminance) '_C' num2str(contrast_val)];
     [fit_threshold, fit_threshold_std, sessions] = ...
         analysis.computeThresholdInBin(exp_name, 'ad', 1, 1);
-    thresholds_lum_cont(iCondition).luminance = luminance;
-    thresholds_lum_cont(iCondition).contrast = contrast_val;
-    thresholds_lum_cont(iCondition).sessions = sessions;
-    thresholds_lum_cont(iCondition).threshold = fit_threshold;
-    thresholds_lum_cont(iCondition).threshold_std = fit_threshold_std;
+    thresholds_lum_cont(i_condition).luminance = luminance;
+    thresholds_lum_cont(i_condition).contrast = contrast_val;
+    thresholds_lum_cont(i_condition).sessions = sessions;
+    thresholds_lum_cont(i_condition).threshold = fit_threshold;
+    thresholds_lum_cont(i_condition).threshold_std = fit_threshold_std;
 end
 
-[xData, yData, zData] = prepareSurfaceData([thresholds_lum_cont.luminance], ...
+[x_data, y_data, z_data] = prepareSurfaceData([thresholds_lum_cont.luminance], ...
     [thresholds_lum_cont.contrast], [thresholds_lum_cont.threshold]);
-sf = fit([xData, yData], zData, 'thinplateinterp', 'Normalize', 'on');
+sf = fit([x_data, y_data], z_data, 'thinplateinterp', 'Normalize', 'on');
 %Or use Thin-plate spline interpolant with centering and scaling from the
 %curve fitting toolbox. This code is doing the same thing.
 [xq, yq] = meshgrid(.1:.03:.7, .05:.03:.35);

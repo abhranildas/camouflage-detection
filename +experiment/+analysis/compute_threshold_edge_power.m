@@ -1,14 +1,14 @@
 function [threshold, slope, bias, threshold_sd, slope_sd, bias_sd, sessions_completed, ...
-    target_means, p_correct_boot_sds, x_pmf, y_pmf] = compute_threshold_edge_power(expTypeStr, ...
-    subjectStr, bPlot, bBootstrap)
-%COMPUTE_THRESHOLD_EDGE_POWER  Fit the edge-power detection threshold for one subject's session data.
+    target_means, p_correct_boot_sds, x_pmf, y_pmf] = compute_threshold_edge_power(exp_type_str, ...
+    subject_str, b_plot, b_bootstrap)
+%COMPUTE_THRESHOLD_EDGE_POWER  Fit the edge-power detection threshold for one subject.
 %
 %   [threshold, slope, bias, threshold_sd, slope_sd, bias_sd, ...
 %       sessions_completed, target_means, p_correct_boot_sds, x_pmf, y_pmf] = ...
-%       experiment.analysis.COMPUTE_THRESHOLD_EDGE_POWER(expTypeStr, ...
-%       subjectStr, bPlot, bBootstrap)
+%       experiment.analysis.COMPUTE_THRESHOLD_EDGE_POWER(exp_type_str, ...
+%       subject_str, b_plot, b_bootstrap)
 %
-% Loads a subject's completed sessions from exp_files/<expTypeStr>/, pools
+% Loads a subject's completed sessions from exp_files/<exp_type_str>/, pools
 % the edge-power values across them, and fits
 % experiment.analysis.psychometric_fun to the per-level hit/correct-rejection
 % counts via experiment.analysis.fit_psychometric.
@@ -17,44 +17,44 @@ function [threshold, slope, bias, threshold_sd, slope_sd, bias_sd, sessions_comp
 % not introduced by this pass).
 %
 % Inputs
-%   expTypeStr   experiment type, names the exp_files/<expTypeStr>/ folder
-%   subjectStr   subject identifier, names the subject_out/<subjectStr>.mat
+%   exp_type_str   experiment type, names the exp_files/<exp_type_str>/ folder
+%   subject_str   subject identifier, names the subject_out/<subject_str>.mat
 %                file
-%   bPlot        true to plot the fitted psychometric function
-%   bBootstrap   true to bootstrap the standard errors below
+%   b_plot        true to plot the fitted psychometric function
+%   b_bootstrap   true to bootstrap the standard errors below
 %
 % Output
 %   threshold             fitted edge power at which d' = 1
 %   slope                 fitted Weibull shape exponent, dimensionless
 %   bias                  fitted criterion asymmetry, dimensionless
-%   threshold_sd          bootstrapped sd of threshold (bBootstrap only)
-%   slope_sd              bootstrapped sd of slope (bBootstrap only)
-%   bias_sd               bootstrapped sd of bias (bBootstrap only)
+%   threshold_sd          bootstrapped sd of threshold (b_bootstrap only)
+%   slope_sd              bootstrapped sd of slope (b_bootstrap only)
+%   bias_sd               bootstrapped sd of bias (b_bootstrap only)
 %   sessions_completed     number of completed sessions pooled
 %   target_means           per-level mean edge power on target-present trials
 %   p_correct_boot_sds    bootstrapped sd of proportion correct, per level
-%                         (bBootstrap only)
+%                         (b_bootstrap only)
 %   x_pmf, y_pmf          unused; see note above
 %
 %   See also EXPERIMENT.ANALYSIS.FIT_PSYCHOMETRIC, EXPERIMENT.ANALYSIS.PSYCHOMETRIC_FUN.
 
     % Load in experiment settings file
-    load(['./exp_files/' expTypeStr '/exp_settings.mat'], 'ExpSettings');
+    load(['./exp_files/' exp_type_str '/exp_settings.mat'], 'ExpSettings');
 
     % Load in subject experiment file
-    load(['./exp_files/' expTypeStr '/subject_out/' subjectStr '.mat'], 'SubjectExpFile');
+    load(['./exp_files/' exp_type_str '/subject_out/' subject_str '.mat'], 'SubjectExpFile');
 
-    nTrials = size(SubjectExpFile.correct, 1);
-    nLevels = size(SubjectExpFile.correct, 2);
-    completedBinIndex = SubjectExpFile.levelCompleted == nLevels;
-    sessions_completed = sum(completedBinIndex);
+    n_trials = size(SubjectExpFile.correct, 1);
+    n_levels = size(SubjectExpFile.correct, 2);
+    completed_bin_index = SubjectExpFile.levelCompleted == n_levels;
+    sessions_completed = sum(completed_bin_index);
 
     if(sessions_completed == 0)
-        error(['Error: Needed ' num2str(nLevels) ' levels to fit psychometric function.']);
+        error(['Error: Needed ' num2str(n_levels) ' levels to fit psychometric function.']);
     end
 
     exp_values = [];
-    bTarget = logical([]);
+    b_target = logical([]);
     hit = logical([]);
     correct_reject = logical([]); % mirrors SubjectExpFile.correctRejection; name kept as-is
     correct = logical([]);
@@ -63,32 +63,32 @@ function [threshold, slope, bias, threshold_sd, slope_sd, bias_sd, sessions_comp
     % experiment.analysis.compute_neg_log_likelihood's T5.1 (S3.16: T5.4)
 %     blank_mean=mean(SubjectExpFile.edgePowers(~SubjectExpFile.bTargetPresent));
 
-    if(bPlot)
+    if(b_plot)
         disp(['Sessions used: ' num2str(sessions_completed)]);
     end
 
-    for iSession = 1:length(completedBinIndex)
-        if(completedBinIndex(iSession))
-            exp_values = [exp_values; ExpSettings.edgePowers(:, :, iSession)];
-            bTarget = [bTarget; SubjectExpFile.bTargetPresent(:, :, iSession)];
-            hit = [hit; SubjectExpFile.hit(:, :, iSession)];
-            correct_reject = [correct_reject; SubjectExpFile.correctRejection(:, :, iSession)];
-            correct = [correct; SubjectExpFile.correct(:, :, iSession)];
+    for i_session = 1:length(completed_bin_index)
+        if(completed_bin_index(i_session))
+            exp_values = [exp_values; ExpSettings.edgePowers(:, :, i_session)];
+            b_target = [b_target; SubjectExpFile.bTargetPresent(:, :, i_session)];
+            hit = [hit; SubjectExpFile.hit(:, :, i_session)];
+            correct_reject = [correct_reject; SubjectExpFile.correctRejection(:, :, i_session)];
+            correct = [correct; SubjectExpFile.correct(:, :, i_session)];
         end
     end
 
-    n_targets = sum(bTarget);
-    n_blanks = sum(~bTarget);
+    n_targets = sum(b_target);
+    n_blanks = sum(~b_target);
     n_hits = sum(hit);
     n_correct_rejections = sum(correct_reject);
 
-    target_means = nan(1, nLevels);
-    target_sds = nan(1, nLevels);
-    for iTargetLevel = 1:nLevels
-        exp_level = exp_values(:, iTargetLevel);
-        bTarget_level = bTarget(:, iTargetLevel);
-        target_means(iTargetLevel) = mean(exp_level(bTarget_level));
-        target_sds(iTargetLevel) = std(exp_level(bTarget_level));
+    target_means = nan(1, n_levels);
+    target_sds = nan(1, n_levels);
+    for i_target_level = 1:n_levels
+        exp_level = exp_values(:, i_target_level);
+        b_target_level = b_target(:, i_target_level);
+        target_means(i_target_level) = mean(exp_level(b_target_level));
+        target_sds(i_target_level) = std(exp_level(b_target_level));
     end
 
     p_correct = mean(correct); % prob. of correct
@@ -104,7 +104,7 @@ function [threshold, slope, bias, threshold_sd, slope_sd, bias_sd, sessions_comp
     threshold = mu + threshold_scale;
 
     %% Figure properties
-    if bPlot
+    if b_plot
         hold on;
         plot(target_means, p_correct, 'ok', 'markerfacecolor', 'k', 'MarkerSize', 5);
         fplot(@(x) experiment.analysis.psychometric_fun(x, mu, threshold_scale, slope, bias), ...
@@ -118,37 +118,37 @@ function [threshold, slope, bias, threshold_sd, slope_sd, bias_sd, sessions_comp
     end
 
     %% Bootstrap
-    if(bBootstrap)
+    if(b_bootstrap)
         n_boot = 500;
-        p_correct_boot = nan(n_boot, nLevels);
+        p_correct_boot = nan(n_boot, n_levels);
         mu_boot = zeros(1, n_boot);
         threshold_scale_boot = nan(1, n_boot);
         slope_boot = nan(1, n_boot);
         bias_boot = nan(1, n_boot);
-        for iBoot = 1:n_boot
-            exp_values_boot = nan(nTrials, nLevels);
-            target_means_boot = nan(1, nLevels);
-            bTarget_boot = false(nTrials, nLevels);
-            hit_boot = false(nTrials, nLevels);
-            correct_reject_boot = false(nTrials, nLevels);
-            correct_boot = false(nTrials, nLevels);
-            for iBootLevel = 1:nLevels
-                [exp_level, boot_idx] = datasample(exp_values(:, iBootLevel), nTrials);
-                exp_values_boot(:, iBootLevel) = exp_level;
-                bTarget_level = bTarget(boot_idx', iBootLevel);
-                bTarget_boot(:, iBootLevel) = bTarget_level;
-                target_means_boot(iBootLevel) = mean(exp_level(bTarget_level));
-                hit_boot(:, iBootLevel) = hit(boot_idx', iBootLevel);
-                correct_reject_boot(:, iBootLevel) = correct_reject(boot_idx', iBootLevel);
-                correct_boot(:, iBootLevel) = correct(boot_idx', iBootLevel);
+        for i_boot = 1:n_boot
+            exp_values_boot = nan(n_trials, n_levels);
+            target_means_boot = nan(1, n_levels);
+            b_target_boot = false(n_trials, n_levels);
+            hit_boot = false(n_trials, n_levels);
+            correct_reject_boot = false(n_trials, n_levels);
+            correct_boot = false(n_trials, n_levels);
+            for i_boot_level = 1:n_levels
+                [exp_level, boot_idx] = datasample(exp_values(:, i_boot_level), n_trials);
+                exp_values_boot(:, i_boot_level) = exp_level;
+                b_target_level = b_target(boot_idx', i_boot_level);
+                b_target_boot(:, i_boot_level) = b_target_level;
+                target_means_boot(i_boot_level) = mean(exp_level(b_target_level));
+                hit_boot(:, i_boot_level) = hit(boot_idx', i_boot_level);
+                correct_reject_boot(:, i_boot_level) = correct_reject(boot_idx', i_boot_level);
+                correct_boot(:, i_boot_level) = correct(boot_idx', i_boot_level);
             end
-            n_targets_boot = sum(bTarget_boot);
-            n_blanks_boot = sum(~bTarget_boot);
+            n_targets_boot = sum(b_target_boot);
+            n_blanks_boot = sum(~b_target_boot);
             n_hits_boot = sum(hit_boot);
             n_correct_rejections_boot = sum(correct_reject_boot);
 
-            p_correct_boot(iBoot, :) = mean(correct_boot);
-            [threshold_scale_boot(iBoot), slope_boot(iBoot), bias_boot(iBoot)] = ...
+            p_correct_boot(i_boot, :) = mean(correct_boot);
+            [threshold_scale_boot(i_boot), slope_boot(i_boot), bias_boot(i_boot)] = ...
                 experiment.analysis.fit_psychometric(threshold_scale, slope, bias, ...
                 target_means_boot, n_blanks_boot, n_targets_boot, n_hits_boot, ...
                 n_correct_rejections_boot);
@@ -159,12 +159,12 @@ function [threshold, slope, bias, threshold_sd, slope_sd, bias_sd, sessions_comp
         slope_sd = std(slope_boot);
         bias_sd = std(bias_boot);
         p_correct_boot_sds = std(p_correct_boot);
-        if(bPlot)
-            for iTargetLevel = 1:length(target_means)
+        if(b_plot)
+            for i_target_level = 1:length(target_means)
                 rectangle('Position', ...
-                    [target_means(iTargetLevel)-target_sds(iTargetLevel), ...
-                    p_correct(iTargetLevel)-p_correct_boot_sds(iTargetLevel), ...
-                    2*target_sds(iTargetLevel), 2*p_correct_boot_sds(iTargetLevel)], ...
+                    [target_means(i_target_level)-target_sds(i_target_level), ...
+                    p_correct(i_target_level)-p_correct_boot_sds(i_target_level), ...
+                    2*target_sds(i_target_level), 2*p_correct_boot_sds(i_target_level)], ...
                     'facecolor', [0 0 0 .5], 'edgecolor', 'none')
             end
         end
