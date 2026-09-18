@@ -27,7 +27,8 @@
 %
 % See also lib.stimulus, lib.edge_energy.
 
-load('exp_files/1fnoise_L0.5_C0.15/exp_settings.mat')
+cfg = config();
+load(fullfile(cfg.paths.exp_files, '1fnoise_L0.5_C0.15', 'exp_settings.mat'))
 edge_energy_old = [ExpSettings.edgeEnergies(:, :, 1); ExpSettings.edgeEnergies(:, :, 2); ...
     ExpSettings.edgeEnergies(:, :, 3); ExpSettings.edgeEnergies(:, :, 4)];
 target_present = [ExpSettings.bTargetPresent(:, :, 1); ExpSettings.bTargetPresent(:, :, 2); ...

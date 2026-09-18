@@ -45,7 +45,8 @@ end
 toc
 
 stim_energy = sortrows(stim_energy, 4);
-save('vislab-common/data/video_demo.mat', 'stim_energy');
+cfg = config();
+save(fullfile(cfg.paths.data, 'video_demo.mat'), 'stim_energy');
 
 % see one of these images
 i_sample = 1;

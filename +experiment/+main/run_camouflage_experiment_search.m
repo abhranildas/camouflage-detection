@@ -29,8 +29,10 @@ function run_camouflage_experiment_search(subject_str, exp_type)
 %   See also experiment.main.RUN_CAMOUFLAGE_EXPERIMENT, experiment.GAMMA_CORRECT.
 
     %% load experiment settings and subject results file
-    load(['exp_files/search/' exp_type '/exp_settings.mat'], 'ExpSettings', 'Stimulus');
-    load(['exp_files/search/' exp_type '/subject_out/' subject_str '.mat'], 'SubjectExpFile');
+    cfg = config();
+    folder_exp = fullfile(cfg.paths.exp_files, 'search', exp_type);
+    load(fullfile(folder_exp, 'exp_settings.mat'), 'ExpSettings', 'Stimulus');
+    load(fullfile(folder_exp, 'subject_out', [subject_str '.mat']), 'SubjectExpFile');
 
     %% resume experiment
     current_session = find(SubjectExpFile.expCompleted == 0, 1);
@@ -216,8 +218,8 @@ function run_camouflage_experiment_search(subject_str, exp_type)
 
         %% save results
         SubjectExpFile.expCompleted(i_session) = 1;
-        folder_out = ['exp_files/search/' exp_type '/subject_out'];
-        file_path_out = [folder_out '/' subject_str '.mat'];
+        folder_out = fullfile(folder_exp, 'subject_out');
+        file_path_out = fullfile(folder_out, [subject_str '.mat']);
         save(file_path_out, 'SubjectExpFile');
 
         fprintf('\n*****Progress summary*****\n');

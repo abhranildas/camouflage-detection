@@ -39,10 +39,12 @@ function [threshold, slope, bias, threshold_sd, slope_sd, bias_sd, sessions_comp
 %   See also EXPERIMENT.ANALYSIS.FIT_PSYCHOMETRIC, EXPERIMENT.ANALYSIS.PSYCHOMETRIC_FUN.
 
     % Load in experiment settings file
-    load(['./exp_files/' exp_type_str '/exp_settings.mat'], 'ExpSettings');
+    cfg = config();
+    folder_exp = fullfile(cfg.paths.exp_files, exp_type_str);
+    load(fullfile(folder_exp, 'exp_settings.mat'), 'ExpSettings');
 
     % Load in subject experiment file
-    load(['./exp_files/' exp_type_str '/subject_out/' subject_str '.mat'], 'SubjectExpFile');
+    load(fullfile(folder_exp, 'subject_out', [subject_str '.mat']), 'SubjectExpFile');
 
     n_trials = size(SubjectExpFile.correct, 1);
     n_levels = size(SubjectExpFile.correct, 2);

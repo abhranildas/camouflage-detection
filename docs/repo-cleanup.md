@@ -76,7 +76,7 @@
 - [ ] 🔴 **S1.13.** Remove dead scaffolding in the live path (global `bdry_ribbon`, duplicate write, debug `randi(10)`/`imshow`, 3 unconditional bar plots) — 7 named sites.
 - [x] 🔴 **S1.14.** Consolidate the 3 gamma-compression implementations onto `vislab.lib.gamma_compress`. Tranche 0.1.1 established that only **one** is a file in this repo (`+experiment/gamma_correct.m`); the second is the inline `gammaCorrection` anonymous function at `run_camouflage_experiment_search.m:36`, and `lib.gammaCorrect` (`set_up_experiment_search.m:118`) resolves to nothing at all (B2.9). No rename was made — with one file there is nothing to disambiguate, and any name change belongs with the consolidation. **Done, but onto `experiment.gamma_correct`, not onto `vislab.lib.gamma_compress` — the item's named target was checked and rejected.** All three sites are now one implementation; the shared function turned out not to be a drop-in (fixed 0..255 white level, no quantisation, and zero live callers anywhere in the lab tree), so unifying with it is re-filed as S3.19. Closes B2.9's `lib.gammaCorrect` occurrence.
 - [ ] 🔴 **S1.16.** Act on the Stage 1 commented-out-code triage (3.1.4) — delete superseded/scaffolding, convert alternative/unfinished, leave unknown.
-- [ ] 🟠 **S2.2.** Route every path through `config.m` — resolves B2.1. Re-checked repo-wide in tranche 0.1.12: still **zero callers in the repo's own code**. The only two references anywhere are `tools/golden_harness.m:43` (`cfg = config(); ... rng(cfg.seed)`, added by tranche 0.1.0, i.e. cleanup tooling rather than production code) and the `cfg = config;` example at `README.md:53`. So the item stands as written; the cleanup harness is now the config's only consumer, which is exactly backwards.
+- [x] 🟠 **S2.2.** Route every path through `config.m` — **done, and it resolved B2.1.** 33 files, 76 call sites: every `load`/`save`/`dir`/`imread`/`addpath` path literal in in-scope production code now reads `cfg = config()` and a `cfg.paths.*` field. `config.m` gained no new field; it lost one (`paths.images`, which had no callers and named a directory that has never existed) and **`paths.edge_powers` was repointed from `<data_root>/edge_powers` to `<repo>/data/edge_powers`, which is where the files actually are** — that one line is B2.1's whole fix. Two literals were deliberately left hardcoded, with reasons in 3.3.
 - [x] 🟠 **S2.3.** Collapse the 5 experiment-variant families (`{set_up_experiment,session_settings,generate_camouflage_stimuli}×{base,_all,_diff_bg,_shape_exponent,_texture_exponent}`, 15 files, 75–81% duplicate lines). **Done for two of the three layers, and deliberately declined for the third.** `set_up_experiment` and `session_settings` are now one file each, taking the variant as their first argument (`'edge_power'`, `'all'`, `'diff_bg'`, `'shape_exponent'`, `'texture_exponent'`): 10 files and 958 lines became 2 files and 463. The five **generators** stay five files — past four lines of bookkeeping they share no computation, and collapsing them would have had to change `_shape_exponent`'s `parfor` axis, which changes the RNG draw order and so the stimuli. Reasoning and evidence in 3.3.
 - [ ] 🟠 **S2.7.** Make live `+general/` scripts into functions (~8 of 41 are live; not yet enumerated).
 - [ ] 🟠 **S2.8.** Fix `edge_powers` producer/consumer path-layout split.
@@ -106,7 +106,7 @@
 
 **Description.** Bugs found anywhere during Stage 1/2/3, fixed here after Structure. **Rating:** 🔴 severity 1, silently wrong results on a run path · 🟠 severity 2, reachable but not silent · 🟡 severity 3, latent. Id `B<severity>.<n>`, never renumbered. **User launches each fix manually — never auto-dispatched.**
 
-**Status.** 64 of the 65 recorded bugs are unfixed; B3.9 closed as a side effect of tranche 0.1.1's filename/`function`-line rule, and one of B2.9's 15 dead references closed as a side effect of S1.14. Highest ids: B1.11, B2.29, B3.25.
+**Status.** 63 of the 65 recorded bugs are unfixed; B3.9 closed as a side effect of tranche 0.1.1's filename/`function`-line rule, B2.1 as a side effect of S2.2, and one of B2.9's 15 dead references as a side effect of S1.14. Highest ids: B1.11, B2.29, B3.25.
 
 **To-do.**
 
@@ -121,7 +121,7 @@
 - [ ] 🔴 **B1.9.** `fit_edge_model_with_exps.m:215-217` — `var_exp` compares model against itself (`mean_subj_acc` actually holds model accuracy, column-index bug). Related: `numel(~isnan(x))` at `:184` is a no-op (should be `nnz`).
 - [ ] 🔴 **B1.10.** `compute_nat_img_eff_coding_bins.m:6,27,29,62` uses `ppd=106`, wavelength 555nm vs config's 60ppd/550nm — sampling-density mismatch on the live model chain's head.
 - [ ] 🔴 **B1.11.** `compute_nat_img_eff_coding_bins.m:30,68-69,72,77,82` — patch locations drawn in cropped-image coords, used as full-image indices; border margin enforced at only 2 of 4 edges. Magnitude unverified.
-- [ ] 🟠 **B2.1.** Live experiment-setup path can't find data (`vislab-common/data/edge_powers/` doesn't exist). `generate_camouflage_stimuli.m:2`, `set_up_experiment.m:32,47,72`. Fixed by S2.2.
+- [x] 🟠 **B2.1.** Live experiment-setup path can't find data (`vislab-common/data/edge_powers/` doesn't exist). **Fixed by S2.2, and genuinely resolved, not just routed.** The directory was never missing — it is `<repo>/data/edge_powers/`, holding `pink_noise.mat` and `natural/{bark,camo,camo_large,coral,foliage,grass,leaf,leather,moth,paper,rock,sand,scales,soil,spots}.mat`, each carrying both `edge_powers` and `edgePowerBlockEdges`, the two variables the loaders ask for. The literal named a sibling-repo path that has never held them. `cfg.paths.edge_powers` now points at the real directory and all three load sites read it from there; verified on disk (see 3.3).
 - [ ] 🟠 **B2.2.** `lib.edge_props_stim.m:162` errors on camo stimuli (array-bounds); debug `randi(10)` at `:30` (advances RNG); `figure(1);imshow(stim)` at `:152-153`.
 - [ ] 🟠 **B2.3.** `lib.edge_energy.m`/`lib.edge_shape.m` call `lib.steerable_grad` positionally against a name-value-only signature; `edge_energy.m:35` also uses removed `dsp.Normalizer`.
 - [ ] 🟠 **B2.4.** `lib.stimulus` output arity: `generate_camouflage_stimuli_diff_bg.m:20,22` and `_texture_exponent.m:19,21` destructure shifted by one; `_shape_exponent.m:20` similarly shifted.
@@ -1531,6 +1531,57 @@ The variant-specific inputs of `session_settings` are name-value, not a union of
 **One piece of collateral staleness fixed, one left.** Fixed: the four generators and `Contents.m` cited `S3.3` for this collapse, an id that does not exist in this plan — they now cite S2.3. Left, and noted here rather than acted on: the same stale-id pattern runs through other `+experiment/` headers, which cite `S3.2`, `S3.4` and `S3.13` for what are now S2.2, S1.4 and S1.13. Those files were not in this item's scope and were not touched. `README.md`'s `+experiment/ (56 files)` was decremented by 8 to 48; the basis of the original 56 could not be reconstructed from any count of the directory, so the delta is right and the absolute number is as approximate as it was before.
 
 **No optimization was made**, though one is now visible and is *not* filed, because it is really S1.13's: `mkdir` is called inside the subject loop, so it warns "Directory already exists" once per subject after the first. That is the "duplicate write" S1.13 already enumerates.
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">S2.2 &mdash; every path through <code>config.m</code> (33 files, 74 call sites); B2.1 resolved</h5></summary>
+
+<div style="margin-left:1.5em">
+
+**The item's premise was right and its diagnosis of B2.1 was wrong, and that is the main finding.** The item said config had zero callers, which was still true on contact -- the only consumers were `tools/golden_harness.m` and `tools/smoke_test.m`, both reading `cfg.seed` and nothing else. But B2.1 was recorded as "`vislab-common/data/edge_powers/` doesn't exist," and `config.m` had faithfully encoded that non-existent location as `cfg.paths.edge_powers = fullfile(data_root, 'edge_powers')`. Routing the call sites through a field that points nowhere would have changed nothing. The directory is not missing; it is **`<repo>/data/edge_powers/`**, and it has been in the repo all along.
+
+**How that was established, rather than guessed.** `data/edge_powers/` holds `pink_noise.mat` and `natural/` with fifteen per-texture files (`bark`, `camo`, `camo_large`, `coral`, `foliage`, `grass`, `leaf`, `leather`, `moth`, `paper`, `rock`, `sand`, `scales`, `soil`, `spots`). `whos -file` on two of them returns exactly `edgePowerBlockEdges` and `edge_powers` -- the two variable names the three load sites name explicitly. The key the loaders build the filename from is `exp_type`, and `exp_files/natural/` carries the same fifteen names, so `exp_type = 'natural/camo'` resolves consistently in both trees. One line of `config.m` changed; nothing was moved, copied, or created.
+
+**The same stale `vislab-common/data/` prefix turned out to cover two different real locations, and separating them was the only judgement call in the item.** The prefix is a leftover from a layout that predates the split into this repo plus the shared store. Files that exist in the shared store today (`nat_im_eff_coding.mat`, `CPS natural images/`, `textures/natural/*.png|jpg`) route to `cfg.paths.data_root` and its children. Everything else under that prefix is an artifact *this repo computes and writes*, and routes to `cfg.paths.data`. That second claim is not an inference from the file names -- `data/old/` holds old copies of exactly those outputs, and their contents match: `data/old/video_demo.mat` contains `stim_energy`, which is the single variable `video_demo.m` saves, and `data/old/pink_noise_stim_corrs.mat` contains `LLR_blank, LLR_target, corr_blank_cross, corr_target_cross, d`, exactly the five names in `pink_noise_stimuli_autocorrelations.m`'s save list.
+
+**What `config.m` looks like now.** Eight path fields, no new ones:
+
+| field | value | changed? |
+|---|---|---|
+| `paths.repo_root` | this repo | -- |
+| `paths.data_root` | `../vislab-common/data` | -- |
+| `paths.natural_images` | `<data_root>/CPS natural images` | -- |
+| `paths.textures` | `<data_root>/textures` | -- |
+| `paths.exp_files` | `<repo>/exp_files` | -- |
+| `paths.data` | `<repo>/data` | -- |
+| `paths.edge_powers` | `<repo>/data/edge_powers` | **repointed from `<data_root>/edge_powers`** |
+| `paths.por_sim` | `<repo>/por_sim_tx_synth` | -- |
+| `paths.images` | *removed* | had zero callers and named `<data_root>/images`, which has never existed |
+
+`paths.images`'s one intended consumer, `set_up_experiment.m`'s Portilla-Simoncelli branch, builds `<root>/<exp_type>.png` -- and `<data_root>/textures/natural/camo.png` exists while `<data_root>/images/natural/camo.png` does not, so that site now uses `paths.textures` and the redundant field is gone. `optics`, `norm` and `seed` are untouched, so `tools/golden_harness.m:50`'s `cfg = config()` and its 22 `rng(cfg.seed)` calls are unaffected -- confirmed by replay, below.
+
+**Scope, and how the sweep was made exhaustive.** Three independent greps over every `.m` file outside `tools/`, `por_sim_tx_synth/`, and the 29 `_`-prefixed dead files: (1) the three literal roots `vislab-common`, `exp_files`, `por_sim_tx_synth`; (2) any `load`/`save`/`imread`/`imwrite`/`dir`/`mkdir`/`addpath`/`genpath` call whose first argument is a string literal containing a separator; (3) any string literal ending in `.mat`/`.png`/`.jpg`/`.csv`/`.txt`/`.avi`/`.mp4` anywhere in the file, to catch bare filenames the first two would miss. **32 production files** carried a hit; after the edit, grep (1) returns only comments, and greps (2) and (3) return only `fullfile(...)` calls already rooted in a `cfg.paths` field, plus the two exceptions below. Field usage: `exp_files` 38 sites, `data` 8, `edge_powers` 7, `textures` 7, `data_root` 6, `por_sim` 6, `natural_images` 2 -- 74 in all, across `+experiment/` (11 files), `+general/` (17), `+tinker/` (3), `+tests/` (1).
+
+**Two literals deliberately left hardcoded, both stated rather than quietly skipped.**
+
+- `+experiment/+analysis/compute_bootstrapped_threshold.m:58-65` -- the `/Users/steve/Dropbox/.../Jared_Project/` and `C:\Users\sebastian\Dropbox\...` pair. These point at another person's machine and a *different* project's data, not this repo's, so there is no config field they belong in and inventing one would be worse than the literal. That is **B2.11**, still open and untouched.
+- `+general/analyze_search_exps.m:127` -- `dir('*.mat')`, a bare wildcard over whatever directory the user happens to be in. It has no data root to route to; it is "the current folder" by design. Left, noted here.
+
+**Behaviour.** Every path that resolved before still resolves to the same file, because each rewrite replaces a cwd-relative literal with the absolute path it expanded to when cwd was the repo root -- which the README required until now. The change is that they no longer depend on cwd, so that README requirement was dropped. Paths that never resolved (the `vislab-common/data/*` set) now resolve where the evidence says they should, or, for the handful of write targets that have no file yet (`seed_energy_pink_noise.mat`, `seed_multiple_energies_symmetric.mat`, `seed_energy_pink_noise_whitened.mat`, `pink_noise_stim_blank_autocorr.mat`, `edge_powers_camo*.mat`), point at the directory their own `save` will create them in. Two files still name something absent for an unrelated reason, recorded not fixed: `compute_noise_colour.m` asks for `bark.png` where the store has `bark.jpg`, and `compute_texture_autocorrelation.m`'s list includes `sand`, `coral` and `sand2`, which are not in `textures/natural/`. Both were already broken and are not B2.1.
+
+**Verification.** No mechanical check applies -- `check_stage1` fails by design, since every rewritten call site is a real AST change. What was run instead, MATLAB R2024b Update 6:
+
+- **Existence check on every config path**, after the edit: `edge_powers` yes, `edge_powers/pink_noise.mat` yes, `edge_powers/natural/camo.mat` yes, `textures/natural/camo.png` yes, `exp_files` yes, `natural_images` yes, `seed = 0` unchanged.
+- **Golden harness:** `golden_harness: replay matched all 57 fields`.
+- **Smoke test:** `passed 50 / failed 0 / xfail 2 / skipped 0 . smoke_test: PASS` -- unchanged from before the item.
+- **Parse/canon over all 40 files dirty in the tree:** `checked 40 files, failing parse/canon: 0`. (40 rather than 33 because S2.20 was working in the same tree; its nine files are not part of this commit.)
+
+**Collateral.** `README.md`'s "the working directory must be the repo root" paragraph and its "Not done: the data paths" line are both now false and were rewritten. `+experiment/Contents.m` and the headers of `set_up_experiment.m` and `generate_camouflage_stimuli.m` carried B2.1 warnings and a stale `S3.2` id (the last of the three S2.19 flagged) -- all three updated to describe the config-routed state.
+
+**No bug was fixed beyond B2.1, no optimization made, and no commented-out block touched.** The commented-out path literals in `compute_edge_powers_pink_noise.m`, `compute_nat_img_eff_coding_bins.m:95`, `pink_noise_stimuli_autocorrelations.m:92`, `scratch.m:35-36` and `set_up_experiment.m:206,221` were left exactly as they are; they belong to S1.16 and their 3.1.4 verdicts, not here.
 
 </div>
 

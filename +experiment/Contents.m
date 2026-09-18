@@ -9,7 +9,7 @@
 % Call functions as experiment.<function>. Every path in this package is
 % relative to the repo root, so the working directory must be the repo root
 % (see setup.m). Note that the edge-power and source-image directories these
-% files load from do not currently exist on disk (B2.1); S3.2 repoints them.
+% files load from now come from config() (S2.2, which resolved B2.1).
 %
 % Setting up an experiment
 %   set_up_experiment              - create settings, stimuli and subject files

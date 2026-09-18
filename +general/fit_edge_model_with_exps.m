@@ -64,13 +64,14 @@ exp_paths = {'pink_noise'};
 % exp_paths={'natural/moth','natural/rock','natural/camo_large','natural/spots','natural/leaf','natural/leather','natural/camo','pink_noise',...
 %     'natural/foliage','natural/soil','natural/grass','natural/paper','texture_exponent/ecc_0'}; %
 
-nLevels = 10;
+n_levels = 10;
 % edge_feature_names={'grad_m_comb','grad_o_comb','grad_p_comb','npix_llr','ncon_llr','pos_llr','or_llr','curv_llr',...
 %     'ep_comb'};
 edge_feature_names = {'grad_m_comb', 'grad_o_comb', 'grad_p_comb'};
 
 n_features = numel(edge_feature_names);
 
+cfg = config();
 d_primes = cell(length(exp_paths), 2);
 
 n_figs = length(findall(0, 'Type', 'figure'));
@@ -79,18 +80,19 @@ n_figs = length(findall(0, 'Type', 'figure'));
 for i_exp = 1:length(exp_paths)
 
     % load experiment settings
-    load(['exp_files/' exp_paths{i_exp} '/exp_settings.mat']);
+    folder_exp = fullfile(cfg.paths.exp_files, exp_paths{i_exp});
+    load(fullfile(folder_exp, 'exp_settings.mat'));
 
     % load edge properties
-    load(['exp_files/' exp_paths{i_exp} '/edge_props_pca.mat']);
+    load(fullfile(folder_exp, 'edge_props_pca.mat'));
 
     % compute model d's:
     % d' contributions from each feature (for bar graphs)
-    d_prime_contributions = nan(n_features, nLevels);
-    d_primes_model = nan(1, nLevels);
-    feature_corrs_blank = nan(n_features, n_features, nLevels);
-    feature_corrs_target = nan(n_features, n_features, nLevels);
-    for i_level = 1:nLevels
+    d_prime_contributions = nan(n_features, n_levels);
+    d_primes_model = nan(1, n_levels);
+    feature_corrs_blank = nan(n_features, n_features, n_levels);
+    feature_corrs_target = nan(n_features, n_features, n_levels);
+    for i_level = 1:n_levels
         targets_this_level = ExpSettings.bTargetPresent(:, i_level, :);
         feature_vectors_target = nan(nnz(targets_this_level), numel(edge_feature_names));
         feature_vectors_blank = nan(nnz(~targets_this_level), numel(edge_feature_names));
@@ -114,7 +116,7 @@ for i_exp = 1:length(exp_paths)
     end
     d_primes{i_exp, 2} = d_primes_model;
 
-    subj_list = dir(['exp_files/' exp_paths{i_exp} '/subject_out/*.mat']);
+    subj_list = dir(fullfile(folder_exp, 'subject_out', '*.mat'));
     d_primes_subj = nan(length(subj_list), 10);
 
     figure(n_figs+1)
@@ -124,7 +126,7 @@ for i_exp = 1:length(exp_paths)
     % subject data
     for i_subj = 1:length(subj_list)
         % load subject file
-        load(['exp_files/' exp_paths{i_exp} '/subject_out/' subj_list(i_subj).name])
+        load(fullfile(folder_exp, 'subject_out', subj_list(i_subj).name))
 
         % compute subject d's across blocks
         % by inverting the overall accuracy
@@ -144,7 +146,7 @@ for i_exp = 1:length(exp_paths)
         d_primes_subj(i_subj, :) = d_prime_subj;
 
         % plot subject accuracy:
-        x = (1:nLevels)';
+        x = (1:n_levels)';
         y = normcdf(d_prime_subj/2)';
         % plot subject accuracy errorband:
         dy = std(squeeze(mean(SubjectExpFile.correct)), 0, 2);
@@ -299,10 +301,11 @@ end
 
 %% fit edge model for all-textures experiment
 % load data
-load('exp_files/all/exp_settings.mat');
-load('exp_files/all/edge_props.mat');
-load('exp_files/all/texture_list.mat');
-load('exp_files/all/subject_out/neel.mat');
+folder_all = fullfile(cfg.paths.exp_files, 'all');
+load(fullfile(folder_all, 'exp_settings.mat'));
+load(fullfile(folder_all, 'edge_props.mat'));
+load(fullfile(folder_all, 'texture_list.mat'));
+load(fullfile(folder_all, 'subject_out', 'neel.mat'));
 
 edge_feature_names = {'dens', 'len_llr', 'al_sum', 'curv_sum', ...
     'ep1_sum', 'ep2_sum', 'ep4_sum', 'ep8_sum', 'ep16_sum'};

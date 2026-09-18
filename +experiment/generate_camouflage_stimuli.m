@@ -40,9 +40,9 @@ function [stimuli, seeds, stim_edge_powers, p_clipped] = generate_camouflage_sti
 %     p_clipped        - n_trials x n_levels x n_sessions fraction of each stimulus's
 %                        boundary-ribbon pixels outside the displayable range.
 %
-%   The edge-power file path does not exist anywhere on disk, so this function
-%   cannot currently run; the real files are under the repo's own
-%   data/edge_powers/ (B2.1, fixed structurally by S3.2).
+%   The edge-power file comes from cfg.paths.edge_powers, i.e. this repo's own
+%   data/edge_powers/ (S2.2, which resolved B2.1 — the path used to be a
+%   cwd-relative literal naming a directory that has never existed).
 %
 %   The parfor writes only sliced outputs, so worker order cannot change any
 %   result. seeds is read and written back unchanged inside the loop, which is
@@ -51,7 +51,8 @@ function [stimuli, seeds, stim_edge_powers, p_clipped] = generate_camouflage_sti
 %   See also experiment.SESSION_SETTINGS, experiment.GENERATE_TARGET_PRESENT_MATRIX,
 %   lib.STIMULUS, lib.COMPUTE_P_CLIPPED.
 
-    load(['vislab-common/data/edge_powers/', exp_type, '.mat'], 'edge_powers')
+    cfg = config();
+    load(fullfile(cfg.paths.edge_powers, [exp_type, '.mat']), 'edge_powers')
     [~, ~, ~, mask_strip] = lib.target_mask('bg_size', bg_size, 'target_radius', target_radius);
     n_levels = size(edge_power_block_edges, 1);
     stimuli = zeros(bg_size, bg_size, n_trials, n_levels, n_sessions);

@@ -59,7 +59,9 @@ function [edge_threshold, exponent, sigma, threshold_sd, slope_sd, bias_sd, ...
 %   See also LIB.EDGE_RESPONSE, EXPERIMENT.ANALYSIS.COMPUTE_NEG_LOG_LIKELIHOOD_EDGE_RESPONSE.
 
     % Load in experiment settings file
-    load(['./exp_files/' exp_type_str '/exp_settings.mat'], 'ExpSettings');
+    cfg = config();
+    folder_exp = fullfile(cfg.paths.exp_files, exp_type_str);
+    load(fullfile(folder_exp, 'exp_settings.mat'), 'ExpSettings');
     n_trials = ExpSettings.nTrials;
     n_levels = ExpSettings.nLevels;
 
@@ -76,7 +78,7 @@ function [edge_threshold, exponent, sigma, threshold_sd, slope_sd, bias_sd, ...
     else
         b_opt = false;
         % Load in subject file
-        load(['./exp_files/' exp_type_str '/subject_out/' subject_str '.mat'], 'SubjectExpFile');
+        load(fullfile(folder_exp, 'subject_out', [subject_str '.mat']), 'SubjectExpFile');
         completed_bin_index = SubjectExpFile.levelCompleted == n_levels;
         sessions_completed = sum(completed_bin_index);
         if(sessions_completed == 0)

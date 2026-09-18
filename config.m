@@ -16,11 +16,16 @@ function cfg = config()
 %     cfg - struct with these fields:
 %           paths.repo_root      - this repo's root directory.
 %           paths.data_root      - shared lab data store (~23 GB), a sibling
-%                                  of this repo. All paths below hang off it.
+%                                  of this repo; read-only from here.
 %           paths.natural_images - CPS calibrated natural image database.
-%           paths.textures       - synthesized texture database.
-%           paths.images         - source images for texture synthesis.
-%           paths.edge_powers    - deployed per-texture edge-power bins.
+%           paths.textures       - texture database, and the source images
+%                                  texture synthesis reads
+%                                  (textures/natural/<name>.png|.jpg).
+%           paths.edge_powers    - deployed per-texture edge-power files,
+%                                  keyed by experiment name: <exp_type>.mat
+%                                  holds edge_powers and edgePowerBlockEdges.
+%                                  Lives in this repo's own data/, not in
+%                                  the shared store.
 %           paths.exp_files      - per-experiment settings and subject output.
 %           paths.data           - analysis artifacts written by this repo.
 %           paths.por_sim        - vendored Portilla-Simoncelli synthesis code.
@@ -44,10 +49,9 @@ function cfg = config()
     cfg.paths.data_root = fullfile(repo_root, '..', 'vislab-common', 'data');
     cfg.paths.natural_images = fullfile(cfg.paths.data_root, 'CPS natural images');
     cfg.paths.textures = fullfile(cfg.paths.data_root, 'textures');
-    cfg.paths.images = fullfile(cfg.paths.data_root, 'images');
-    cfg.paths.edge_powers = fullfile(cfg.paths.data_root, 'edge_powers');
     cfg.paths.exp_files = fullfile(repo_root, 'exp_files');
     cfg.paths.data = fullfile(repo_root, 'data');
+    cfg.paths.edge_powers = fullfile(cfg.paths.data, 'edge_powers');
     cfg.paths.por_sim = fullfile(repo_root, 'por_sim_tx_synth');
 
     % --- eye optics (Watson OTF); shared lab constants ---

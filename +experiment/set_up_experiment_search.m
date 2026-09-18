@@ -125,9 +125,10 @@ function set_up_experiment_search(exp_type, subject_str)
     end
 
     %% store experiment and stimulus
-    folder_out = ['exp_files/search/' exp_type];
+    cfg = config();
+    folder_out = fullfile(cfg.paths.exp_files, 'search', exp_type);
     mkdir(folder_out);
-    file_path_out = [folder_out '/exp_settings.mat'];
+    file_path_out = fullfile(folder_out, 'exp_settings.mat');
     save(file_path_out, 'ExpSettings', 'Stimulus', '-v7.3');
 
     %% Subject result files
@@ -139,8 +140,8 @@ function set_up_experiment_search(exp_type, subject_str)
     end
     SubjectExpFile.reactionTime = zeros(ExpSettings.nTrials, ExpSettings.nSessions);
 
-    folder_out = ['exp_files/search/' exp_type '/subject_out'];
+    folder_out = fullfile(cfg.paths.exp_files, 'search', exp_type, 'subject_out');
     mkdir(folder_out);
-    file_path_out = [folder_out '/' subject_str '.mat'];
+    file_path_out = fullfile(folder_out, [subject_str '.mat']);
     save(file_path_out, 'SubjectExpFile');
 end

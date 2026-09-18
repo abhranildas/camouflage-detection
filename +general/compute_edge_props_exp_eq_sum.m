@@ -53,7 +53,8 @@ exp_paths = {'pink_noise'};
 
 % load the efficient-coding histogram bins of gradient magnitude, and pca
 % coeffs, computed from natural images
-load('vislab-common/data/nat_im_eff_coding.mat')
+cfg = config();
+load(fullfile(cfg.paths.data_root, 'nat_im_eff_coding.mat'))
 
 % dumb down the efficient bins to only use equispaced bins at the middle scale
 % n_bins=size(grad_m_bins,2)-1;
@@ -63,12 +64,12 @@ load('vislab-common/data/nat_im_eff_coding.mat')
 
 [trial_grid, level_grid, session_grid] = ndgrid(1:30, 10:-1:1, 1:4);
 n_scales = 5;
-nLevels = 10;
+n_levels = 10;
 
 for i_exp = 1:length(exp_paths)
     tic
     exp_path = exp_paths{i_exp}  % deliberate: progress display, read again below
-    load(['exp_files/' exp_path '/exp_settings.mat']);
+    load(fullfile(cfg.paths.exp_files, exp_path, 'exp_settings.mat'));
 
     edge_props = struct;
 
@@ -143,7 +144,7 @@ for i_exp = 1:length(exp_paths)
     end
 
     % save edge properties
-    save(['exp_files/' exp_path '/edge_props.mat'], 'edge_props');
+    save(fullfile(cfg.paths.exp_files, exp_path, 'edge_props.mat'), 'edge_props');
     toc
 end
 

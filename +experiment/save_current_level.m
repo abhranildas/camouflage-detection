@@ -31,7 +31,9 @@ function save_current_level(SessionSettings, response, level_number)
     subject_str = SessionSettings.subjectStr;
     exp_type_str = SessionSettings.expTypeStr;
 
-    file_path_subject = ['exp_files/' exp_type_str '/subject_out/' subject_str '.mat'];
+    cfg = config();
+    file_path_subject = fullfile(cfg.paths.exp_files, exp_type_str, 'subject_out', ...
+        [subject_str '.mat']);
     load(file_path_subject);
 
     bin_number = SessionSettings.currentBin;

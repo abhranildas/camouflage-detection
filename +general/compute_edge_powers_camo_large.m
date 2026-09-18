@@ -36,8 +36,10 @@ kernel_sigma = 1;
 n_edge = 1e4;  % # of elements in edge vector
 n_spectrum = floor(n_edge/2)+1;  % # of items in edge spectrum
 
-if exist('vislab-common/data/natural/edge_powers_camo_large.mat', 'file') == 2
-    load('vislab-common/data/natural/edge_powers_camo_large.mat')
+cfg = config();
+edge_power_file = fullfile(cfg.paths.edge_powers, 'natural', 'edge_powers_camo_large.mat');
+if exist(edge_power_file, 'file') == 2
+    load(edge_power_file)
     sample_start = size(edge_powers, 1)+1;
     edge_powers = [edge_powers; nan(n_samples, 2)];
 else
@@ -49,8 +51,8 @@ end
 % texture_params.type='pink_noise';
 
 % Portilla-Simoncelli texture
-addpath(genpath('por_sim_tx_synth'))
-source_image_path = 'vislab-common/data/natural/camo_large.png';
+addpath(genpath(cfg.paths.por_sim))
+source_image_path = fullfile(cfg.paths.textures, 'natural', 'camo_large.png');
 source_image_grey = double(im2gray(imread(source_image_path)));
 n_scales = 4;  % Number of scales
 n_orientations = 4;  % Number of orientations
@@ -73,4 +75,4 @@ parfor seed = sample_start:sample_start+n_samples-1
 end
 toc
 
-save('vislab-common/data/natural/edge_powers_camo_large.mat', 'edge_powers')
+save(edge_power_file, 'edge_powers')

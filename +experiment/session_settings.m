@@ -143,7 +143,8 @@ function SessionSettings = session_settings(variant, exp_type, luminance, contra
 
         case 'all'
             % load texture list
-            load(['exp_files/' exp_type '/texture_list.mat']);
+            cfg = config();
+            load(fullfile(cfg.paths.exp_files, exp_type, 'texture_list.mat'));
             n_tex = length(texture_list);
             n_trials_eachtx = 40;
             n_levels = 10;

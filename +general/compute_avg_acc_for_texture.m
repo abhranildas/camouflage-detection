@@ -22,7 +22,8 @@
 exp_name = 'pink_noise';
 
 % load edge powers
-load(['vislab-common/data/edge_powers/' exp_name '.mat'], 'edge_powers')
+cfg = config();
+load(fullfile(cfg.paths.edge_powers, [exp_name '.mat']), 'edge_powers')
 
 [blank_edge_power_counts, blank_edge_power_bins] = histcounts(edge_powers(:, 1));
 blank_edge_power_counts = blank_edge_power_counts/max(blank_edge_power_counts);
@@ -31,7 +32,7 @@ blank_edge_power_counts = blank_edge_power_counts/max(blank_edge_power_counts);
 [target_edge_power_counts, target_edge_power_bins] = histcounts(edge_powers(:, 2));
 target_edge_power_counts = target_edge_power_counts/max(target_edge_power_counts);
 
-subj_list = dir(['exp_files/' exp_name '/subject_out/*.mat']);
+subj_list = dir(fullfile(cfg.paths.exp_files, exp_name, 'subject_out', '*.mat'));
 all_d_primes = nan(size(edge_powers, 1), length(subj_list));
 
 for i_subj = 1:length(subj_list)

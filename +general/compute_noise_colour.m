@@ -15,15 +15,16 @@
 % persist across repeated manual runs (see B3.11: this repo has several
 % scripts that read workspace variables they never define).
 %
-% Inputs: `vislab-common/data/bark.png` (source texture for the P-S
+% Inputs: `cfg.paths.textures`/natural/bark.png (source texture for the P-S
 %     synthesis model).
 % Output: several figures (log-log spectrum fits, per-orientation slices);
 %     `alphas` appended to in the workspace. Nothing is saved to disk.
 %
 % See also general.compute_edge_powers_camo, general.compute_texture_autocorrelation.
 
-addpath(genpath('por_sim_tx_synth'))
-source_image_path = 'vislab-common/data/bark.png';
+cfg = config();
+addpath(genpath(cfg.paths.por_sim))
+source_image_path = fullfile(cfg.paths.textures, 'natural', 'bark.png');
 source_image_grey = double(im2gray(imread(source_image_path)));
 n_scales = 4;  % Number of scales
 n_orientations = 4;  % Number of orientations

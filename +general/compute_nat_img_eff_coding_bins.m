@@ -98,7 +98,8 @@ center_end_idx = center_start_idx + patch_size - 1;
 source_image_size = [2844 4284];
 source_image_size_crop = source_image_size - 2*kernel_sigma_max*kernel_n_sigma;
 
-files = dir('vislab-common/data/CPS natural images/*.png');
+cfg = config();
+files = dir(fullfile(cfg.paths.natural_images, '*.png'));
 n_files = 10; %numel(files);
 n_patches = n_files*n_samples_per_image;
 % no. of array elements to store
@@ -123,7 +124,7 @@ i_patch = 1;
 for i_file = 1:n_files
     fprintf('%d of %d\n', i_file, n_files);
     % load image
-    source_image_path = ['vislab-common/data/CPS natural images/' files(i_file).name];
+    source_image_path = fullfile(cfg.paths.natural_images, files(i_file).name);
     source_image_rgb = double(imread(source_image_path))*255/max_pixel_value;
     % make greyscale
     source_image_grey = mean(source_image_rgb, 3);
@@ -316,7 +317,7 @@ for i_scale = 1:n_scales
 end
 
 %% save efficient-coding bins and PCA coeffs and filters
-save('vislab-common/data/nat_im_eff_coding.mat', 'grey_hist_bins', ...
+save(fullfile(cfg.paths.data_root, 'nat_im_eff_coding.mat'), 'grey_hist_bins', ...
     'grad_m_bins', 'grad_o_bins', 'grad_p_bins', ...
     'grad_pca_m_bins', 'grad_pca_o_bins', 'grad_pca_p_bins', ...
     'pca_coeffs')

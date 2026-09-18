@@ -23,8 +23,10 @@
 
 hold on
 
+cfg = config();
+
 % circle experiments
-load('exp_files/texture_exponent/ecc_0/subject_out/neel.mat')
+load(fullfile(cfg.paths.exp_files, 'texture_exponent', 'ecc_0', 'subject_out', 'neel.mat'))
 accuracy_circ = mean(SubjectExpFile.correct, [1 3]);
 accuracy_circ = [accuracy_circ([5 6 7 8]) .9898];
 % the last accuracy value here for exponent 1.2 is extracted from the
@@ -33,7 +35,7 @@ accuracy_circ_sd = sqrt(accuracy_circ.*(1-accuracy_circ)/ ...
     (size(SubjectExpFile.correct, 1)*size(SubjectExpFile.correct, 3)));
 
 % 0.8
-load('exp_files/shape_exponent/0.8/subject_out/neel.mat')
+load(fullfile(cfg.paths.exp_files, 'shape_exponent', '0.8', 'subject_out', 'neel.mat'))
 exponents_0_8 = linspace(0, 1.6, 7);
 accuracy_0_8 = mean(SubjectExpFile.correct, [1 3]);
 % accuracy_0_8_sd=std(squeeze(mean(SubjectExpFile.correct,1)),0,2)'/sqrt(size(SubjectExpFile.correct,3));
@@ -45,7 +47,7 @@ errorbar([exponents_0_8 3], [accuracy_0_8 accuracy_circ(1)], ...
 xline(0.8, 'm')
 
 % 0.9
-load('exp_files/shape_exponent/0.9/subject_out/neel.mat')
+load(fullfile(cfg.paths.exp_files, 'shape_exponent', '0.9', 'subject_out', 'neel.mat'))
 exponents_0_9 = sort([linspace(0, 2, 7) [5 7 9]/6]);
 accuracy_0_9 = mean(SubjectExpFile.correct, [1 3]);
 % accuracy_0_9_sd=std(squeeze(mean(SubjectExpFile.correct,1)),0,2)'/sqrt(size(SubjectExpFile.correct,3));
@@ -57,7 +59,7 @@ errorbar([exponents_0_9 3], [accuracy_0_9 accuracy_circ(2)], ...
 xline(0.9, 'k')
 
 % 1
-load('exp_files/shape_exponent/1/subject_out/neel.mat')
+load(fullfile(cfg.paths.exp_files, 'shape_exponent', '1', 'subject_out', 'neel.mat'))
 exponents_1 = sort([linspace(0, 2, 7) [5 7 9]/6]);
 accuracy_1 = mean(SubjectExpFile.correct, [1 3]);
 % accuracy_1_sd=std(squeeze(mean(SubjectExpFile.correct,1)),0,2)'/sqrt(size(SubjectExpFile.correct,3));
@@ -69,7 +71,7 @@ errorbar([exponents_1 3], [accuracy_1 accuracy_circ(3)], ...
 xline(1, 'b')
 
 % 1.1
-load('exp_files/shape_exponent/1.1/subject_out/neel.mat')
+load(fullfile(cfg.paths.exp_files, 'shape_exponent', '1.1', 'subject_out', 'neel.mat'))
 exponents_1_1 = sort([linspace(0, 2.2, 7) .8249 .9166 1.2833]);
 accuracy_1_1 = mean(SubjectExpFile.correct, [1 3]);
 % accuracy_1_1_sd=std(squeeze(mean(SubjectExpFile.correct,1)),0,2)'/sqrt(size(SubjectExpFile.correct,3));
@@ -81,7 +83,7 @@ errorbar([exponents_1_1 3], [accuracy_1_1 accuracy_circ(4)], ...
 xline(1.1, 'r')
 
 % 1.2
-load('exp_files/shape_exponent/1.2/subject_out/neel.mat')
+load(fullfile(cfg.paths.exp_files, 'shape_exponent', '1.2', 'subject_out', 'neel.mat'))
 exponents_1_2 = linspace(0, 2.4, 7);
 accuracy_1_2 = mean(SubjectExpFile.correct, [1 3]);
 % accuracy_1_2_sd=std(squeeze(mean(SubjectExpFile.correct,1)),0,2)'/sqrt(size(SubjectExpFile.correct,3));

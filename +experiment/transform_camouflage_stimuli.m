@@ -35,7 +35,8 @@ function [stimuli, seeds, stim_edge_powers, p_clipped, b_target_present] = ...
 %
 %   See also experiment.SESSION_SETTINGS, experiment.GENERATE_CAMOUFLAGE_STIMULI.
 
-    load(['exp_files/' exp_name_str '/exp_settings.mat']);
+    cfg = config();
+    load(fullfile(cfg.paths.exp_files, exp_name_str, 'exp_settings.mat'));
     luminance_old = ExpSettings.luminance;
     contrast_old = ExpSettings.contrast;
     stimuli = ExpSettings.stimuli;

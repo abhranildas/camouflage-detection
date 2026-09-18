@@ -46,10 +46,14 @@ function set_up_experiment(variant, exp_type, subject_str)
 %   except 'shape_exponent', which doubles all three. Pixels per degree is
 %   stored in a field named monitor_distance, which is a misnomer (B3.8).
 %
-%   Only 'diff_bg' has actually been run. 'edge_power' loads from an edge-power
-%   directory that does not exist anywhere on disk, so it cannot currently run;
-%   the files are under the repo's own data/edge_powers/, and the source
-%   textures are elsewhere again (B2.1, fixed structurally by S2.2).
+%   Every path this function reads or writes comes from config(): the
+%   edge-power file from cfg.paths.edge_powers, the Portilla-Simoncelli source
+%   texture from cfg.paths.textures, the settings and subject files from
+%   cfg.paths.exp_files (S2.2, which resolved B2.1 — all three used to be
+%   cwd-relative literals, and the edge-power one named a directory that has
+%   never existed).
+%
+%   Only 'diff_bg' has actually been run.
 %   'texture_exponent' calls lib.circular_mask, which does not exist (B2.9), and
 %   'shape_exponent' asks for a boundary roughness that never reaches the
 %   stimulus, because lib.create_pink_noise_line ignores the exponent it is
@@ -75,6 +79,8 @@ function set_up_experiment(variant, exp_type, subject_str)
         exp_type char
         subject_str char
     end
+
+    cfg = config();
 
     %% CAMOUFLAGE
     luminance = 0.5;
@@ -103,8 +109,8 @@ function set_up_experiment(variant, exp_type, subject_str)
             else
                 %         seed_energy_file='edge_strengths_bark';
                 % for bark texture with portilla simoncelli:
-                addpath(genpath('por_sim_tx_synth'))
-                source_image_path = ['vislab-common/data/images/', exp_type, '.png'];
+                addpath(genpath(cfg.paths.por_sim))
+                source_image_path = fullfile(cfg.paths.textures, [exp_type, '.png']);
                 source_image = double(im2gray(imread(source_image_path)));
 
                 n_scales = 4; % Number of scales
@@ -120,7 +126,7 @@ function set_up_experiment(variant, exp_type, subject_str)
             end
 
             % load edge power file
-            load(['vislab-common/data/edge_powers/', exp_type, '.mat'], 'edgePowerBlockEdges');
+            load(fullfile(cfg.paths.edge_powers, [exp_type, '.mat']), 'edgePowerBlockEdges');
 
             % find the widest span around the mean edge power,
             % such that 10 equal-width bins each have >=80 samples (to be safe; exp. needs
@@ -147,7 +153,7 @@ function set_up_experiment(variant, exp_type, subject_str)
 
         case 'all'
             % Portilla-Simoncelli texture
-            addpath(genpath('por_sim_tx_synth'))
+            addpath(genpath(cfg.paths.por_sim))
 
             bg_size = 256; % in px
             target_radius = 64; % in px
@@ -199,10 +205,10 @@ function set_up_experiment(variant, exp_type, subject_str)
 %     if strcmp(exp_type,'pink_noise')
 %         folder_out= ['exp_files/' exp_type '_L' num2str(luminance) '_C' num2str(contrast)];
 %     else
-    folder_out = ['exp_files/' exp_type];
+    folder_out = fullfile(cfg.paths.exp_files, exp_type);
 %     end
     mkdir(folder_out);
-    file_path_out = [folder_out '/exp_settings.mat'];
+    file_path_out = fullfile(folder_out, 'exp_settings.mat');
     save(file_path_out, 'ExpSettings', mat_version{:});
     %end
 
@@ -213,9 +219,9 @@ function set_up_experiment(variant, exp_type, subject_str)
     for i_subject = 1:n_subjects
         SubjectExpFile = experiment.subject_experiment_file(ExpSettings);
         %             folder_out= ['exp_files/' exp_type '_L' num2str(luminance) '_C' num2str(contrast) '/subject_out'];
-        folder_out = ['exp_files/' exp_type '/subject_out'];
+        folder_out = fullfile(cfg.paths.exp_files, exp_type, 'subject_out');
         mkdir(folder_out);
-        file_path_out = [folder_out '/' subject_str(i_subject, :) '.mat'];
+        file_path_out = fullfile(folder_out, [subject_str(i_subject, :) '.mat']);
         save(file_path_out, 'SubjectExpFile');
     end
 end

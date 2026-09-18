@@ -27,10 +27,11 @@
 texture_names = {'sand', 'moth', 'rock', 'spots', 'coral', 'bark', 'leaf', 'leather', ...
     'foliage', 'sand2'};
 
-addpath(genpath('por_sim_tx_synth'))
+cfg = config();
+addpath(genpath(cfg.paths.por_sim))
 
 for i_texture = 2:length(texture_names)
-    source_image_path = ['vislab-common/data/' texture_names{i_texture} '.jpg'];
+    source_image_path = fullfile(cfg.paths.textures, 'natural', [texture_names{i_texture} '.jpg']);
     source_image_grey = double(im2gray(imread(source_image_path)));
     n_scales = 4;  % Number of scales
     n_orientations = 4;  % Number of orientations

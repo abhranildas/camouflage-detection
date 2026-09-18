@@ -21,19 +21,21 @@
 %
 % See also general.analyze_search_exps, general.analyze_shape_exps.
 
-load('exp_files/pink_noise/exp_settings.mat', 'ExpSettings')
+cfg = config();
+load(fullfile(cfg.paths.exp_files, 'pink_noise', 'exp_settings.mat'), 'ExpSettings')
 
-load('exp_files/pink_noise_unblocked/subject_out/adriana.mat', 'SubjectExpFile')
-SubjectExpFile_ub = SubjectExpFile;
-load('exp_files/pink_noise/subject_out/adriana.mat')
+load(fullfile(cfg.paths.exp_files, 'pink_noise_unblocked', 'subject_out', 'adriana.mat'), ...
+    'SubjectExpFile')
+subject_exp_file_ub = SubjectExpFile;
+load(fullfile(cfg.paths.exp_files, 'pink_noise', 'subject_out', 'adriana.mat'))
 
 target_present = reshape(permute(SubjectExpFile.bTargetPresent, [2, 1, 3]), 10, [])';
 hits = reshape(permute(SubjectExpFile.hit, [2, 1, 3]), 10, [])';
 correct_rejection = reshape(permute(SubjectExpFile.correctRejection, [2, 1, 3]), 10, [])';
 
-target_present_ub = reshape(permute(SubjectExpFile_ub.bTargetPresent, [2, 1, 3]), 10, [])';
-hits_ub = reshape(permute(SubjectExpFile_ub.hit, [2, 1, 3]), 10, [])';
-correct_rejection_ub = reshape(permute(SubjectExpFile_ub.correctRejection, [2, 1, 3]), 10, [])';
+target_present_ub = reshape(permute(subject_exp_file_ub.bTargetPresent, [2, 1, 3]), 10, [])';
+hits_ub = reshape(permute(subject_exp_file_ub.hit, [2, 1, 3]), 10, [])';
+correct_rejection_ub = reshape(permute(subject_exp_file_ub.correctRejection, [2, 1, 3]), 10, [])';
 
 hit_rate = sum(hits)./sum(target_present);
 hit_rate_ub = sum(hits_ub)./sum(target_present_ub);

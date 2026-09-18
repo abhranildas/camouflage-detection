@@ -17,7 +17,7 @@
 %
 % Inputs: none (all parameters are literals below).
 % Output: none returned (script); appends the frozen 'd' and 'corr_cross'
-% to vislab-common/data/pink_noise_stim_blank_autocorr.mat.
+% to cfg.paths.data/pink_noise_stim_blank_autocorr.mat.
 %
 % See also lib.correlations_across, lib.circular_mask, lib.compute_dPrime_pCorrect.
 
@@ -34,8 +34,10 @@ mask = lib.circular_mask(bg_size, target_radius, 'center');
 x_squared = repmat((0:bg_size-1).^2, [bg_size, 1]); % array of x^2
 d = sqrt(unique(x_squared+x_squared'));
 
-if exist('vislab-common/data/pink_noise_stim_blank_autocorr.mat', 'file') == 2
-    load('vislab-common/data/pink_noise_stim_blank_autocorr.mat')
+cfg = config();
+autocorr_file = fullfile(cfg.paths.data, 'pink_noise_stim_blank_autocorr.mat');
+if exist(autocorr_file, 'file') == 2
+    load(autocorr_file)
     seed_start = size(corr_same, 2)+1;
     % corr_same=[corr_same,nan(numel(d),n_seeds)];
     corr_cross = [corr_cross, nan(numel(d), n_seeds)];
@@ -61,7 +63,7 @@ figure; hold on
 plot(d, mean(corr_cross, 2), 'r')
 % xlim([0 150])
 
-save('vislab-common/data/pink_noise_stim_blank_autocorr.mat', 'd', 'corr_cross');
+save(autocorr_file, 'd', 'corr_cross');
 
 %% log-likelihood-ratio decision variable based on autocorrelations
 n_seeds = size(corr_blank_cross, 2);

@@ -16,7 +16,8 @@
 %
 % See also general.compute_edge_powers_pink_noise.
 
-load ('vislab-common/data/seed_energy_pink_noise.mat')
+cfg = config();
+load(fullfile(cfg.paths.data, 'seed_energy_pink_noise.mat'))
 n_list = round(10.^(1:.1:4));
 n_trials = 100;
 n_stats = zeros(numel(n_list), 4);

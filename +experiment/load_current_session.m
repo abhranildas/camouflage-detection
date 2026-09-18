@@ -37,7 +37,9 @@ function SettingsOut = load_current_session(subject_str, exp_type_str, condition
 %   See also experiment.SAVE_CURRENT_LEVEL, experiment.LOAD_STIMULI_CAMOUFLAGE.
 
     %% Determine current session
-    file_path_subject = ['exp_files/' exp_type_str '/subject_out/' subject_str '.mat'];
+    cfg = config();
+    file_path_subject = fullfile(cfg.paths.exp_files, exp_type_str, 'subject_out', ...
+        [subject_str '.mat']);
     load(file_path_subject);
 
     if(nargin < 4)
@@ -71,7 +73,7 @@ function SettingsOut = load_current_session(subject_str, exp_type_str, condition
     disp(['Session ' num2str(current_session) ', Level ' num2str(level_start_index)]);
 
     %% Load settings
-    file_path_session = ['exp_files/' exp_type_str '/exp_settings.mat'];
+    file_path_session = fullfile(cfg.paths.exp_files, exp_type_str, 'exp_settings.mat');
     load(file_path_session);
 
     save(file_path_subject, 'SubjectExpFile');

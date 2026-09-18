@@ -10,7 +10,7 @@
 %
 % Inputs: none (all parameters are literals below).
 % Output: none returned (script); appends to
-% vislab-common/data/seed_multiple_energies_symmetric.mat's frozen
+% cfg.paths.data/seed_multiple_energies_symmetric.mat's frozen
 % seed_energy variable (seed, then one blank/target energy pair per
 % energy type).
 %
@@ -26,8 +26,10 @@ n_samples = 1e5;
 
 kernel_size = [1 3];
 
-if exist('vislab-common/data/seed_multiple_energies_symmetric.mat', 'file') == 2
-    load('vislab-common/data/seed_multiple_energies_symmetric.mat')
+cfg = config();
+seed_energy_file = fullfile(cfg.paths.data, 'seed_multiple_energies_symmetric.mat');
+if exist(seed_energy_file, 'file') == 2
+    load(seed_energy_file)
     sample_start = seed_energy(end, 1)+1;
     seed_energy = [seed_energy;nan(n_samples, 15)];
 else
@@ -72,4 +74,4 @@ parfor seed = sample_start:sample_start+n_samples-1
 end
 toc
 
-save('vislab-common/data/seed_multiple_energies_symmetric.mat', 'seed_energy');
+save(seed_energy_file, 'seed_energy');
