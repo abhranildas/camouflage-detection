@@ -1,28 +1,48 @@
-function [f_z,z]=pink_noise_dist(dim,klist,d_alph)
-z1_range=1/klist(1);
-dz=z1_range/100;
-z1=-z1_range:dz:z1_range;
+function [density, value] = pink_noise_dist(dimension, k_list, angle_step)
+% pink_noise_dist  Theoretical point-value distribution of pink noise.
+%
+%     [density, value] = pink_noise_dist(dimension, k_list, angle_step)
+%
+% Builds the distribution of a single pixel's value in 1-D or 2-D pink
+% noise, as the convolution of the distributions of its sinusoidal
+% frequency components (each component is a uniformly-phased sinusoid,
+% whose value follows an arcsine distribution).
+%
+% Inputs
+%     dimension - 1 or 2, dimensionality of the pink noise.
+%     k_list (cycles per signal) - frequencies to sum over.
+%     angle_step (radians) - spacing of component wave orientations,
+%         2-D only; ignored when dimension == 1.
+% Output
+%     density - probability density over value, same size as value.
+%     value - the support of the distribution.
+%
+% See also tinker.pink_noise_line_dist, tinker.pink_noise.
 
-f_z=1;
-for k=klist
+value_range = 1/k_list(1);
+d_value = value_range/100;
+value_grid = -value_range:d_value:value_range;
+
+density = 1;
+for k = k_list
     % distribution of k-frequency sine
-    zk=z1(abs(z1)<k^(-dim/2));
-    f_zk=1./(pi*(sqrt(1-(zk*k^(dim/2)).^2)));
+    value_grid_k = value_grid(abs(value_grid) < k^(-dimension/2));
+    density_k = 1./(pi*(sqrt(1-(value_grid_k*k^(dimension/2)).^2)));
     % normalize:
-    f_zk=f_zk/sum(f_zk);
-    if dim==2
-        for alph=0:d_alph:2*pi
+    density_k = density_k/sum(density_k);
+    if dimension == 2
+        for angle = 0:angle_step:2*pi
             % convolve with previous distribution:
-            f_z=conv(f_z,f_zk);
+            density = conv(density, density_k);
         end
-    elseif dim==1
-        f_z=conv(f_z,f_zk);
+    elseif dimension == 1
+        density = conv(density, density_k);
     end
 end
 
 % normalize to unit area:
-f_z=f_z/dz;
+density = density/d_value;
 
 % set up support of the distribution:
-z_num=(numel(f_z)-1)/2;
-z=-z_num*dz:dz:z_num*dz;
+value_num = (numel(density)-1)/2;
+value = -value_num*d_value:d_value:value_num*d_value;

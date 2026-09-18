@@ -29,7 +29,7 @@
 - [x] **0.1.8.** `+general/` live model chain — 4 files, 833 lines (`compute_nat_img_eff_coding_bins.m`, `compute_edge_props_exp_pca.m`, `fit_edge_model_with_exps.m`, `compute_nll_edge_model.m`).
 - [x] **0.1.9.** `+general/` remainder — 27 files, 1641 lines.
 - [x] **0.1.10.** `+vis/` + `+tests/` — 10 files, 484 lines. *(per-file convention, genuinely mixed authorship)*
-- [ ] **0.1.11.** `+tinker/` — 13 files, 1040 lines. **Not started.** → `matlab-cleanup-mechanical` (`model: "sonnet"`)
+- [x] **0.1.11.** `+tinker/` — 13 files, 1040 lines.
 - [ ] **0.1.12.** Root files: `config.m`, `setup.m`, `edge_power_demo.m`, `scratch.m`, `test_erlang.m` — 5 files, 356 lines. **Not started.** → `matlab-cleanup-lead` (`model: "opus"`)
 
 </div>
@@ -103,7 +103,7 @@
 
 **Description.** Bugs found anywhere during Stage 1/2/3, fixed here after Structure. **Rating:** 🔴 severity 1, silently wrong results on a run path · 🟠 severity 2, reachable but not silent · 🟡 severity 3, latent. Id `B<severity>.<n>`, never renumbered. **User launches each fix manually — never auto-dispatched.**
 
-**Status.** 38 of the 39 recorded bugs are unfixed; B3.9 closed as a side effect of tranche 0.1.1's filename/`function`-line rule. Highest open ids: B1.11, B2.25, B3.20.
+**Status.** 40 of the 41 recorded bugs are unfixed; B3.9 closed as a side effect of tranche 0.1.1's filename/`function`-line rule. Highest open ids: B1.11, B2.26, B3.21.
 
 **To-do.**
 
@@ -143,6 +143,7 @@
 - [ ] 🟠 **B2.23.** `vis.plot_psychometrics_vs_angle`/`_duration` both call nonexistent `analysis.computeThresholdInBin`.
 - [ ] 🟠 **B2.24.** `tests.block_jumping`'s recompute loop calls `lib.stimulus` positionally.
 - [ ] 🟠 **B2.25.** `tests.gabor_similarity` calls `stats.computeSceneSimilarityAmplitude`, unreachable due to `_`-prefix rename.
+- [ ] 🟠 **B2.26.** `+tinker/pink_noise.m:84,311` calls a bare `colored_noise(...)`, which resolves to no function anywhere in this repo (not package-qualified, so outside B2.9's sweep) — errors if either cell is run. Related, same cell: the `parfor` at `:311` reuses its own loop variable and a temporary (`autocorr_image`, `i_ensemble`) after the loop ends (`:337-338`), which `parfor` does not guarantee to hold a value for — moot until B2.26 itself is fixed, since the cell already errors before reaching it.
 - [ ] 🟡 **B3.1.** `lib.edge_props_stim.m:21,129` hardcodes 256×256/radius-64 mask regardless of input size.
 - [ ] 🟡 **B3.2.** `lib.crop_image.m:21` — `indColorChannel` missing trailing `s`, guard always true; `:33-35` swaps row/col for non-square patch.
 - [ ] 🟡 **B3.3.** `lib.ptch_norm.m:15-16` undefined var `m`, `ntype==2` branch broken. Resolved by S3.11.
@@ -163,6 +164,7 @@
 - [ ] 🟡 **B3.18.** `generate_camouflage_stimuli_texture_exponent.m:14` writes `.alpha`, `lib.stimulus` reads `.exponent` — manipulation a no-op; promotes to severity-1 once B2.9/B2.4 fixed.
 - [ ] 🟡 **B3.19.** `compute_nll_edge_model.m:18,35,52-53` — 3 of 4 outputs unreliable (loop-index bug, unassigned branch).
 - [ ] 🟡 **B3.20.** `analyze_search_exps.m` writes `.hitRate`/`.dPrime` under the same field names for scalar vs. 19-vector quantities — unverified whether both cells ever run against the same struct.
+- [ ] 🟡 **B3.21.** `+tinker/pink_noise_stimuli_autocorrelations.m:66-92` (2nd and 3rd cells) reference `corr_blank_cross`, `corr_target_cross`, `terms`, and `corr_same` — none defined, loaded, or saved anywhere in this file; only runnable if a prior manual run happened to leave them in the workspace.
 
 **Recorded and disproved (not a bug):** unqualified `edge(...)` in `detect_edge_pixels.m:20`/`edge_measures.m:18` resolves correctly to Image Processing Toolbox `edge`, not `lib.edge`. Do not "fix."
 
@@ -280,7 +282,7 @@ Concentration: 41 files under 25 lines, 81 more under 75; 8 files ≥150 lines h
 - **Lint.** `checkcode`: 222 messages, 90/164 files clean (measured at tooling time; not re-run for this update). Split: Stage 1/2 mechanical (~117: `NOPTS` 37, `AGROW` 30, `NOSEMI` 20, `SAGROW` 19, `LOAD` 9, `ISCL` 5, `LOGSUM` 3, `NANMEAN`/`NANSUM` 4), judgement-needed (~44: `NASGU` 24, `ASGLU` 12, `INUSD` 5, `USENS` 3, `STRNU` 1), bug signals (~40: `STOUT` 22, `PFBNS` 6, `GVMIS` 3, `NODEF` 2, singletons).
 - **Formatting.** 19 files tab-indented (fresh re-scan: 13 confirmed still tab-indented, concentrated in `_`-prefixed excluded files plus `computeBootstrappedThreshold.m` and 3 `_computeNegLogLikelihood*`/`_fitPsychometric*` siblings — all pre-existing, none touched by a completed tranche). 718 lines with trailing whitespace (at tooling time). 45 files with a line >100 chars; worst `edge_props_stim.m` (13 over-length lines). Assignment spacing: 2,309 unspaced vs 1,102 spaced (pre-cleanup baseline); fresh spot-check on remaining untouched dirs (`+tinker/`, root, `+stats/`-excluded) shows the same unspaced-`=` pattern still dominant — 62 hits by a rougher single-pattern grep, concentrated in `test.m` (12), `+tinker/pink_noise.m` (4), `edge_power_demo.m` (3).
 - **Header docs.** 116/164 begin with `function`; 39 originally had `Inputs`/`Output`, 18 had `See also`, 33 had none — all since improved by tranches 0.1.2–0.1.10's header rewrites (fresh count across the whole 204-file raw set, including excluded files: 90 have an Inputs/Output block, 156 have `See also` — the jump from 18→156 is almost entirely tranches 0.1.2–0.1.10's work). No `Contents.m` existed anywhere pre-cleanup; now 7 packages have one (`+experiment/`, `+experiment/+analysis/`, `+experiment/+main/`, `+general/`, `+lib/`, `+tests/`, `+vis/`). **Still missing: `+tinker/` and `+stats/`** (the latter excluded by design).
-- **Names, inside files.** Most-used opaque identifiers pre-cleanup: `stim` 157, `x` 150, `d` 94, `seed` 82, `n` 73, `cont` 62, `ml` 59, `N` 56, `S` 52, `z` 51, `len` 51, `idx` 49, `y` 47, `r` 47, `c` 43, `a` 37, `mask` 35, `p` 34, `u` 33, `img` 33, `f` 29, `th` 24, `b` 24, `e` 23, `amp` 22, `ppd` 21 — the bulk of these have since been expanded per the rename map (3.1.1) in whichever tranche their file fell into; `+tinker/` and root (0.1.11/0.1.12, not started) still carry them unrenamed.
+- **Names, inside files.** Most-used opaque identifiers pre-cleanup: `stim` 157, `x` 150, `d` 94, `seed` 82, `n` 73, `cont` 62, `ml` 59, `N` 56, `S` 52, `z` 51, `len` 51, `idx` 49, `y` 47, `r` 47, `c` 43, `a` 37, `mask` 35, `p` 34, `u` 33, `img` 33, `f` 29, `th` 24, `b` 24, `e` 23, `amp` 22, `ppd` 21 — the bulk of these have since been expanded per the rename map (3.1.1) in whichever tranche their file fell into; `+tinker/` was expanded in 0.1.11, root (0.1.12, not started) still carries them unrenamed.
 - **Names, of files.** Fresh census, all 204 raw filenames (i.e. including the 29 excluded): 107 snake_case, 54 camelCase (concentrated in `+experiment/+analysis` 11, `+experiment/+main` 10, `+experiment/` root 18, `+lib/` 10, plus `gaborSimilarity.m`, `spatialPattern.m`, `examplePatches.m`), 8 TitleCase, 29 leading-underscore (the excluded dead set), 6 other (`2D`/`1D`-suffixed: `gabor2D.m`, `haar2D.m`, `spot2D.m`, `pink_noise_1D.m`, `pink_noise_1D_dist.m`, `test_Erlang.m`). Families with a broken pattern: `compute_*`/`computeX` (24 files) splits hard on directory — `+general/` uniformly snake, `+experiment/+analysis/` uniformly camel; `compute_edge_props_exp*` sprawl (5 siblings — `_exp`, `_exp_eq`, `_exp_full`, `_exp_pca`, `_exp_raw` — no enumeration scheme distinguishing precedence); `plot_*`/`show_*`/`view*` (6 files) split three ways by directory with no rule for which verb a given visualization gets; `fit_*` (camel in `+experiment/+analysis/fitPsychometric.m`, snake elsewhere); `gammaCorrect` triplicated (already flagged in README.md:209, unconsolidated — tracked as S1.14). **Superseded by tranche 0.1.1 for the in-scope set:** the counts above are the pre-rename census; 38 files were renamed and every family break listed here was resolved or explicitly deferred (map and rules in 3.1.1). What remains is `+experiment/`'s 43 camelCase filenames, held for S2.19. Filename/`function`-line mismatches, re-checked repo-wide: one in scope (`computeThreshold_edgeResponse.m`, fixed, B3.9) and 21 in `_`-prefixed dead files, including `+general/_changepower.m` declaring `function e=newpower(...)` — all left for S3.6.
 - **Casing census.** 107 snake / 54 camel / 8 TitleCase / 29 underscore-dead / 6 other, as above. camelCase assignment-target rough count: 574 across in-scope dirs — the split runs through variables too (`SubjectExpFile`, `ImgStats`, `bTarget`, `filePathOut`, all in `+experiment/`/`+stats/`). **Target is snake_case everywhere** per the new mandate; this is the size of what's still outstanding once 0.1.5–0.1.7's deliberate camelCase preservation is revisited (see S2.19).
 - **Names diverge across call boundaries.** `compute_nat_img_eff_coding_bins.m:73` passes `patch_rgb`→`ptch`(`ptch_norm.m`)→caught as `ptchout`→`ptch_rgb` (3 names, 1 quantity, pre-cleanup — since partly addressed in 0.1.8's vocabulary); `setUpExperiment_search.m:67` passes `'bg_size', Stimulus.stimulus_sz` and `'ml_b', Stimulus.ml`.
@@ -324,7 +326,7 @@ Concentration: 41 files under 25 lines, 81 more under 75; 8 files ≥150 lines h
    - **0.1.8** (`+general/` live model chain): `d_prime`/`d_primes`/`d_primes_model`/`d_prime_subj`/`d_prime_contributions`; `noise_sd`; `edge_count_z`; pooled response moments (as 0.1.6); `d_prime_hit_false_alarm`/`false_alarm_rate`; `error_rates_model`/`error_rates_subj`/`error_rate_sd_subj`; `efficiency_scalar`/`squared_error`; `overall_boundary`; `norm_mean`/`norm_contrast`/`norm_type`; `patch_row_start`/`patch_col_start`; `patch_size`/`patch_padded_size`/`max_filter_size`/`source_image_size`/`n_elements`; `kernel_sigma_list`/`kernel_sigma_max`/`kernel_n_sigma`; `source_image_rgb`/`_grey`/`_otf`/`_path`; `filter_kernel`; `corr_raw`/`corr_pca`; `trial_grid`/`level_grid`/`session_grid`.
    - **0.1.9** (`+general/` remainder): `perf`→`accuracy`; `hitRate`/`faRate`/`dPrime`→`hit_rate`/`false_alarm_rate`/`d_prime`; `t`/`h`/`c`→`target_present`/`hits`/`correct_rejection`; `ep`→`edge_power`; `bd_strip`/`bd_pixels`→`mask_strip`/`boundary_edge_pixels`; `input_img`/`im0`→`source_image_path`/`source_image_grey`; `th`/`th_bin`→`theta`/`theta_bin`; `thislevel`→`this_level`.
    - **0.1.10** (`+vis/`+`+tests/`): per-file only, no shared cross-file vocabulary.
-   - **0.1.11, 0.1.12** (`+tinker/`, root): not started — the abbreviation list in section 2 above (`stim`, `x`, `d`, `seed`, `n`, `cont`, `ml`, `N`, `S`, `z`, `len`, `idx`, `y`, `r`, `c`, `a`, `mask`, `p`, `u`, `img`, `f`, `th`, `b`, `e`, `amp`, `ppd`, plus `+tinker/`-specific `XX`/`YY`, `mnv`, `grad`, `haar`, `filt`, `wn`, `wnf`, `N_b`) is still live there.
+   - **0.1.11** (`+tinker/`): abbreviations expanded per established vocabulary where a repo-wide precedent existed (`ml`/`cont`→`luminance`/`contrast` per 0.1.7 decision A; `x`/`y`→`x_grid`/`y_grid` for coordinate grids per 0.1.4; `d_prime`/`hit_rate`-style snake_case for `dPrime`-family locals per 0.1.9), plus new `+tinker/`-local vocabulary: `klist`/`kmin`/`kmax`/`log_kmin`/`log_kmax`/`d_logk`→`k_list`/`k_min`/`k_max`/`log_k_min`/`log_k_max`/`d_log_k`; `d_alph`/`alph`→`angle_step`/`angle`; `fil1f`/`fil_whiten`/`fil_pinken`/`fil_1f`→`pink_noise_filter`/`whitening_filter`/`pinkening_filter`/`freq_filter`; `wn`/`wnf`→`white_noise`/`white_noise_fft` (matches 0.1.4's `white_noise_fft`); `img_*`→`pink_noise_*`/`conv_test_*`/`noise_image` per context (never bare `img`); `z`→`value` (theoretical-distribution support) or `distance` (norm computation, same file, minority use commented); `r`/`r_num`/`r_cont`→`corr_coef`/`corr_coef_sum`/`corr_coef_continuous` (not `correlation*` — collides with a pre-existing string literal, see 3.1.3); loop counters `i_<thing>`, with `n`'s majority ensemble-index role kept at its minority pixel-index site via an explanatory comment (rand_boundary.m precedent). The abbreviation list's `XX`/`YY`/`mnv`/`grad`/`haar`/`filt`/`N_b` tokens were not found in the current 13 files — stale from an earlier version; `th`/`S`/`p`/`idx` likewise absent. **0.1.12** (root): not started.
 
 2. **Cross-file vocabulary — repo-wide, or not at all.** Three kinds:
    - **Function and file names** — tranche 0.1.1, **done**; 38 renames, map and family rules below.
@@ -610,11 +612,60 @@ A separate package-resolution sweep confirmed all 38 new names resolve: `RESOLUT
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h5 style="display:inline; margin:0; font-size:0.92em">Steps 0.1.11, 0.1.12 — `+tinker/`, root (not started)</h5></summary>
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.11 — `+tinker/` (13 files, 1040 lines)</h5></summary>
 
 <div style="margin-left:1.5em">
 
-Not started. `+tinker/` still carries its full abbreviation set (`XX`/`YY`, `mnv`, `grad`, `haar`, `filt`, `wn`, `wnf`, `N_b`) and 55 lines of untriaged commented-out code. Root's 5 files (`config.m`, `setup.m`, `edge_power_demo.m`, `scratch.m`, `test_erlang.m`) are the config file and user-facing driver — per the skill, these go late and get the strongest model.
+**Baseline.** HEAD, for all 13 files (working tree was clean at tranche start). Verified via `check_stage1` per file, MATLAB R2024b Update 6:
+
+```
+pink_noise                                    true
+spatial_pattern                               true
+pink_noise_line                               true
+pink_noise_dist                               true
+pink_noise_line_dist                          true
+pink_noise_square_manual                      true
+new_psychometric                              true
+coloured_noise_cubes                          true
+pink_noise_seed_multiple_energies             true
+whitened_pink_noise_edge_energy               true
+pink_noise_stimuli_autocorrelations           true
+show_example_stimuli                          true
+whitening_tinker                              true
+
+ALL_OK: true
+```
+
+`assert_rename_bijection` passed for all 13 per-file rename maps (checked internally by `check_stage1`). Renames are file-local only (zone 1); no function/file names touched (that was 0.1.1's job) and no zone-2/zone-3 name touched.
+
+**String-literal collision, caught by the check, not by inspection.** `+tinker/pink_noise.m` initially renamed the file-local `r`/`r_num`/`r_cont` (analytical correlation coefficient) to `correlation`/`correlation_sum`/`correlation_continuous`. `check_stage1` failed: the file already contains the pre-existing string literal `'correlation coefficient r(d)'` (two `ylabel` calls, present before this tranche), and the reverse-rename regex — which cannot know a match sits inside a string it never touched — turned it into `'r coefficient r(d)'` on reversal. Renamed to `corr_coef`/`corr_coef_sum`/`corr_coef_continuous` instead, which do not collide with any existing string or comment text; re-ran a repo-wide-style collision sweep (grep each candidate new name against every string literal in its own file) before finalizing every other file's map, which caught no further instances. This is the general hazard the skill's "short name eats a longer one" warning is about, one level removed: here the collision isn't with another *identifier*, but with an English word that already existed as prose inside the file, coincidentally identical to a chosen replacement name.
+
+**Comment-text renames.** Unlike the step-2c commented-out-*code* triage (verdict only, nothing rewritten), ordinary prose comments and even the text of commented-out code lines were renamed alongside the code, wherever a renamed identifier appeared inside them — since `canon` strips all comments before comparing, this is invisible to `check_stage1` and keeps comments referring to live identifiers by their live names. Two renames were caught and hand-reverted because they hit ordinary English words rather than code: `whitening_tinker.m`'s cell titles "whitening **a** sine" / "whitening **a** single plane wave..." (the bare rename target `a`→`filter_shifted` ate the English article), and two comments describing a Fourier filter "1/**f**" (mathematical frequency notation, unrelated to the file's *other*, code-only `f`→`curve` rename) — rephrased to "1/frequency" to keep the intended meaning without reintroducing the abbreviation.
+
+**Multi-role loop/scratch variables, same token reused for a different meaning within one file.** `pink_noise.m`'s `n` is the ensemble-sample index almost everywhere (10 occurrences) but is reused as a pixel-row index in the one FFT-filter-building loop (2 occurrences); kept the majority name `i_ensemble` throughout and added an explanatory comment at the minority site, following the `+general/rand_boundary.m` precedent (0.1.9) for exactly this situation. `whitening_tinker.m`'s bare `f` plays three different roles across three cells (an analytical-formula check, a continuous filter, and a constructed two-sine test edge) and was mapped to one generic name, `curve`, judged close enough in all three to skip a repeat of the comment treatment.
+
+**Convention followed: `ml`/`cont`→`luminance`/`contrast`** (0.1.7 decision A) applied in `+tinker/` too, everywhere both appear (`pink_noise_seed_multiple_energies.m`, `whitened_pink_noise_edge_energy.m`, `whitening_tinker.m`). `img_pink_b`/`img_pink_t`/`img_whitened_b`/`img_whitened_t` renamed identically across all three files that share them (`pink_noise_blank`/`pink_noise_target`/`whitened_blank`/`whitened_target`), matching the "blank"/"target" spelled-out convention from 0.1.6.
+
+**Headers.** All 13 rewritten to the exemplar shape (summary line, signature or `Script, no arguments`, `Inputs`/`Output` with units, `See also`). `spatial_pattern.m`'s pre-existing attribution (Jon Yearsley, 2004) kept per convention 6, moved into the new header rather than left as a separate block. `new_psychometric.m` and `+tinker/`'s other already-not-renamed names (per 0.1.1's deliberately-not-renamed list) are unchanged.
+
+**`+tinker/Contents.m` written** (package had none; `+lib/`, `+general/`, `+vis/`, `+tests/` all have one — same convention applied here).
+
+**Line-length exceptions: 4, all commented-out dead lines** (same category as 0.1.2's and 0.1.3's dead-line exceptions): `coloured_noise_cubes.m:21` (116, garbled pre-existing comment), `pink_noise.m:370` (104), `pink_noise_stimuli_autocorrelations.m:90` (123), `whitened_pink_noise_edge_energy.m:69` (102). Every live-code line that came out over 100 characters after renaming (~28, mostly `lib.stimulus`/`edge_energy` calls with many positional args, and a few `legend`/`corrcoef` calls) was reflowed with a 4-space-hanging-indent `...` continuation per step 2b, not left as an exception.
+
+**Bugs found: B2.26, B3.21** (below). Neither fixed, per Stage 1 rules.
+
+**Commented-out code: 20 blocks triaged**, T9.1–T9.20 (3.1.4). All are short (1–20 lines); none of the tranche's files carry an untriaged block afterward.
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.12 — root (not started)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+Not started. Root's 5 files (`config.m`, `setup.m`, `edge_power_demo.m`, `scratch.m`, `test_erlang.m`) are the config file and user-facing driver — per the skill, these go late and get the strongest model.
 
 </div>
 
@@ -713,8 +764,28 @@ Not started. `+tinker/` still carries its full abbreviation set (`XX`/`YY`, `mnv
 | T8.9 | `compute_edge_props_exp_eq_sum.m:72-89` | 0.1.9 | **superseded** by live `sum(...)` — pending T7.11 |
 | T8.10 | `compute_texture_autocorrelation.m:1-2,28` | 0.1.9 | **alternative** / **unknown** (`fftshift` line) |
 | — | `plot_edge_energy_hists.m` ×2, `show_image.m`, `show_patches_one_by_one.m` ×2 | 0.1.10 | scaffolding/alternative/alternative/scaffolding/superseded |
+| T9.1 | `+tinker/coloured_noise_cubes.m:5-8` | 0.1.11 | **alternative** — per-frame `exportgraphics` GIF writer, superseded by the live `getframe`/`imwrite` approach below |
+| T9.2 | `+tinker/pink_noise.m` (1D autocorrelation cell) | 0.1.11 | **alternative** — `autocorr()` builtin vs. the manual double-loop computation used live |
+| T9.3 | `+tinker/pink_noise.m` (1D autocorrelation, corrected cell) | 0.1.11 | **alternative** — same as T9.2, second occurrence |
+| T9.4 | `+tinker/pink_noise.m` (2D autocorrelation, corrected cell) | 0.1.11 | **alternative** — continuous hypergeom lag-response formula, superseded by the discrete-sum plot just above it |
+| T9.5 | `+tinker/pink_noise.m` (test properties of filtered noise cell) | 0.1.11 | **scaffolding** — stray histogram diagnostic |
+| T9.6 | `+tinker/pink_noise_seed_multiple_energies.m` (figure/imagesc + `reverse_pink_noise_square` lines) | 0.1.11 | **alternative** — a whiten-and-visualize diagnostic path, disabled |
+| T9.7 | `+tinker/pink_noise_seed_multiple_energies.m` ("Only compute perp_ratio energy") | 0.1.11 | **superseded** — single-measure version, superseded by the live multi-type energy loop below it |
+| T9.8 | `+tinker/pink_noise_stimuli_autocorrelations.m` (`corr_same`-related lines throughout) | 0.1.11 | **alternative** — a same-side (non-crossing) correlation measure, abandoned in favor of computing only the cross-boundary one; ties to B3.21 |
+| T9.9 | `+tinker/pink_noise_stimuli_autocorrelations.m` (`%xlim([0 150])`) | 0.1.11 | **scaffolding** — display-range tweak |
+| T9.10 | `+tinker/pink_noise_stimuli_autocorrelations.m` (commented `save(...)`) | 0.1.11 | **alternative** — a fuller checkpoint save including the LLR fields, not currently produced |
+| T9.11 | `+tinker/pink_noise_stimuli_autocorrelations.m` (final commented plot) | 0.1.11 | **scaffolding** — diagnostic plot, ties to B3.21 |
+| T9.12 | `+tinker/show_example_stimuli.m` (three commented `edgeEnergyLevels`/`edgeEnergyBlockEdges` lines) | 0.1.11 | **alternative** — three other edge-energy-measure calibration ranges (mag+dir, dir, mag), switched away from the live ratio-of-perp-gradients one |
+| T9.13 | `+tinker/spatial_pattern.m` (final commented line) | 0.1.11 | **alternative** — real-part-only output, an alternative to returning the complex pattern |
+| T9.14 | `+tinker/whitened_pink_noise_edge_energy.m` (figure/imagesc lines) | 0.1.11 | **scaffolding** — stray diagnostic plot lines |
+| T9.15 | `+tinker/whitened_pink_noise_edge_energy.m` ("Compute multiple types of energies") | 0.1.11 | **alternative** — multi-type energy computation, superseded by the single grad_by_norm measure live above it |
+| T9.16 | `+tinker/whitening_tinker.m` (split-half noise draft, early in the file) | 0.1.11 | **superseded** — redone properly in the "examples of whitened stimuli" cell later in the file |
+| T9.17 | `+tinker/whitening_tinker.m` (commented complex-exponential formula lines) | 0.1.11 | **alternative** — a complex-exponential formulation of the same analytical check |
+| T9.18 | `+tinker/whitening_tinker.m` ("whitening a sine" cell, commented tail) | 0.1.11 | **unfinished** — a sinusoid-whitening sketch, never completed |
+| T9.19 | `+tinker/whitening_tinker.m` (`%plot([50 50],ylim,'k')`) | 0.1.11 | **scaffolding** — marker-line diagnostic |
+| T9.20 | `+tinker/whitening_tinker.m` (`%title(sprintf(...))`) | 0.1.11 | **scaffolding** — debug title |
 
-`+tinker/`'s 55 dead-code lines (0.1.11, not started) are not yet triaged.
+`+tinker/`'s dead-code lines (0.1.11) are triaged above, T9.1–T9.20.
 
 </div>
 
