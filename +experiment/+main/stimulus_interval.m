@@ -11,16 +11,16 @@ function stimulus_onset_ms = stimulus_interval(SessionSettings, trial_number, le
 %     SessionSettings - session settings struct; uses .stimulusIntervalS,
 %                       .stimuli, .window, .stimPosPix, .bFovea,
 %                       .fixationTarget, .fixPosPix, .bgPixValGamma.
-%     trial_number     - trial index into SessionSettings.stimuli/.stimPosPix.
-%     level_number     - level index into SessionSettings.stimuli/.stimPosPix.
+%     trial_number    - trial index into SessionSettings.stimuli/.stimPosPix.
+%     level_number    - level index into SessionSettings.stimuli/.stimPosPix.
 %
 %   Output
 %     stimulus_onset_ms - flip timestamp, in the units Screen('Flip') returns
-%                       (seconds). Note: this is captured from the *second*
-%                       Screen('Flip') call below (:52), which blanks the
-%                       stimulus, not the first, which turns it on (:41) --
-%                       see this tranche's findings log, a latent naming/
-%                       value mismatch not fixed here.
+%                         (seconds). Note: this is captured from the *second*
+%                         Screen('Flip') call below (:52), which blanks the
+%                         stimulus, not the first, which turns it on (:41) --
+%                         see this tranche's findings log, a latent naming/
+%                         value mismatch not fixed here.
 %
 % v1.0, 1/20/2016, R. C. Walshe <calen.walshe@utexas.edu>
 %

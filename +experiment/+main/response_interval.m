@@ -10,15 +10,15 @@ function [response, reaction_time] = response_interval(SessionSettings, trial_nu
 %   Inputs
 %     SessionSettings - session settings struct; uses .responseIntervalS,
 %                       .fixationTarget, .fixPosPix, .window.
-%     trial_number     - trial index into SessionSettings.fixPosPix.
-%     level_number     - level index into SessionSettings.fixPosPix.
+%     trial_number    - trial index into SessionSettings.fixPosPix.
+%     level_number    - level index into SessionSettings.fixPosPix.
 %
 %   Output
-%     response - 1 for right arrow, 0 for left arrow, -1 for timeout (no key
-%                pressed within response_interval_s). See B1.6 in the plan:
-%                a timeout response of -1 corrupts SDT scoring downstream.
-%     reaction_time       - reaction time in seconds from stimulus onset to the key
-%                press, or -1 for timeout.
+%     response      - 1 for right arrow, 0 for left arrow, -1 for timeout (no key
+%                     pressed within response_interval_s). See B1.6 in the plan:
+%                     a timeout response of -1 corrupts SDT scoring downstream.
+%     reaction_time - reaction time in seconds from stimulus onset to the key
+%                     press, or -1 for timeout.
 %
 %  R. Calen Walshe January 14, 2016.
 %

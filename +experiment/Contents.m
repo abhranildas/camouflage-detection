@@ -12,13 +12,13 @@
 % files load from do not currently exist on disk (B2.1); S3.2 repoints them.
 %
 % Setting up an experiment
-%   set_up_experiment                   - create settings, stimuli and subject files
-%   session_settings                    - build the full ExpSettings struct
-%   generate_camouflage_stimuli         - synthesise the stimuli for all levels
-%   generate_target_present_matrix      - draw which trials carry a target
-%   subject_experiment_file             - preallocate one subject's result file
-%   transform_camouflage_stimuli        - reuse an experiment's stimuli at a new
-%                                         mean luminance and contrast
+%   set_up_experiment              - create settings, stimuli and subject files
+%   session_settings               - build the full ExpSettings struct
+%   generate_camouflage_stimuli    - synthesise the stimuli for all levels
+%   generate_target_present_matrix - draw which trials carry a target
+%   subject_experiment_file        - preallocate one subject's result file
+%   transform_camouflage_stimuli   - reuse an experiment's stimuli at a new
+%                                    mean luminance and contrast
 %
 % Experiment variants
 % Four near-duplicate families of the three files above, differing only in what
@@ -34,10 +34,10 @@
 %                                         of candidate target locations
 %
 % Running and recording a session
-%   load_current_session                - find and load the next session to run
-%   load_stimuli_camouflage             - prepare one session's stimuli for display
-%   gamma_correct                       - gamma-compress and quantise an image
-%   save_current_level                  - score a finished level into the subject file
+%   load_current_session    - find and load the next session to run
+%   load_stimuli_camouflage - prepare one session's stimuli for display
+%   gamma_correct           - gamma-compress and quantise an image
+%   save_current_level      - score a finished level into the subject file
 %
 % Patch samplers from the earlier natural-image experiments, currently uncalled
 %   sample_patches_for_experiment       - sample natural-image patches from a bin

@@ -12,8 +12,8 @@ function fixation_interval(SessionSettings, trial_number, level_number)
 %     SessionSettings - session settings struct; uses .fixationTarget,
 %                       .fixPosPix, .fixationIntervalS, .window, .bFovea,
 %                       .blankIntervalS, .bgPixValGamma, .el.
-%     trial_number     - trial index into SessionSettings.fixPosPix.
-%     level_number     - level index into SessionSettings.fixPosPix.
+%     trial_number    - trial index into SessionSettings.fixPosPix.
+%     level_number    - level index into SessionSettings.fixPosPix.
 %
 %   Output
 %     none (side effect: draws to screen, may block on gaze).

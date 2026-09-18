@@ -1,10 +1,10 @@
-function [stimuli, seeds, edgePowers, pClipped] = ...
-    generate_camouflage_stimuli_diff_bg(target_exponent, bg_exponents, nTrials, nSessions, ...
-    bg_size, target_radius, luminance, contrast, bTargetPresent)
+function [stimuli, seeds, stim_edge_powers, p_clipped] = ...
+    generate_camouflage_stimuli_diff_bg(target_exponent, bg_exponents, n_trials, n_sessions, ...
+    bg_size, target_radius, luminance, contrast, b_target_present)
 % GENERATE_CAMOUFLAGE_STIMULI_DIFF_BG  Synthesise stimuli for the different-background variant.
-%   [stimuli, seeds, edgePowers, pClipped] = ...
+%   [stimuli, seeds, stim_edge_powers, p_clipped] = ...
 %       experiment.generate_camouflage_stimuli_diff_bg(target_exponent, bg_exponents, ...
-%       nTrials, nSessions, bg_size, target_radius, luminance, contrast, bTargetPresent)
+%       n_trials, n_sessions, bg_size, target_radius, luminance, contrast, b_target_present)
 %
 %   Variant of experiment.generate_camouflage_stimuli in which the level sets
 %   the background's 1/f exponent while the target keeps its own fixed one, so
@@ -13,28 +13,28 @@ function [stimuli, seeds, edgePowers, pClipped] = ...
 %   and the edge power of each finished stimulus is measured afterwards.
 %
 %   Inputs
-%     target_exponent - target texture's 1/f exponent, dimensionless.
-%     bg_exponents    - background 1/f exponent per level, dimensionless; its
-%                       length is the number of levels.
-%     nTrials         - trials per level per session, count.
-%     nSessions       - sessions, count.
-%     bg_size         - stimulus side, in pixels. Not passed on to
-%                       lib.stimulus, which therefore uses its own default.
-%     target_radius   - target radius, in pixels.
-%     luminance       - mean luminance, normalised, in [0, 1].
-%     contrast        - RMS contrast, dimensionless fraction.
-%     bTargetPresent  - nTrials x nLevels x nSessions logical, which trials
-%                       contain a target.
+%     target_exponent  - target texture's 1/f exponent, dimensionless.
+%     bg_exponents     - background 1/f exponent per level, dimensionless; its
+%                        length is the number of levels.
+%     n_trials         - trials per level per session, count.
+%     n_sessions       - sessions, count.
+%     bg_size          - stimulus side, in pixels. Not passed on to
+%                        lib.stimulus, which therefore uses its own default.
+%     target_radius    - target radius, in pixels.
+%     luminance        - mean luminance, normalised, in [0, 1].
+%     contrast         - RMS contrast, dimensionless fraction.
+%     b_target_present - n_trials x n_levels x n_sessions logical, which trials
+%                        contain a target.
 %
 %   Output
-%     stimuli    - bg_size x bg_size x nTrials x nLevels x nSessions array in
-%                  normalised luminance units.
-%     seeds      - nTrials x nLevels x nSessions RNG seeds. Currently the
-%                  background image, not the seed — see below.
-%     edgePowers - nTrials x nLevels x nSessions dimensionless edge power,
-%                  measured from each stimulus. Blank trials are left NaN.
-%     pClipped   - nTrials x nLevels x nSessions fraction of each stimulus's
-%                  boundary-ribbon pixels outside [0, 1].
+%     stimuli          - bg_size x bg_size x n_trials x n_levels x n_sessions array in
+%                        normalised luminance units.
+%     seeds            - n_trials x n_levels x n_sessions RNG seeds. Currently the
+%                        background image, not the seed — see below.
+%     stim_edge_powers - n_trials x n_levels x n_sessions dimensionless edge power,
+%                        measured from each stimulus. Blank trials are left NaN.
+%     p_clipped        - n_trials x n_levels x n_sessions fraction of each stimulus's
+%                        boundary-ribbon pixels outside [0, 1].
 %
 %   Both lib.stimulus calls destructure its outputs one position short: the
 %   signature is [stim, stim_bg, seed, ...], so what is caught as seed here is
@@ -54,20 +54,20 @@ function [stimuli, seeds, edgePowers, pClipped] = ...
     texture_target.exponent = target_exponent;
 
     [~, ~, ~, mask_strip] = lib.target_mask('bg_size', bg_size, 'target_radius', target_radius);
-    nLevels = length(bg_exponents);
-    stimuli = zeros(bg_size, bg_size, nTrials, nLevels, nSessions);
-    seeds = nan(nTrials, nLevels, nSessions);
-    edgePowers = nan(nTrials, nLevels, nSessions);
-    pClipped = zeros(nTrials, nLevels, nSessions);
+    n_levels = length(bg_exponents);
+    stimuli = zeros(bg_size, bg_size, n_trials, n_levels, n_sessions);
+    seeds = nan(n_trials, n_levels, n_sessions);
+    stim_edge_powers = nan(n_trials, n_levels, n_sessions);
+    p_clipped = zeros(n_trials, n_levels, n_sessions);
 
     % generate stimuli images
-    for iLevel = 1:nLevels
+    for i_level = 1:n_levels
         texture_bg.type = 'pink_noise';
-        texture_bg.exponent = bg_exponents(iLevel);
-        for iSession = 1:nSessions
-            parfor iTrial = 1:nTrials
-                fprintf('Level %d Session %d Trial %d\n', [iLevel iSession iTrial])
-                if bTargetPresent(iTrial, iLevel, iSession) % if this is a target stimulus
+        texture_bg.exponent = bg_exponents(i_level);
+        for i_session = 1:n_sessions
+            parfor i_trial = 1:n_trials
+                fprintf('Level %d Session %d Trial %d\n', [i_level i_session i_trial])
+                if b_target_present(i_trial, i_level, i_session) % if this is a target stimulus
                     [stim, seed] = lib.stimulus('texture', texture_target, ...
                         'texture_bg', texture_bg, 'target_radius', target_radius, ...
                         'ml_b', luminance, 'cont_b', contrast);
@@ -75,11 +75,12 @@ function [stimuli, seeds, edgePowers, pClipped] = ...
                     [stim, seed] = lib.stimulus('texture', texture_bg, 'ml_b', luminance, ...
                         'cont_b', contrast);
                 end
-                seeds(iTrial, iLevel, iSession) = seed;
-                stimuli(:, :, iTrial, iLevel, iSession) = stim;
+                seeds(i_trial, i_level, i_session) = seed;
+                stimuli(:, :, i_trial, i_level, i_session) = stim;
                 edge_vector = lib.edge_vector_ideal(stim, 'mask', target_radius);
-                edgePowers(iTrial, iLevel, iSession) = lib.edge_measures_ideal(edge_vector);
-                pClipped(iTrial, iLevel, iSession) = lib.compute_p_clipped(stim(mask_strip));
+                stim_edge_powers(i_trial, i_level, i_session) = ...
+                    lib.edge_measures_ideal(edge_vector);
+                p_clipped(i_trial, i_level, i_session) = lib.compute_p_clipped(stim(mask_strip));
             end
         end
     end

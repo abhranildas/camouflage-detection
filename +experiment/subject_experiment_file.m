@@ -11,13 +11,13 @@ function SubjectExpFile = subject_experiment_file(ExpSettings)
 %                   uses .nTrials, .nLevels and .nSessions (all counts).
 %
 %   Output
-%     SubjectExpFile - struct with .levelCompleted (nSessions x nBins count of
-%                      levels finished) and seven nTrials x nLevels x
-%                      nSessions x nBins logical arrays: .bTargetPresent,
+%     SubjectExpFile - struct with .levelCompleted (n_sessions x n_bins count of
+%                      levels finished) and seven n_trials x n_levels x
+%                      n_sessions x n_bins logical arrays: .bTargetPresent,
 %                      .response, .hit, .miss, .falseAlarm,
 %                      .correctRejection, .correct.
 %
-%   nBins is fixed at 1: the luminance/contrast bin structure of the earlier
+%   n_bins is fixed at 1: the luminance/contrast bin structure of the earlier
 %   natural-image experiments is not used by the camouflage experiment, but
 %   the fourth dimension is kept so the stored arrays keep their shape.
 %
@@ -37,17 +37,17 @@ function SubjectExpFile = subject_experiment_file(ExpSettings)
 %   See also experiment.SET_UP_EXPERIMENT, experiment.SESSION_SETTINGS,
 %   experiment.SAVE_CURRENT_LEVEL.
 
-    nTrials = ExpSettings.nTrials;
-    nLevels = ExpSettings.nLevels;
-    nSessions = ExpSettings.nSessions;
-    nBins = 1;
+    n_trials = ExpSettings.nTrials;
+    n_levels = ExpSettings.nLevels;
+    n_sessions = ExpSettings.nSessions;
+    n_bins = 1;
 
-    SubjectExpFile.levelCompleted = zeros(nSessions, nBins);
-    SubjectExpFile.bTargetPresent = false(nTrials, nLevels, nSessions, nBins);
-    SubjectExpFile.response = false(nTrials, nLevels, nSessions, nBins);
-    SubjectExpFile.hit = false(nTrials, nLevels, nSessions, nBins);
-    SubjectExpFile.miss = false(nTrials, nLevels, nSessions, nBins);
-    SubjectExpFile.falseAlarm = false(nTrials, nLevels, nSessions, nBins);
-    SubjectExpFile.correctRejection = false(nTrials, nLevels, nSessions, nBins);
-    SubjectExpFile.correct = false(nTrials, nLevels, nSessions, nBins);
+    SubjectExpFile.levelCompleted = zeros(n_sessions, n_bins);
+    SubjectExpFile.bTargetPresent = false(n_trials, n_levels, n_sessions, n_bins);
+    SubjectExpFile.response = false(n_trials, n_levels, n_sessions, n_bins);
+    SubjectExpFile.hit = false(n_trials, n_levels, n_sessions, n_bins);
+    SubjectExpFile.miss = false(n_trials, n_levels, n_sessions, n_bins);
+    SubjectExpFile.falseAlarm = false(n_trials, n_levels, n_sessions, n_bins);
+    SubjectExpFile.correctRejection = false(n_trials, n_levels, n_sessions, n_bins);
+    SubjectExpFile.correct = false(n_trials, n_levels, n_sessions, n_bins);
 end

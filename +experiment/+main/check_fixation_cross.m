@@ -12,7 +12,7 @@ function check_fixation_cross(SessionSettings, fix_pos_pix)
 %   Inputs
 %     SessionSettings - session settings struct; uses .el (EyeLink handle),
 %                       .window, .checkFix, .fixationTarget, .bgPixValGamma.
-%     fix_pos_pix       - [x, y] fixation cross position, in pixels.
+%     fix_pos_pix     - [x, y] fixation cross position, in pixels.
 %
 %   Output
 %     none (side effect: blocks until fixation is confirmed, may trigger

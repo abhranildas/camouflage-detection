@@ -17,10 +17,10 @@ function SessionData = run_camouflage_experiment(subject_str, exp_type_str, cond
 %
 %   Inputs
 %     subject_str    - subject identifier string.
-%     exp_type_str    - experiment type string (selects the settings/data path).
-%     condition     - (optional) condition to resume; with session_number and
-%                     level_number, resumes a specific session/level instead of
-%                     the subject's current progress.
+%     exp_type_str   - experiment type string (selects the settings/data path).
+%     condition      - (optional) condition to resume; with session_number and
+%                      level_number, resumes a specific session/level instead of
+%                      the subject's current progress.
 %     session_number - (optional) session index to resume.
 %     level_number   - (optional) level index to resume.
 %

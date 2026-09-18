@@ -9,8 +9,8 @@ function give_feedback(SessionSettings, response, trial_number, level_number)
 %   Inputs
 %     SessionSettings - session settings struct; uses .bTargetPresent.
 %     response        - the subject's response for this trial (-1 = timeout).
-%     trial_number     - trial index into SessionSettings.bTargetPresent.
-%     level_number     - level index into SessionSettings.bTargetPresent.
+%     trial_number    - trial index into SessionSettings.bTargetPresent.
+%     level_number    - level index into SessionSettings.bTargetPresent.
 %
 %   Output
 %     none (side effect: plays a tone).

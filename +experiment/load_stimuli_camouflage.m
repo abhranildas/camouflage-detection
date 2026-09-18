@@ -28,10 +28,10 @@ function SessionSettings = load_stimuli_camouflage(ExpSettings)
 %                       bookkeeping fields passed straight through.
 %
 %   ExpSettings.monitor_distance is misnamed: it holds 60 pixels per degree,
-%   not a viewing distance, which is why it is read into pixelsPerDeg here
+%   not a viewing distance, which is why it is read into pixels_per_deg here
 %   (B3.8). Renaming the field needs a migration, so it is deferred to S3.10.
 %
-%   bFovea is hardcoded to 1, so the whole peripheral / EyeLink half of the
+%   b_fovea is hardcoded to 1, so the whole peripheral / EyeLink half of the
 %   runtime is unreachable from this entry point (see S3.17).
 %
 %   The gamma value 2.089 and bit depth 8 are hardcoded here and separately in
@@ -41,55 +41,55 @@ function SessionSettings = load_stimuli_camouflage(ExpSettings)
 %   experiment.main.RUN_CAMOUFLAGE_EXPERIMENT.
 
     %% Set up
-    gammaValue = 2.089;
+    gamma_value = 2.089;
 
-    bFovea = 1;
+    b_fovea = 1;
 
-    levelStartIndex = ExpSettings.levelStartIndex;
-    subjectStr = ExpSettings.subjectStr;
-    expTypeStr = ExpSettings.expTypeStr;
+    level_start_index = ExpSettings.levelStartIndex;
+    subject_str = ExpSettings.subjectStr;
+    exp_type_str = ExpSettings.expTypeStr;
 
-    currentBin = ExpSettings.currentBin;
-    currentSession = ExpSettings.currentSession;
+    current_bin = ExpSettings.currentBin;
+    current_session = ExpSettings.currentSession;
 
-    monitorSizePix = ExpSettings.monitorSizePix;
+    monitor_size_pix = ExpSettings.monitorSizePix;
 
-    seeds = ExpSettings.seeds(:, :, currentSession);
-    stimuli = ExpSettings.stimuli(:, :, :, :, currentSession);
+    seeds = ExpSettings.seeds(:, :, current_session);
+    stimuli = ExpSettings.stimuli(:, :, :, :, current_session);
     % edgePowerBlockEdges = ExpSettings.edgePowerBlockEdges;
-    % edgePowers = ExpSettings.edgePowers(:,:,currentSession);
-    bTargetPresent = ExpSettings.bTargetPresent(:, :, currentSession);
-    bgPixVal = ExpSettings.bgPixVal;
-    bgPixValGamma = ExpSettings.bgPixValGamma;
-    pixelsPerDeg = ExpSettings.monitor_distance;
+    % edgePowers = ExpSettings.edgePowers(:,:,current_session);
+    b_target_present = ExpSettings.bTargetPresent(:, :, current_session);
+    bg_pix_val = ExpSettings.bgPixVal;
+    bg_pix_val_gamma = ExpSettings.bgPixValGamma;
+    pixels_per_deg = ExpSettings.monitor_distance;
 
-    stimPosDeg = ExpSettings.stimPosDeg(:, :, currentSession, :);
-    fixPosDeg = ExpSettings.fixPosDeg(:, :, currentSession, :);
+    stim_pos_deg = ExpSettings.stimPosDeg(:, :, current_session, :);
+    fix_pos_deg = ExpSettings.fixPosDeg(:, :, current_session, :);
 
-    stimPosPix = lib.monitor_deg_to_pix(stimPosDeg, monitorSizePix, pixelsPerDeg);
-    fixPosPix = lib.monitor_deg_to_pix(fixPosDeg, monitorSizePix, pixelsPerDeg);
+    stim_pos_pix = lib.monitor_deg_to_pix(stim_pos_deg, monitor_size_pix, pixels_per_deg);
+    fix_pos_pix = lib.monitor_deg_to_pix(fix_pos_deg, monitor_size_pix, pixels_per_deg);
 
-    responseIntervalS = ExpSettings.responseIntervalMs/1000;
-    stimulusIntervalS = ExpSettings.stimulusIntervalMs/1000;
-    fixationIntervalS = ExpSettings.fixationIntervalMs/1000;
-    blankIntervalS = ExpSettings.blankIntervalMs/1000;
+    response_interval_s = ExpSettings.responseIntervalMs/1000;
+    stimulus_interval_s = ExpSettings.stimulusIntervalMs/1000;
+    fixation_interval_s = ExpSettings.fixationIntervalMs/1000;
+    blank_interval_s = ExpSettings.blankIntervalMs/1000;
 
-    nTrials = ExpSettings.nTrials;
-    nLevels = ExpSettings.nLevels;
+    n_trials = ExpSettings.nTrials;
+    n_levels = ExpSettings.nLevels;
 
     %% Gamma correct stimuli
     % and change to 8-bits
-    bitDepthOut = 8;
+    bit_depth_out = 8;
 
-    for iTrial = 1:nTrials
-        for iLevel = 1:nLevels
-            thisStimulus = stimuli(:, :, iTrial, iLevel);
+    for i_trial = 1:n_trials
+        for i_level = 1:n_levels
+            this_stimulus = stimuli(:, :, i_trial, i_level);
             % clip:
-            thisStimulus(thisStimulus > 1) = 1;
-            thisStimulus(thisStimulus < 0) = 0;
+            this_stimulus(this_stimulus > 1) = 1;
+            this_stimulus(this_stimulus < 0) = 0;
 
-            thisStimulus = experiment.gamma_correct(thisStimulus, gammaValue, bitDepthOut);
-            stimuli(:, :, iTrial, iLevel) = thisStimulus;
+            this_stimulus = experiment.gamma_correct(this_stimulus, gamma_value, bit_depth_out);
+            stimuli(:, :, i_trial, i_level) = this_stimulus;
         end
     end
 
@@ -102,33 +102,36 @@ function SessionSettings = load_stimuli_camouflage(ExpSettings)
     target_outline([1 end], :) = 1;
     target_outline = double(~target_outline);
     target_outline(target_outline == 1) = ExpSettings.luminance;
-    targetSamples = repmat(experiment.gamma_correct(target_outline, gammaValue, bitDepthOut), ...
+    target_samples = repmat( ...
+        experiment.gamma_correct(target_outline, gamma_value, bit_depth_out), ...
         [1 1 ExpSettings.nLevels]);
 
     % example camouflage target at each level
-    % targetSamples=experiment.gamma_correct(experiment.generate_camouflage_stimuli...
+    % target_samples=experiment.gamma_correct(experiment.generate_camouflage_stimuli...
     %     (1,ExpSettings.edgeEnergies(1,:,1),size(ExpSettings.stimuli,1),...
     %     ExpSettings.condition(3),ExpSettings.condition(1),ExpSettings.condition(2),...
-    %     ones(1,ExpSettings.nLevels)),gammaValue,bitDepthOut);
+    %     ones(1,ExpSettings.nLevels)),gamma_value,bit_depth_out);
 
     %% Create the fixation target
-    fixationSize = round(pixelsPerDeg.*0.1);
-    fixationPixelVal = 0.5*bgPixVal;
-    fixationTarget = fixationPixelVal.*ones(fixationSize, fixationSize);
-    fixationTarget = experiment.gamma_correct(fixationTarget, gammaValue, bitDepthOut);
+    fixation_size = round(pixels_per_deg.*0.1);
+    fixation_pixel_val = 0.5*bg_pix_val;
+    fixation_target = fixation_pixel_val.*ones(fixation_size, fixation_size);
+    fixation_target = experiment.gamma_correct(fixation_target, gamma_value, bit_depth_out);
 
     %% Save
     % Two further fields were passed through here and are commented out below,
     % alongside their reads near the top of the file:
     %     'edgePowerBlockEdges', edgePowerBlockEdges, 'edgePowers', edgePowers,...
-    SessionSettings = struct('bTargetPresent', bTargetPresent, 'stimPosPix', stimPosPix, ...
-        'fixPosPix', fixPosPix, 'bgPixValGamma', bgPixValGamma, 'targetSamples', targetSamples, ...
-        'responseIntervalS', responseIntervalS, 'fixationIntervalS', fixationIntervalS, ...
-        'stimulusIntervalS', stimulusIntervalS, 'blankIntervalS', blankIntervalS, ...
-        'fixationTarget', fixationTarget, 'nTrials', nTrials, 'nLevels', nLevels, ...
-        'pixelsPerDeg', pixelsPerDeg, 'bFovea', bFovea, ...
-        'levelStartIndex', levelStartIndex, 'subjectStr', subjectStr, 'expTypeStr', expTypeStr, ...
-        'currentBin', currentBin, 'currentSession', currentSession, ...
+    SessionSettings = struct('bTargetPresent', b_target_present, 'stimPosPix', stim_pos_pix, ...
+        'fixPosPix', fix_pos_pix, 'bgPixValGamma', bg_pix_val_gamma, ...
+        'targetSamples', target_samples, ...
+        'responseIntervalS', response_interval_s, 'fixationIntervalS', fixation_interval_s, ...
+        'stimulusIntervalS', stimulus_interval_s, 'blankIntervalS', blank_interval_s, ...
+        'fixationTarget', fixation_target, 'nTrials', n_trials, 'nLevels', n_levels, ...
+        'pixelsPerDeg', pixels_per_deg, 'bFovea', b_fovea, ...
+        'levelStartIndex', level_start_index, 'subjectStr', subject_str, ...
+        'expTypeStr', exp_type_str, ...
+        'currentBin', current_bin, 'currentSession', current_session, ...
         'seeds', seeds, 'stimuli', stimuli, ...
-        'stimPosDeg', stimPosDeg, 'fixPosDeg', fixPosDeg);
+        'stimPosDeg', stim_pos_deg, 'fixPosDeg', fix_pos_deg);
 end

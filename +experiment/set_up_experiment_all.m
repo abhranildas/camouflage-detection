@@ -1,6 +1,6 @@
-function set_up_experiment_all(subjectStr)
+function set_up_experiment_all(subject_str)
 % SET_UP_EXPERIMENT_ALL  Set up the all-textures variant of the camouflage experiment.
-%   experiment.set_up_experiment_all(subjectStr)
+%   experiment.set_up_experiment_all(subject_str)
 %
 %   Variant of experiment.set_up_experiment in which the level is not an edge-
 %   power band but a texture: every texture in exp_files/all/texture_list.mat
@@ -9,8 +9,8 @@ function set_up_experiment_all(subjectStr)
 %   changes. It takes no exp_type, because the experiment name is 'all'.
 %
 %   Inputs
-%     subjectStr - nSubjects x 2 char array of subject initials, one row per
-%                  subject, each becoming a subject_out/<initials>.mat file.
+%     subject_str - n_subjects x 2 char array of subject initials, one row per
+%                   subject, each becoming a subject_out/<initials>.mat file.
 %
 %   Output
 %     none (side effects: creates exp_files/all/exp_settings.mat and
@@ -33,26 +33,26 @@ function set_up_experiment_all(subjectStr)
     contrast = 0.15;
     bg_size = 256; % in px
     target_radius = 64; % in px
-%     nLevels=10;
+%     n_levels=10;
     ppd = 60; % in PPD
 
     %% Session files
     ExpSettings = experiment.session_settings_all(luminance, contrast, bg_size, ...
         target_radius, ppd);
-    folderOut = 'exp_files/all';
-    mkdir(folderOut);
-    filePathOut = [folderOut '/exp_settings.mat'];
-    save(filePathOut, 'ExpSettings');
+    folder_out = 'exp_files/all';
+    mkdir(folder_out);
+    file_path_out = [folder_out '/exp_settings.mat'];
+    save(file_path_out, 'ExpSettings');
 
     %% Subject experiment files
-    %subjectStr = ['ad'; 'cw'; 'es'; 'wg'];
-    nSubjects = size(subjectStr, 1);
+    %subject_str = ['ad'; 'cw'; 'es'; 'wg'];
+    n_subjects = size(subject_str, 1);
 
-    for iSubject = 1:nSubjects
+    for i_subject = 1:n_subjects
         SubjectExpFile = experiment.subject_experiment_file(ExpSettings);
-        folderOut = 'exp_files/all/subject_out';
-        mkdir(folderOut);
-        filePathOut = [folderOut '/' subjectStr(iSubject, :) '.mat'];
-        save(filePathOut, 'SubjectExpFile');
+        folder_out = 'exp_files/all/subject_out';
+        mkdir(folder_out);
+        file_path_out = [folder_out '/' subject_str(i_subject, :) '.mat'];
+        save(file_path_out, 'SubjectExpFile');
     end
 end

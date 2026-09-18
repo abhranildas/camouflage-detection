@@ -13,10 +13,10 @@ function experiment_struct = test_experiment_struct(BlockStimuli)
 %
 %   Output
 %     experiment_struct - struct with fields bFovea, stimulusPosX/Y,
-%                        fixcrossPosX/Y, stimulusDuration (s), ppd (pixels
-%                        per degree), correctResponse, nTrials, target
-%                        (21x21 placeholder image), backgroundcolour,
-%                        STIMULUSDELAY (s), nLevels.
+%                         fixcrossPosX/Y, stimulusDuration (s), ppd (pixels
+%                         per degree), correctResponse, nTrials, target
+%                         (21x21 placeholder image), backgroundcolour,
+%                         STIMULUSDELAY (s), nLevels.
 %
 %   See also experiment.main.testscripts.RUN_SINGLE_TRIAL_TEST.
 

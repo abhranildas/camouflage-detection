@@ -1,6 +1,6 @@
-function set_up_experiment(exp_type, subjectStr)
+function set_up_experiment(exp_type, subject_str)
 % SET_UP_EXPERIMENT  Create and save an experiment's settings, stimuli and subject files.
-%   experiment.set_up_experiment(exp_type, subjectStr)
+%   experiment.set_up_experiment(exp_type, subject_str)
 %
 %   The entry point for setting up a camouflage detection experiment. Fixes
 %   the display and target geometry, builds the texture description (pink
@@ -10,12 +10,12 @@ function set_up_experiment(exp_type, subjectStr)
 %   writes one settings file plus one empty result file per subject.
 %
 %   Inputs
-%     exp_type   - experiment name. Selects the edge-power file, the source
-%                  image for a textured experiment, and the exp_files/
-%                  subdirectory written to. 'pink_noise' takes the synthetic
-%                  branch; anything else is treated as a texture name.
-%     subjectStr - nSubjects x 2 char array of subject initials, one row per
-%                  subject, each becoming a subject_out/<initials>.mat file.
+%     exp_type    - experiment name. Selects the edge-power file, the source
+%                   image for a textured experiment, and the exp_files/
+%                   subdirectory written to. 'pink_noise' takes the synthetic
+%                   branch; anything else is treated as a texture name.
+%     subject_str - n_subjects x 2 char array of subject initials, one row per
+%                   subject, each becoming a subject_out/<initials>.mat file.
 %
 %   Output
 %     none (side effects: creates exp_files/<exp_type>/exp_settings.mat and
@@ -46,9 +46,9 @@ function set_up_experiment(exp_type, subjectStr)
     contrast = 0.15;
     bg_size = 256; % in px
     target_radius = 64; % in px
-%     nLevels=10;
+%     n_levels=10;
     monitor_distance = 60; % in PPD
-    transformExpName = ''; % transform ml & cont of stimuli of existing experiment, or leave blank
+    transform_exp_name = ''; % transform ml & cont of stimuli of existing experiment, or leave blank
 
     if strcmp(exp_type, 'pink_noise')
         %         seed_energy_file='seed_energy_pn_gradbynorm';
@@ -81,7 +81,7 @@ function set_up_experiment(exp_type, subjectStr)
 %     dist_mean=mean(edge_powers(:,2));
 %     dist_span=(max(edge_powers(:,2))-min(edge_powers(:,2)))/2;
 %     while true
-%         h=histcounts(edge_powers(:,2),linspace(dist_mean-dist_span,dist_mean+dist_span,nLevels+1));
+%         h=histcounts(edge_powers(:,2),linspace(dist_mean-dist_span,dist_mean+dist_span,n_levels+1));
 %         if min(h)>80
 %             break
 %         else
@@ -89,37 +89,37 @@ function set_up_experiment(exp_type, subjectStr)
 %         end
 %     end
 
-%     edgePowerBlockEdges=linspace(dist_mean-dist_span,dist_mean+dist_span,nLevels+1);
-%     edgePowerBlockEdges = linspace(min(edge_powers(:,2)),max(edge_powers(:,2)),nLevels+1);
+%     edgePowerBlockEdges=linspace(dist_mean-dist_span,dist_mean+dist_span,n_levels+1);
+%     edgePowerBlockEdges = linspace(min(edge_powers(:,2)),max(edge_powers(:,2)),n_levels+1);
 
     % for checking clipping in boundary ribbon region
     global bdry_ribbon;
     [~, ~, ~, bdry_ribbon] = lib.target_mask('bg_size', bg_size, 'target_radius', target_radius);
 
     %% Session files
-    %for iCondition = 1:nConditions
+    %for i_condition = 1:n_conditions
     ExpSettings = experiment.session_settings(exp_type, texture_params, luminance, contrast, ...
-        bg_size, target_radius, edgePowerBlockEdges, monitor_distance, transformExpName);
+        bg_size, target_radius, edgePowerBlockEdges, monitor_distance, transform_exp_name);
 %     if strcmp(exp_type,'pink_noise')
-%         folderOut= ['exp_files/' exp_type '_L' num2str(luminance) '_C' num2str(contrast)];
+%         folder_out= ['exp_files/' exp_type '_L' num2str(luminance) '_C' num2str(contrast)];
 %     else
-    folderOut = ['exp_files/' exp_type];
+    folder_out = ['exp_files/' exp_type];
 %     end
-    mkdir(folderOut);
-    filePathOut = [folderOut '/exp_settings.mat'];
-    save(filePathOut, 'ExpSettings');
+    mkdir(folder_out);
+    file_path_out = [folder_out '/exp_settings.mat'];
+    save(file_path_out, 'ExpSettings');
     %end
 
     %% Subject experiment files
-    %subjectStr = ['ad'; 'cw'; 'es'; 'wg'];
-    nSubjects = size(subjectStr, 1);
+    %subject_str = ['ad'; 'cw'; 'es'; 'wg'];
+    n_subjects = size(subject_str, 1);
 
-    for iSubject = 1:nSubjects
+    for i_subject = 1:n_subjects
         SubjectExpFile = experiment.subject_experiment_file(ExpSettings);
-        %             folderOut= ['exp_files/' exp_type '_L' num2str(luminance) '_C' num2str(contrast) '/subject_out'];
-        folderOut = ['exp_files/' exp_type '/subject_out'];
-        mkdir(folderOut);
-        filePathOut = [folderOut '/' subjectStr(iSubject, :) '.mat'];
-        save(filePathOut, 'SubjectExpFile');
+        %             folder_out= ['exp_files/' exp_type '_L' num2str(luminance) '_C' num2str(contrast) '/subject_out'];
+        folder_out = ['exp_files/' exp_type '/subject_out'];
+        mkdir(folder_out);
+        file_path_out = [folder_out '/' subject_str(i_subject, :) '.mat'];
+        save(file_path_out, 'SubjectExpFile');
     end
 end

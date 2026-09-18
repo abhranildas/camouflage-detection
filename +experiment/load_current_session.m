@@ -1,9 +1,10 @@
-function SettingsOut = load_current_session(subjectStr, expTypeStr, condition, sessionNumber, ...
-    levelNumber)
+function SettingsOut = load_current_session(subject_str, exp_type_str, condition, ...
+    session_number, ...
+    level_number)
 % LOAD_CURRENT_SESSION  Find and load the next session a subject has still to run.
-%   SettingsOut = experiment.load_current_session(subjectStr, expTypeStr)
-%   SettingsOut = experiment.load_current_session(subjectStr, expTypeStr, condition, ...
-%       sessionNumber, levelNumber)
+%   SettingsOut = experiment.load_current_session(subject_str, exp_type_str)
+%   SettingsOut = experiment.load_current_session(subject_str, exp_type_str, condition, ...
+%       session_number, level_number)
 %
 %   With two arguments, scans the subject's result file for the first session
 %   and bin whose levels are not all complete and resumes there, lowest
@@ -11,12 +12,12 @@ function SettingsOut = load_current_session(subjectStr, expTypeStr, condition, s
 %   caller, which is how a single level is re-run.
 %
 %   Inputs
-%     subjectStr    - subject initials, matching the subject .mat filename.
-%     expTypeStr    - experiment name, matching the exp_files/ subdirectory.
-%     condition     - bin identifier, matched row-wise against
-%                     SubjectExpFile.binIndex. Five-argument path only.
-%     sessionNumber - session to run, count. Five-argument path only.
-%     levelNumber   - level to start at, count. Five-argument path only.
+%     subject_str    - subject initials, matching the subject .mat filename.
+%     exp_type_str   - experiment name, matching the exp_files/ subdirectory.
+%     condition      - bin identifier, matched row-wise against
+%                      SubjectExpFile.binIndex. Five-argument path only.
+%     session_number - session to run, count. Five-argument path only.
+%     level_number   - level to start at, count. Five-argument path only.
 %
 %   Output
 %     SettingsOut - the stored ExpSettings struct with the current run's
@@ -36,51 +37,51 @@ function SettingsOut = load_current_session(subjectStr, expTypeStr, condition, s
 %   See also experiment.SAVE_CURRENT_LEVEL, experiment.LOAD_STIMULI_CAMOUFLAGE.
 
     %% Determine current session
-    filePathSubject = ['exp_files/' expTypeStr '/subject_out/' subjectStr '.mat'];
-    load(filePathSubject);
+    file_path_subject = ['exp_files/' exp_type_str '/subject_out/' subject_str '.mat'];
+    load(file_path_subject);
 
     if(nargin < 4)
-        nLevels = size(SubjectExpFile.bTargetPresent, 2);
+        n_levels = size(SubjectExpFile.bTargetPresent, 2);
 
         % Check for experiment files that have not been completed
         % Check for not completed session
-        [notCompletedSession, notCompletedBin] = ...
-            find(SubjectExpFile.levelCompleted < nLevels);
+        [not_completed_session, not_completed_bin] = ...
+            find(SubjectExpFile.levelCompleted < n_levels);
 
-        if(isempty(notCompletedBin) && isempty(notCompletedSession))
+        if(isempty(not_completed_bin) && isempty(not_completed_session))
             error('Error: All bins, sessions, and levels have been completed');
         end
 
         % lower sessions first
-        earliestSessionIndex = find(min(notCompletedSession) == notCompletedSession);
+        earliest_session_index = find(min(not_completed_session) == not_completed_session);
 
-        currentBin = notCompletedBin(earliestSessionIndex(1));
-        currentSession = notCompletedSession(earliestSessionIndex(1));
+        current_bin = not_completed_bin(earliest_session_index(1));
+        current_session = not_completed_session(earliest_session_index(1));
 
-        %condition = SubjectExpFile.condition(currentBin, :);
-        levelCompleted = SubjectExpFile.levelCompleted(currentSession, currentBin);
-        levelStartIndex = levelCompleted + 1;
+        %condition = SubjectExpFile.condition(current_bin, :);
+        level_completed = SubjectExpFile.levelCompleted(current_session, current_bin);
+        level_start_index = level_completed + 1;
     else
-        currentSession = sessionNumber;
-        currentBin = find(ismember(SubjectExpFile.binIndex, condition, 'rows') == 1);
-        levelStartIndex = levelNumber;
+        current_session = session_number;
+        current_bin = find(ismember(SubjectExpFile.binIndex, condition, 'rows') == 1);
+        level_start_index = level_number;
     end
 
     % disp(['Loading bin: L' num2str(SubjectExpFile.luminance) ' C' num2str(SubjectExpFile.contrast)]);
-    disp(['Session ' num2str(currentSession) ', Level ' num2str(levelStartIndex)]);
+    disp(['Session ' num2str(current_session) ', Level ' num2str(level_start_index)]);
 
     %% Load settings
-    filePathSession = ['exp_files/' expTypeStr '/exp_settings.mat'];
-    load(filePathSession);
+    file_path_session = ['exp_files/' exp_type_str '/exp_settings.mat'];
+    load(file_path_session);
 
-    save(filePathSubject, 'SubjectExpFile');
+    save(file_path_subject, 'SubjectExpFile');
 
     SettingsOut = ExpSettings;
     SettingsOut.bgPixVal = ExpSettings.bgPixVal./255;
     SettingsOut.bgPixValGamma = experiment.gamma_correct(SettingsOut.bgPixVal, 2.089, 8);
-    SettingsOut.subjectStr = subjectStr;
-    SettingsOut.expTypeStr = expTypeStr;
-    SettingsOut.levelStartIndex = levelStartIndex;
-    SettingsOut.currentBin = currentBin;
-    SettingsOut.currentSession = currentSession;
+    SettingsOut.subjectStr = subject_str;
+    SettingsOut.expTypeStr = exp_type_str;
+    SettingsOut.levelStartIndex = level_start_index;
+    SettingsOut.currentBin = current_bin;
+    SettingsOut.currentSession = current_session;
 end

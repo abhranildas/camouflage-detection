@@ -1,6 +1,6 @@
-function set_up_experiment_shape_exponent(exp_type, subjectStr)
+function set_up_experiment_shape_exponent(exp_type, subject_str)
 % SET_UP_EXPERIMENT_SHAPE_EXPONENT  Set up the target-shape-roughness variant of the experiment.
-%   experiment.set_up_experiment_shape_exponent(exp_type, subjectStr)
+%   experiment.set_up_experiment_shape_exponent(exp_type, subject_str)
 %
 %   Variant of experiment.set_up_experiment in which the level is the 1/f
 %   exponent of the target boundary's shape, so the target's outline runs from
@@ -8,9 +8,9 @@ function set_up_experiment_shape_exponent(exp_type, subjectStr)
 %   file; each stimulus's edge power is measured after it is made.
 %
 %   Inputs
-%     exp_type   - experiment name, also the exp_files/ subdirectory.
-%     subjectStr - nSubjects x 2 char array of subject initials, one row per
-%                  subject, each becoming a subject_out/<initials>.mat file.
+%     exp_type    - experiment name, also the exp_files/ subdirectory.
+%     subject_str - n_subjects x 2 char array of subject initials, one row per
+%                   subject, each becoming a subject_out/<initials>.mat file.
 %
 %   Output
 %     none (side effects: creates exp_files/<exp_type>/exp_settings.mat and
@@ -58,20 +58,20 @@ function set_up_experiment_shape_exponent(exp_type, subjectStr)
     %% Session files
     ExpSettings = experiment.session_settings_shape_exponent(exp_type, texture, ...
         shape_exponents, luminance, contrast, bg_size, target_radius, monitor_distance);
-    folderOut = ['exp_files/' exp_type];
-    mkdir(folderOut);
-    filePathOut = [folderOut '/exp_settings.mat'];
-    save(filePathOut, 'ExpSettings', '-v7.3');
+    folder_out = ['exp_files/' exp_type];
+    mkdir(folder_out);
+    file_path_out = [folder_out '/exp_settings.mat'];
+    save(file_path_out, 'ExpSettings', '-v7.3');
 
     %% Subject experiment files
-    %subjectStr = ['ad'; 'cw'; 'es'; 'wg'];
-    nSubjects = size(subjectStr, 1);
+    %subject_str = ['ad'; 'cw'; 'es'; 'wg'];
+    n_subjects = size(subject_str, 1);
 
-    for iSubject = 1:nSubjects
+    for i_subject = 1:n_subjects
         SubjectExpFile = experiment.subject_experiment_file(ExpSettings);
-        folderOut = ['exp_files/' exp_type '/subject_out'];
-        mkdir(folderOut);
-        filePathOut = [folderOut '/' subjectStr(iSubject, :) '.mat'];
-        save(filePathOut, 'SubjectExpFile');
+        folder_out = ['exp_files/' exp_type '/subject_out'];
+        mkdir(folder_out);
+        file_path_out = [folder_out '/' subject_str(i_subject, :) '.mat'];
+        save(file_path_out, 'SubjectExpFile');
     end
 end

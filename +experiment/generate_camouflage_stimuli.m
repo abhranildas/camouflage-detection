@@ -1,10 +1,10 @@
-function [stimuli, seeds, edgePowers, pClipped] = generate_camouflage_stimuli(texture, ...
-    exp_type, edgePowerBlockEdges, nTrials, nSessions, bg_size, target_radius, luminance, ...
-    contrast, bTargetPresent)
+function [stimuli, seeds, stim_edge_powers, p_clipped] = generate_camouflage_stimuli(texture, ...
+    exp_type, edge_power_block_edges, n_trials, n_sessions, bg_size, target_radius, luminance, ...
+    contrast, b_target_present)
 % GENERATE_CAMOUFLAGE_STIMULI  Synthesise one experiment's camouflage stimuli.
-%   [stimuli, seeds, edgePowers, pClipped] = experiment.generate_camouflage_stimuli(...
-%       texture, exp_type, edgePowerBlockEdges, nTrials, nSessions, bg_size, ...
-%       target_radius, luminance, contrast, bTargetPresent)
+%   [stimuli, seeds, stim_edge_powers, p_clipped] = experiment.generate_camouflage_stimuli(...
+%       texture, exp_type, edge_power_block_edges, n_trials, n_sessions, bg_size, ...
+%       target_radius, luminance, contrast, b_target_present)
 %
 %   A level is a band of target edge power, so choosing a level means choosing
 %   a seed whose precomputed edge power falls in that band. Target-present
@@ -14,31 +14,31 @@ function [stimuli, seeds, edgePowers, pClipped] = generate_camouflage_stimuli(te
 %   so a stimulus is fully determined by its seed plus these parameters.
 %
 %   Inputs
-%     texture             - texture struct passed straight to lib.stimulus
-%                           (.type, and .stats/.Niter for a Portilla-Simoncelli
-%                           texture).
-%     exp_type            - experiment name, selecting the edge-power file.
-%     edgePowerBlockEdges - nLevels x 2 array of [lower, upper] edge-power
-%                           limits per level, dimensionless edge power.
-%     nTrials             - trials per level per session, count.
-%     nSessions           - sessions, count.
-%     bg_size             - stimulus side, in pixels.
-%     target_radius       - target radius, in pixels.
-%     luminance           - mean luminance, normalised, in [0, 1].
-%     contrast            - RMS contrast, dimensionless fraction.
-%     bTargetPresent      - nTrials x nLevels x nSessions logical, which
-%                           trials contain a target.
+%     texture                - texture struct passed straight to lib.stimulus
+%                              (.type, and .stats/.Niter for a Portilla-Simoncelli
+%                              texture).
+%     exp_type               - experiment name, selecting the edge-power file.
+%     edge_power_block_edges - n_levels x 2 array of [lower, upper] edge-power
+%                              limits per level, dimensionless edge power.
+%     n_trials               - trials per level per session, count.
+%     n_sessions             - sessions, count.
+%     bg_size                - stimulus side, in pixels.
+%     target_radius          - target radius, in pixels.
+%     luminance              - mean luminance, normalised, in [0, 1].
+%     contrast               - RMS contrast, dimensionless fraction.
+%     b_target_present       - n_trials x n_levels x n_sessions logical, which
+%                              trials contain a target.
 %
 %   Output
-%     stimuli    - bg_size x bg_size x nTrials x nLevels x nSessions array in
-%                  normalised luminance units.
-%     seeds      - nTrials x nLevels x nSessions RNG seeds, also the row index
-%                  into the edge-power table.
-%     edgePowers - nTrials x nLevels x nSessions edge power of each stimulus,
-%                  dimensionless. Column 2 of the table for a target trial,
-%                  column 1 for a blank.
-%     pClipped   - nTrials x nLevels x nSessions fraction of each stimulus's
-%                  boundary-ribbon pixels outside the displayable range.
+%     stimuli          - bg_size x bg_size x n_trials x n_levels x n_sessions array in
+%                        normalised luminance units.
+%     seeds            - n_trials x n_levels x n_sessions RNG seeds, also the row index
+%                        into the edge-power table.
+%     stim_edge_powers - n_trials x n_levels x n_sessions edge power of each stimulus,
+%                        dimensionless. Column 2 of the table for a target trial,
+%                        column 1 for a blank.
+%     p_clipped        - n_trials x n_levels x n_sessions fraction of each stimulus's
+%                        boundary-ribbon pixels outside the displayable range.
 %
 %   The edge-power file path does not exist anywhere on disk, so this function
 %   cannot currently run; the real files are under the repo's own
@@ -53,57 +53,58 @@ function [stimuli, seeds, edgePowers, pClipped] = generate_camouflage_stimuli(te
 
     load(['vislab-common/data/edge_powers/', exp_type, '.mat'], 'edge_powers')
     [~, ~, ~, mask_strip] = lib.target_mask('bg_size', bg_size, 'target_radius', target_radius);
-    nLevels = size(edgePowerBlockEdges, 1);
-    stimuli = zeros(bg_size, bg_size, nTrials, nLevels, nSessions);
-    % seeds=zeros(nTrials,nLevels,nSessions);
-    seeds = nan(nTrials*nSessions, nLevels);
-    edgePowers = zeros(nTrials, nLevels, nSessions);
-    pClipped = zeros(nTrials, nLevels, nSessions);
+    n_levels = size(edge_power_block_edges, 1);
+    stimuli = zeros(bg_size, bg_size, n_trials, n_levels, n_sessions);
+    % seeds=zeros(n_trials,n_levels,n_sessions);
+    seeds = nan(n_trials*n_sessions, n_levels);
+    stim_edge_powers = zeros(n_trials, n_levels, n_sessions);
+    p_clipped = zeros(n_trials, n_levels, n_sessions);
 
-    % convert bTargetPresent to 1 page
-    bTarget = permute(bTargetPresent, [1 3 2]);
-    bTarget = reshape(bTarget, [], size(bTargetPresent, 2), 1);
+    % convert b_target_present to 1 page
+    b_target = permute(b_target_present, [1 3 2]);
+    b_target = reshape(b_target, [], size(b_target_present, 2), 1);
 
     % sample all blank seeds
-    seeds(~bTarget) = randsample(size(edge_powers, 1), sum(~bTarget(:)));
+    seeds(~b_target) = randsample(size(edge_powers, 1), sum(~b_target(:)));
 
     % sample target seeds
-    for iLevel = 1:nLevels
-        seeds_available = find((edge_powers(:, 2) >= edgePowerBlockEdges(iLevel, 1)) & ...
-            (edge_powers(:, 2) <= edgePowerBlockEdges(iLevel, 2)));
-        seeds(bTarget(:, iLevel), iLevel) = randsample(seeds_available, nnz(bTarget(:, iLevel)));
+    for i_level = 1:n_levels
+        seeds_available = find((edge_powers(:, 2) >= edge_power_block_edges(i_level, 1)) & ...
+            (edge_powers(:, 2) <= edge_power_block_edges(i_level, 2)));
+        seeds(b_target(:, i_level), i_level) = ...
+            randsample(seeds_available, nnz(b_target(:, i_level)));
     end
 
     % split seeds matrix into pages for separate sessions
     seeds = permute(seeds, [2 1]);
-    seeds = reshape(seeds, [nLevels nTrials nSessions]);
+    seeds = reshape(seeds, [n_levels n_trials n_sessions]);
     seeds = permute(seeds, [2 1 3]);
 
     % generate stimuli images
-    for iLevel = 1:nLevels
-        for iSession = 1:nSessions
-            parfor iTrial = 1:nTrials
-                fprintf('Level %d Session %d Trial %d\n', [iLevel iSession iTrial])
-                if bTargetPresent(iTrial, iLevel, iSession) % if this is a with-target stimulus
+    for i_level = 1:n_levels
+        for i_session = 1:n_sessions
+            parfor i_trial = 1:n_trials
+                fprintf('Level %d Session %d Trial %d\n', [i_level i_session i_trial])
+                if b_target_present(i_trial, i_level, i_session) % if this is a with-target stimulus
                     % seed=randsample(seeds_available,1);
-                    seed = seeds(iTrial, iLevel, iSession);
-                    edgePowers(iTrial, iLevel, iSession) = edge_powers(seed, 2);
+                    seed = seeds(i_trial, i_level, i_session);
+                    stim_edge_powers(i_trial, i_level, i_session) = edge_powers(seed, 2);
                     stim = lib.stimulus('texture', texture, 'seed', seed, 'bg_size', bg_size, ...
                         'target_radius', target_radius, 'ml_b', luminance, 'cont_b', contrast);
                 else % if this is a without-target stimulus
                     %  seed=randi([1 size(edge_powers,1)]); % randomly pick from all seeds
-                    seed = seeds(iTrial, iLevel, iSession);
-                    edgePowers(iTrial, iLevel, iSession) = edge_powers(seed, 1);
+                    seed = seeds(i_trial, i_level, i_session);
+                    stim_edge_powers(i_trial, i_level, i_session) = edge_powers(seed, 1);
                     stim = lib.stimulus('texture', texture, 'seed', seed, 'bg_size', bg_size, ...
                         'ml_b', luminance, 'cont_b', contrast);
                 end
-                seeds(iTrial, iLevel, iSession) = seed;
-                stimuli(:, :, iTrial, iLevel, iSession) = stim;
-                pClipped(iTrial, iLevel, iSession) = lib.compute_p_clipped(stim(mask_strip));
+                seeds(i_trial, i_level, i_session) = seed;
+                stimuli(:, :, i_trial, i_level, i_session) = stim;
+                p_clipped(i_trial, i_level, i_session) = lib.compute_p_clipped(stim(mask_strip));
             end
         end
         %else
-        %fprintf('Cannot choose %d from %d available stimuli in level %d\n',[nTrials,length(seeds_energies_available),iLevel]);
+        %fprintf('Cannot choose %d from %d available stimuli in level %d\n',[n_trials,length(seeds_energies_available),i_level]);
         %break
         %end
     end

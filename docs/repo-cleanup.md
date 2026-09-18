@@ -14,7 +14,7 @@
 
 **Description.** Comments, header docs, whitespace, operator and bracket spacing, indentation, reflow, blank-line grouping, file-local renames, plus function and file renames repo-wide (step 2a), and triaging any commented-out code found in each tranche's files (verdict only, nothing deleted). Checked by `isequal` on a canonical AST fingerprint — no execution needed.
 
-**Status.** Every in-scope file has been through a Stage 1 tranche. Two things are still open by design, not by omission: tranches 0.1.2–0.1.10 predate the mandatory-snake_case rule, so `+experiment/`'s in-file camelCase and its 43 camelCase filenames remain as found (S2.19 settles both halves at once); and `+stats/` (12 files) is entirely `_`-prefixed known-dead code, excluded from scope the same way it was in the original survey, so no tranche was ever assigned to it unless S3.6 revives it.
+**Status.** Every in-scope file has been through a Stage 1 tranche, and `+experiment/`'s camelCase — which tranches 0.1.5–0.1.7 preserved because they predate the mandatory-snake_case rule — was retrofitted by S2.19, filenames and in-file identifiers together. `+stats/` (12 files) is entirely `_`-prefixed known-dead code, excluded from scope the same way it was in the original survey, so no tranche was ever assigned to it unless S3.6 revives it.
 
 **To-do.**
 
@@ -23,9 +23,9 @@
 - [x] **0.1.2.** `+lib/` edge & stimulus core — 14 files, 948 lines. **Sets in-file naming conventions for everything downstream.** *(predates snake_case mandate — see 3.1.3)*
 - [x] **0.1.3.** `+lib/edge_props_stim.m` — 1 file, 535 lines.
 - [x] **0.1.4.** `+lib/` remainder — 39 files cleaned of 41 listed, 1484 lines (`ptch_norm.m`/`watson_otf.m` excluded — S3.11's job).
-- [x] **0.1.5.** `+experiment/+main/` — 11 files, 714 lines. *(camelCase family, deliberately not converted, predates the snake_case mandate — see S2.19)*
-- [x] **0.1.6.** `+experiment/+analysis/` — 12 files, 787 lines. *(mixed camel/snake, deliberately preserved as found)*
-- [x] **0.1.7.** `+experiment/` top level, incl. variant families — 26 files, 1390 lines. *(mixed camel/snake, deliberately preserved as found)*
+- [x] **0.1.5.** `+experiment/+main/` — 11 files, 714 lines. *(camelCase family, preserved as found here; snake_cased later by S2.19)*
+- [x] **0.1.6.** `+experiment/+analysis/` — 12 files, 787 lines. *(mixed camel/snake, preserved as found here; snake_cased later by S2.19)*
+- [x] **0.1.7.** `+experiment/` top level, incl. variant families — 26 files, 1390 lines. *(mixed camel/snake, preserved as found here; snake_cased later by S2.19)*
 - [x] **0.1.8.** `+general/` live model chain — 4 files, 833 lines (`compute_nat_img_eff_coding_bins.m`, `compute_edge_props_exp_pca.m`, `fit_edge_model_with_exps.m`, `compute_nll_edge_model.m`).
 - [x] **0.1.9.** `+general/` remainder — 27 files, 1641 lines.
 - [x] **0.1.10.** `+vis/` + `+tests/` — 10 files, 484 lines. *(per-file convention, genuinely mixed authorship)*
@@ -65,7 +65,7 @@
 
 **Description.** Signature changes, `arguments` blocks, merging duplicate functions, reordering statements, float/RNG-order changes, renaming a config struct field or a frozen `save`/`load` name, acting on the Stage 1 commented-out-code triage — not behaviour-preserving, done after Stage 1/2. **Rating:** 🔴 clear win, low risk · 🟠 real cost (design decision or wide call-site surface) · 🟡 marginal, defer. Id `S<tier>.<n>`, never renumbered.
 
-**Status.** None started. S3.5 (smoke test) and the snake_case retrofit question (S2.19) should both be resolved early, before more Style tranches compound the divergence.
+**Status.** S2.19 is done; the rest not started. S3.5 (smoke test) should still be taken early — it is cheap insurance for every item below it.
 
 **To-do.**
 
@@ -74,14 +74,15 @@
 - [ ] 🔴 **S1.9.** Rename zone-2 cross-file name-value parameters repo-wide (full list in 3.1.1).
 - [ ] 🔴 **S1.12.** Add `arguments` blocks repo-wide (none exist; 11 files use `inputParser`).
 - [ ] 🔴 **S1.13.** Remove dead scaffolding in the live path (global `bdry_ribbon`, duplicate write, debug `randi(10)`/`imshow`, 3 unconditional bar plots) — 7 named sites.
-- [ ] 🔴 **S1.14.** Consolidate the 3 gamma-compression implementations onto `vislab.lib.gamma_compress`. Tranche 0.1.1 established that only **one** is a file in this repo (`+experiment/gammaCorrect.m`); the second is the inline `gammaCorrection` anonymous function at `runCamouflageExperiment_search.m:36`, and `lib.gammaCorrect` (`setUpExperiment_search.m:118`) resolves to nothing at all (B2.9). No rename was made — with one file there is nothing to disambiguate, and any name change belongs with the consolidation.
+- [ ] 🔴 **S1.14.** Consolidate the 3 gamma-compression implementations onto `vislab.lib.gamma_compress`. Tranche 0.1.1 established that only **one** is a file in this repo (`+experiment/gamma_correct.m`); the second is the inline `gammaCorrection` anonymous function at `run_camouflage_experiment_search.m:36`, and `lib.gammaCorrect` (`set_up_experiment_search.m:118`) resolves to nothing at all (B2.9). No rename was made — with one file there is nothing to disambiguate, and any name change belongs with the consolidation.
 - [ ] 🔴 **S1.16.** Act on the Stage 1 commented-out-code triage (3.1.4) — delete superseded/scaffolding, convert alternative/unfinished, leave unknown.
 - [ ] 🟠 **S2.2.** Route every path through `config.m` — resolves B2.1. Re-checked repo-wide in tranche 0.1.12: still **zero callers in the repo's own code**. The only two references anywhere are `tools/golden_harness.m:43` (`cfg = config(); ... rng(cfg.seed)`, added by tranche 0.1.0, i.e. cleanup tooling rather than production code) and the `cfg = config;` example at `README.md:53`. So the item stands as written; the cleanup harness is now the config's only consumer, which is exactly backwards.
-- [ ] 🟠 **S2.3.** Collapse the 5 experiment-variant families (`{setUpExperiment,sessionSettings,generate_camouflage_stimuli}×{base,_all,_diff_bg,_shape_exponent,_texture_exponent}`, 15 files, 75–81% duplicate lines).
+- [ ] 🟠 **S2.3.** Collapse the 5 experiment-variant families (`{set_up_experiment,session_settings,generate_camouflage_stimuli}×{base,_all,_diff_bg,_shape_exponent,_texture_exponent}`, 15 files, 75–81% duplicate lines).
 - [ ] 🟠 **S2.7.** Make live `+general/` scripts into functions (~8 of 41 are live; not yet enumerated).
 - [ ] 🟠 **S2.8.** Fix `edge_powers` producer/consumer path-layout split.
-- [ ] 🟠 **S2.17.** Validate Psychtoolbox harness on hardware; two latent issues (`S.targetTypeStr` never set; `stimulusInterval`'s discarded onset return); EyeLink layer unreachable (`loadStimuliCamouflage.m:16` hardcodes `bFovea=1`). Needs user hardware sign-off.
-- [ ] 🟠 **S2.19 (new).** Snake_case retrofit of `+experiment/` and its subpackages (tranches 0.1.5/0.1.6/0.1.7) to comply with the new mandate — open question (grandfather vs. retrofit); not yet assigned a tier consensus. Tranche 0.1.1 deliberately left `+experiment/`'s 43 camelCase **filenames** alone for exactly this reason (decision R2 in 3.1.3): filename casing there is inseparable from the ~574 camelCase in-file identifiers those tranches deliberately preserved, and converting one half now would create the very split this item exists to resolve. When S2.19 is settled, its filename half is a second, smaller step-2a pass using 3.1.1's rules.
+- [ ] 🟠 **S2.17.** Validate Psychtoolbox harness on hardware; two latent issues (`S.targetTypeStr` never set; `stimulus_interval`'s discarded onset return); EyeLink layer unreachable (`load_stimuli_camouflage.m:16` hardcodes `bFovea=1`). Needs user hardware sign-off.
+- [x] 🟠 **S2.19.** Snake_case retrofit of `+experiment/` and its subpackages (tranches 0.1.5/0.1.6/0.1.7). **The open grandfather-vs-retrofit question is settled: retrofit.** Both halves done together, as decision R2 required — 42 camelCase filenames converted in a second step-2a pass under 3.1.1's rules, and 534 in-file camelCase identifiers snake_cased across the 49 live files. What stays camelCase is only what is not ours to move: the zone-3 frozen `save`/`load` and struct-field names, the TitleCase settings-struct variables, and external Psychtoolbox/EyeLink API names.
+- [ ] 🟠 **S2.20 (new).** Finish the snake_case retrofit outside `+experiment/`. S2.19 measured the leftover while closing its own scope: **49 camelCase assignment targets survive in `+vis/` (21), `+tests/` (5), `+general/` (14) and `+lib/` (9)** — tranches 0.1.2/0.1.4/0.1.9/0.1.10 also predate the mandate, and 0.1.10 explicitly kept three `+vis/` files "pure camelCase" as their authors wrote them. Same shape as S2.19 and the same method applies; the count is a tenth of S2.19's, but it needs the same frozen/external triage per file before anything is converted — at least one of the 49 (`edgePowerBlockEdges` in `+general/pick_edge_power_bins.m`) is a zone-3 frozen name that must not move. Filenames there are already all snake_case (0.1.1), so this is the in-file half only.
 - [ ] 🟡 **S3.5.** Add a real smoke test (seed→edge-power check, round-trip, minimal-arg call sweep, package-resolution sweep). Would have caught B2.1–B2.6, B2.9. Should run early despite its 🟡 tier — it's cheap insurance against every later tranche.
 - [ ] 🟡 **S3.6.** Quarantine/delete the 29 `_`-prefixed dead files properly (currently only renamed in place); fix `+tests/gabor_similarity.m:42`'s broken call.
 - [ ] 🟡 **S3.10.** Rename zone-3 frozen `save`/`load` names, only with a migration script (~100GB of real data at risk).
@@ -112,23 +113,23 @@
 - [ ] 🔴 **B1.3.** `lib.create_pink_noise_line.m:4-5` ignores its `exponent`/`alpha` argument entirely (guard always true) — shape-exponent manipulation is a no-op.
 - [ ] 🔴 **B1.4.** `lib.stimulus.m:182-184` synthesizes target from *background's* texture stats, discarding target's own — wrong for `_diff_bg` family (which was run).
 - [ ] 🔴 **B1.5.** `+general/compute_edge_group_measures.m:20` reads `lib.edge`'s outputs 3/4 which no longer mean contour groups (dead at `edge.m:114-134`) — silent regression, re-running overwrites good data.
-- [ ] 🔴 **B1.6.** `+experiment/+main/responseInterval.m:25` timeout returns `-1`, assigned into a `false(...)`-preallocated array at `saveCurrentLevel.m:38` — corrupts SDT scoring.
-- [ ] 🔴 **B1.7.** `computeThreshold_edgePower.m:88` (+3 sibling files) bootstrap `datasample(...,nTrials=30)` against up to 120 actual rows — inflates `threshold_sd`.
+- [ ] 🔴 **B1.6.** `+experiment/+main/response_interval.m:25` timeout returns `-1`, assigned into a `false(...)`-preallocated array at `save_current_level.m:38` — corrupts SDT scoring.
+- [ ] 🔴 **B1.7.** `compute_threshold_edge_power.m:88` (+3 sibling files) bootstrap `datasample(...,nTrials=30)` against up to 120 actual rows — inflates `threshold_sd`.
 - [ ] 🔴 **B1.8.** `classify_normals` (`IntClassNorm/classify_normals.m:248,251-267`) silently discards `'eff'`/`'precision'` via `KeepUnmatched=true` — `fit_edge_model_with_exps.m:48`'s `'eff',0.34` does nothing; post-hoc rescaling also dead at `:204`.
 - [ ] 🔴 **B1.9.** `fit_edge_model_with_exps.m:215-217` — `var_exp` compares model against itself (`mean_subj_acc` actually holds model accuracy, column-index bug). Related: `numel(~isnan(x))` at `:184` is a no-op (should be `nnz`).
 - [ ] 🔴 **B1.10.** `compute_nat_img_eff_coding_bins.m:6,27,29,62` uses `ppd=106`, wavelength 555nm vs config's 60ppd/550nm — sampling-density mismatch on the live model chain's head.
 - [ ] 🔴 **B1.11.** `compute_nat_img_eff_coding_bins.m:30,68-69,72,77,82` — patch locations drawn in cropped-image coords, used as full-image indices; border margin enforced at only 2 of 4 edges. Magnitude unverified.
-- [ ] 🟠 **B2.1.** Live experiment-setup path can't find data (`vislab-common/data/edge_powers/` doesn't exist). `generate_camouflage_stimuli.m:2`, `setUpExperiment.m:32,47,72`. Fixed by S2.2.
+- [ ] 🟠 **B2.1.** Live experiment-setup path can't find data (`vislab-common/data/edge_powers/` doesn't exist). `generate_camouflage_stimuli.m:2`, `set_up_experiment.m:32,47,72`. Fixed by S2.2.
 - [ ] 🟠 **B2.2.** `lib.edge_props_stim.m:162` errors on camo stimuli (array-bounds); debug `randi(10)` at `:30` (advances RNG); `figure(1);imshow(stim)` at `:152-153`.
 - [ ] 🟠 **B2.3.** `lib.edge_energy.m`/`lib.edge_shape.m` call `lib.steerable_grad` positionally against a name-value-only signature; `edge_energy.m:35` also uses removed `dsp.Normalizer`.
 - [ ] 🟠 **B2.4.** `lib.stimulus` output arity: `generate_camouflage_stimuli_diff_bg.m:20,22` and `_texture_exponent.m:19,21` destructure shifted by one; `_shape_exponent.m:20` similarly shifted.
 - [ ] 🟠 **B2.5.** `lib.stimulus.m:149-150` — `||` guard should be `&&`; errors with only one of `ml_b`/`cont_b` supplied.
-- [ ] 🟠 **B2.6.** `_texture_exponent` chain renamed `nLevels`→`nBlocks`, `seeds`→`stimuliSeed` (`sessionSettings_texture_exponent.m:27`) but readers still expect old names.
-- [ ] 🟠 **B2.7.** `SubjectExpFile.binIndex` read at `loadCurrentSession.m:35` but never created by `subjectExperimentFile.m:22-29`.
+- [ ] 🟠 **B2.6.** `_texture_exponent` chain renamed `nLevels`→`nBlocks`, `seeds`→`stimuliSeed` (`session_settings_texture_exponent.m:27`) but readers still expect old names.
+- [ ] 🟠 **B2.7.** `SubjectExpFile.binIndex` read at `load_current_session.m:35` but never created by `subject_experiment_file.m:22-29`.
 - [ ] 🟠 **B2.8.** `generate_camouflage_stimuli_all.m:33,40` — struct field mismatch (`textures` has 4 fields, `texture_list` on disk has 8).
-- [ ] 🟠 **B2.9.** 15 package-qualified references resolve to nothing across 41 call sites (`tinker.filter`, `lib.circular_mask`, `lib.whiten_pink_noise_square`, `analysis.computeThresholdInBin`, `lib.edge_vector`, `lib.compute_dPrime_pCorrect`, `analysis.computeTemplateResponseSigma`, `analysis.compute_dPrime_pCorrect`, `experiment.analysis.computeThreshold_new_edge`, `experiment.show_image` (fix: `vis.show_image`), `lib.gammaCorrect`, `lib.new_edge`, `lib.pink_noise_2d`, `nm.analysis.fitPsychometric`, `stats.computeSceneSimilarityAmplitude`).
-- [ ] 🟠 **B2.10.** `saveCurrentLevel.m:20-22` increments `levelCompleted` rather than setting it.
-- [ ] 🟠 **B2.11.** Hardcoded absolute paths (`/Users/steve/...`, `C:\Users\sebastian\...`) in `computeBootstrappedThreshold.m:37,41` — carried forward, deliberately left stale.
+- [ ] 🟠 **B2.9.** 15 package-qualified references resolve to nothing across 41 call sites (`tinker.filter`, `lib.circular_mask`, `lib.whiten_pink_noise_square`, `analysis.computeThresholdInBin`, `lib.edge_vector`, `lib.compute_dPrime_pCorrect`, `analysis.compute_template_response_sigma`, `analysis.compute_dPrime_pCorrect`, `experiment.analysis.computeThreshold_new_edge`, `experiment.show_image` (fix: `vis.show_image`), `lib.gammaCorrect`, `lib.new_edge`, `lib.pink_noise_2d`, `nm.analysis.fitPsychometric`, `stats.computeSceneSimilarityAmplitude`).
+- [ ] 🟠 **B2.10.** `save_current_level.m:20-22` increments `levelCompleted` rather than setting it.
+- [ ] 🟠 **B2.11.** Hardcoded absolute paths (`/Users/steve/...`, `C:\Users\sebastian\...`) in `compute_bootstrapped_threshold.m:37,41` — carried forward, deliberately left stale.
 - [ ] 🟠 **B2.12.** `lib.stimulus` with `target_radius=0` and >3 outputs errors (`:158,204`).
 - [ ] 🟠 **B2.13.** `lib.stimulus.m:159,166,186` target branch tests background texture struct instead of target's own.
 - [ ] 🟠 **B2.14.** `lib.compute_p_clipped.m:6` always says "boundary ribbon" regardless of input.
@@ -148,20 +149,20 @@
 - [ ] 🟡 **B3.1.** `lib.edge_props_stim.m:21,129` hardcodes 256×256/radius-64 mask regardless of input size.
 - [ ] 🟡 **B3.2.** `lib.crop_image.m:21` — `indColorChannel` missing trailing `s`, guard always true; `:33-35` swaps row/col for non-square patch.
 - [ ] 🟡 **B3.3.** `lib.ptch_norm.m:15-16` undefined var `m`, `ntype==2` branch broken. Resolved by S3.11.
-- [ ] 🟡 **B3.4.** `computeTemplateResponseSigma.m:44` — comparison inside `size()`; `:42` loop bound possibly wrong dimension.
+- [ ] 🟡 **B3.4.** `compute_template_response_sigma.m:44` — comparison inside `size()`; `:42` loop bound possibly wrong dimension.
 - [ ] 🟡 **B3.5.** `lib.find_spot_centers.m:7` — `ismember(...,'row')` should be `'rows'`.
 - [ ] 🟡 **B3.6.** `lib.hyperexp_nll.m` fits hypoexponential, not hyperexponential — name/code mismatch. Second site, found in tranche 0.1.12: root `test_erlang.m` plots the same hypoexponential density (two *different* rates), while an Erlang is the equal-rate case. The file was not renamed (0.1.1 fixes filenames, not misnomers that are really this bug); its header now states plainly what it actually plots.
-- [ ] 🟡 **B3.7.** `sessionSettings.m:40` — stray transpose in `strcmp(transformExpName','')`.
-- [ ] 🟡 **B3.8.** `loadStimuliCamouflage.m:34` — `pixelsPerDeg = ExpSettings.monitor_distance` (field-name trap; correct today, migration needs S3.10).
-- [x] 🟡 **B3.9.** `computeThreshold_edgeResponse.m:1` — function named `computeThreshold`, filename differs. **Resolved in tranche 0.1.1**: step 2a requires the `function` line to agree with the filename, so the declaration was renamed to `computeThreshold_edgeResponse`. Dispatch was always on the filename, so no call site moved.
-- [ ] 🟡 **B3.10.** Undefined-variable blocks in `computeThreshold_edgeResponse.m:102-132` and `compute_nat_img_eff_coding_bins.m:123,283`.
+- [ ] 🟡 **B3.7.** `session_settings.m:40` — stray transpose in `strcmp(transformExpName','')`.
+- [ ] 🟡 **B3.8.** `load_stimuli_camouflage.m:34` — `pixelsPerDeg = ExpSettings.monitor_distance` (field-name trap; correct today, migration needs S3.10).
+- [x] 🟡 **B3.9.** `compute_threshold_edge_response.m:1` — function named `computeThreshold`, filename differs. **Resolved in tranche 0.1.1**: step 2a requires the `function` line to agree with the filename, so the declaration was renamed to `compute_threshold_edge_response`. Dispatch was always on the filename, so no call site moved.
+- [ ] 🟡 **B3.10.** Undefined-variable blocks in `compute_threshold_edge_response.m:102-132` and `compute_nat_img_eff_coding_bins.m:123,283`.
 - [ ] 🟡 **B3.11.** ~15 top-level `+general/` scripts depend on undefined workspace variables (part of S2.7).
 - [ ] 🟡 **B3.12.** Bugs inside `_`-prefixed dead files (`+stats/_loadStatisticsSettings.m`, `_compute_edges.m`, `_compute_edge_strengths_multiscale.m`, `_fit_edge_model.m`, `_fit_edge_model_old.m`, `_computeThreshold_trials.m`, `_changepower.m` — the last silently overwrites data with no backup).
 - [ ] 🟡 **B3.13.** `lib.edge_measures.m:6` hardcodes default boundary ribbon size, evaluated even when unused.
 - [ ] 🟡 **B3.14.** `lib.target_mask.m:45-46` swaps row/col in non-circular branch, latent since `target_loc` always `'center'`.
 - [ ] 🟡 **B3.15.** `lib.edge_props_stim` computes PCA rotation and discards it — promotes to severity-1 once B2.2 fixed.
-- [ ] 🟡 **B3.16.** `stimulusInterval.m:41,52` returns offset time mislabeled as onset.
-- [ ] 🟡 **B3.17.** `samplePatchesForExperiment.m:15,19` — duplicated `nargin<9` guard silently discards `simTypeStr`; no live callers.
+- [ ] 🟡 **B3.16.** `stimulus_interval.m:41,52` returns offset time mislabeled as onset.
+- [ ] 🟡 **B3.17.** `sample_patches_for_experiment.m:15,19` — duplicated `nargin<9` guard silently discards `simTypeStr`; no live callers.
 - [ ] 🟡 **B3.18.** `generate_camouflage_stimuli_texture_exponent.m:14` writes `.alpha`, `lib.stimulus` reads `.exponent` — manipulation a no-op; promotes to severity-1 once B2.9/B2.4 fixed.
 - [ ] 🟡 **B3.19.** `compute_nll_edge_model.m:18,35,52-53` — 3 of 4 outputs unreliable (loop-index bug, unassigned branch).
 - [ ] 🟡 **B3.20.** `analyze_search_exps.m` writes `.hitRate`/`.dPrime` under the same field names for scalar vs. 19-vector quantities — unverified whether both cells ever run against the same struct.
@@ -189,7 +190,7 @@
 - [ ] 🟠 **O2.1.** `+general/compute_noise_colour.m:81` — `parfor` body has no output assignment at all; the parallelization is a complete no-op (worker-pool startup cost for nothing). Unprofiled — profile is "does removing `parfor` change wall-clock at all," expected trivially yes.
 - [ ] 🟠 **O2.2.** `+tinker/pink_noise_seed_multiple_energies.m:21` — same shape: the loop's only output assignment is commented out (`:38-39`), currently computes nothing. Unprofiled.
 - [ ] 🟡 **O3.1.** File I/O inside loops, ~25 files flagged by grep co-occurrence of `load`/`imread`/`save`/`dir`/`exist` with a `for`/`parfor` — not individually verified as loop-invariant vs. genuinely per-iteration. Heaviest: `+general/_fit_edge_model.m:47,55,57` (per-subject `dir`+`load` inside `for i_subj`), same shape in `_fit_edge_model_naive_scaling.m`, `fit_edge_model_with_exps.m:117,125,127`, `compute_avg_acc_for_texture.m:34,37`. Unprofiled — needs per-file reading to separate genuine per-item I/O (`+vis/show_example_patches.m`, `show_patch_grid.m`, `show_patches_one_by_one.m` load a *different* file per iteration, likely legitimate) from redundant reloads.
-- [ ] 🟡 **O3.2.** Unpreallocated array growth by repeated concatenation (`var = [var; ...]`), ~40 instances across ~20 files, heaviest in `+experiment/+analysis/` threshold-computation family (`computeThreshold_edgePower.m:72-76`, `computeThreshold_edgeResponse.m:90-97`, `computeThreshold_texture_exponent.m:73-77`, `computeBootstrappedThreshold.m:70,72`) and `+general/` edge-power scripts (`_compute_edge_measures_ideal.m:9`, `_compute_edges.m:17,213`, `compute_edge_powers_camo.m:39`, `compute_noise_colour.m:99,154`). Several of these co-occur with the `parfor` loops in O3.3 below — worth profiling together. Unprofiled.
+- [ ] 🟡 **O3.2.** Unpreallocated array growth by repeated concatenation (`var = [var; ...]`), ~40 instances across ~20 files, heaviest in `+experiment/+analysis/` threshold-computation family (`compute_threshold_edge_power.m:72-76`, `compute_threshold_edge_response.m:90-97`, `compute_threshold_texture_exponent.m:73-77`, `compute_bootstrapped_threshold.m:70,72`) and `+general/` edge-power scripts (`_compute_edge_measures_ideal.m:9`, `_compute_edges.m:17,213`, `compute_edge_powers_camo.m:39`, `compute_noise_colour.m:99,154`). Several of these co-occur with the `parfor` loops in O3.3 below — worth profiling together. Unprofiled.
 - [ ] 🟡 **O3.3.** 24 `parfor` loops repo-wide, spot-checked (not exhaustively) as writing to sliced/accumulator outputs, consistent with safe `parfor` use — none confirmed as a reduction-variable hazard beyond O2.1/O2.2 above. Full list in 2 (survey). Unprofiled — no per-loop timing exists to say which, if any, are worth parallelizing differently or at all.
 - [ ] 🟡 **O3.4.** `+lib/gauss_llr.m:19` — `det(cov_b)/det(cov_a)`, a ratio of determinants rather than a solve, so `inv`/`\` substitution doesn't directly apply; flagged for a numerics look, not a confirmed win. Unprofiled.
 - [ ] 🟡 **O3.5.** Storage vs. seed trade for stimulus caching (paired with S1.1 in Structure — this is the same finding wearing its Speed hat): regenerating from seeds instead of storing ~100GB needs a caching strategy for the expensive Portilla-Simoncelli path (~25 iterations/texture); pink noise regeneration is cheap. Unprofiled — no timing on PS synthesis cost exists yet.
@@ -245,7 +246,7 @@ isequal(canon(old_file), c_new)   % must be true
 
 The lookahead matters: without it a short name (`patch`) can wrongly match inside a longer one (`patch_size`). The rename map must be a bijection with disjoint domain/range, asserted before use (`assert_rename_bijection.m`). `mtree`/`tree2str` are undocumented APIs — pin the MATLAB version (R2024b Update 6) in every commit that depends on the check.
 
-**Stage 2's extra requirement: runtime golden output.** `tools/golden_harness.m` + `tools/golden_ref.mat` capture/replay 32 fields across 16 entry points, seeded explicitly via `rng(cfg.seed)`, never through the top-level driver: `lib.stimulus`, `lib.edge`, `lib.edge_vector_ideal`, `lib.edge_measures_ideal`, `lib.steerable_grad`, `lib.steerable_filter`, `lib.local_sd`, `lib.target_mask`, `lib.create_pink_noise_square`, `lib.whiten`, `lib.compute_p_clipped`, `lib.autocorr`, `lib.csf_fitted`, plus `experiment.analysis.psychometricFun`/`computeNegLogLikelihood`/`fitPsychometric`. Everything else (most of `+general/`, `+tinker/`, `+experiment/` — scripts, hardware-bound, or needing loaded `.mat` files) is pattern-check only, decided explicitly, not an oversight. `parfor` baseline: all 24 loops write to sliced outputs, none is a reduction — except two no-op cases now filed as O2.1/O2.2.
+**Stage 2's extra requirement: runtime golden output.** `tools/golden_harness.m` + `tools/golden_ref.mat` capture/replay 32 fields across 16 entry points, seeded explicitly via `rng(cfg.seed)`, never through the top-level driver: `lib.stimulus`, `lib.edge`, `lib.edge_vector_ideal`, `lib.edge_measures_ideal`, `lib.steerable_grad`, `lib.steerable_filter`, `lib.local_sd`, `lib.target_mask`, `lib.create_pink_noise_square`, `lib.whiten`, `lib.compute_p_clipped`, `lib.autocorr`, `lib.csf_fitted`, plus `experiment.analysis.psychometric_fun`/`compute_neg_log_likelihood`/`fit_psychometric`. Everything else (most of `+general/`, `+tinker/`, `+experiment/` — scripts, hardware-bound, or needing loaded `.mat` files) is pattern-check only, decided explicitly, not an oversight. `parfor` baseline: all 24 loops write to sliced outputs, none is a reduction — except two no-op cases now filed as O2.1/O2.2.
 
 Semicolon insertion is Stage 2, not Stage 1: the canonical diff is exactly `X` → `X;` — trivially whitelisted, but not invisible.
 
@@ -278,18 +279,18 @@ Measured 2026-09-16 against current HEAD (MATLAB R2024b Update 6 for the Stage 1
 
 **Scope, precisely.** Excluded: `por_sim_tx_synth/` (105 files — vendored `matlabPyrTools`/`textureSynth`, own `Contents.m`/license), and 29 `_`-prefixed known-dead files (7 in `+experiment/+analysis/`, 10 in `+general/`, 12 in `+stats/` — i.e. **all** of `+stats/`). This exclusion is carried forward unchanged from the original survey; a raw `git ls-files` count without it gives 204 files / ~16,340 lines, materially larger, because it counts the dead files as if in scope. With the exclusion applied: **164 files, 10,212 lines** (7,554 code, 2,659 comment) across `+experiment/` (49 files, 2,891 lines), `+general/` (31 files excl. dead, 2,474 lines), `+lib/` (56, 2,967), `+stats/` (0 in-scope, 12 excluded), `+tests/` (2, 107), `+tinker/` (13, 1,040), `+vis/` (8, 377), root (5, 356).
 
-Concentration: 41 files under 25 lines, 81 more under 75; 8 files ≥150 lines hold 2,503 lines (25% of code): `+lib/edge_props_stim.m` (535), `+tinker/pink_noise.m` (366), `+general/compute_nat_img_eff_coding_bins.m` (355), `+general/fit_edge_model_with_exps.m` (309), `+tinker/whitening_tinker.m` (283), `+lib/stimulus.m` (252), `+general/plot_contour_props.m` (213), `+experiment/+main/runCamouflageExperiment_search.m` (190).
+Concentration: 41 files under 25 lines, 81 more under 75; 8 files ≥150 lines hold 2,503 lines (25% of code): `+lib/edge_props_stim.m` (535), `+tinker/pink_noise.m` (366), `+general/compute_nat_img_eff_coding_bins.m` (355), `+general/fit_edge_model_with_exps.m` (309), `+tinker/whitening_tinker.m` (283), `+lib/stimulus.m` (252), `+general/plot_contour_props.m` (213), `+experiment/+main/run_camouflage_experiment_search.m` (190).
 
 **What is actually wrong with the files:**
 
 - **Lint.** `checkcode`: 222 messages, 90/164 files clean (measured at tooling time; not re-run for this update). Split: Stage 1/2 mechanical (~117: `NOPTS` 37, `AGROW` 30, `NOSEMI` 20, `SAGROW` 19, `LOAD` 9, `ISCL` 5, `LOGSUM` 3, `NANMEAN`/`NANSUM` 4), judgement-needed (~44: `NASGU` 24, `ASGLU` 12, `INUSD` 5, `USENS` 3, `STRNU` 1), bug signals (~40: `STOUT` 22, `PFBNS` 6, `GVMIS` 3, `NODEF` 2, singletons).
-- **Formatting.** 19 files tab-indented (fresh re-scan: 13 confirmed still tab-indented, concentrated in `_`-prefixed excluded files plus `computeBootstrappedThreshold.m` and 3 `_computeNegLogLikelihood*`/`_fitPsychometric*` siblings — all pre-existing, none touched by a completed tranche). 718 lines with trailing whitespace (at tooling time). 45 files with a line >100 chars; worst `edge_props_stim.m` (13 over-length lines). Assignment spacing: 2,309 unspaced vs 1,102 spaced (pre-cleanup baseline); fresh spot-check on remaining untouched dirs (`+tinker/`, root, `+stats/`-excluded) shows the same unspaced-`=` pattern still dominant — 62 hits by a rougher single-pattern grep, concentrated in `test.m` (12), `+tinker/pink_noise.m` (4), `edge_power_demo.m` (3).
+- **Formatting.** 19 files tab-indented (fresh re-scan: 13 confirmed still tab-indented, concentrated in `_`-prefixed excluded files plus `compute_bootstrapped_threshold.m` and 3 `_computeNegLogLikelihood*`/`_fitPsychometric*` siblings — all pre-existing, none touched by a completed tranche). 718 lines with trailing whitespace (at tooling time). 45 files with a line >100 chars; worst `edge_props_stim.m` (13 over-length lines). Assignment spacing: 2,309 unspaced vs 1,102 spaced (pre-cleanup baseline); fresh spot-check on remaining untouched dirs (`+tinker/`, root, `+stats/`-excluded) shows the same unspaced-`=` pattern still dominant — 62 hits by a rougher single-pattern grep, concentrated in `test.m` (12), `+tinker/pink_noise.m` (4), `edge_power_demo.m` (3).
 - **Header docs.** 116/164 begin with `function`; 39 originally had `Inputs`/`Output`, 18 had `See also`, 33 had none — all since improved by tranches 0.1.2–0.1.10's header rewrites (fresh count across the whole 204-file raw set, including excluded files: 90 have an Inputs/Output block, 156 have `See also` — the jump from 18→156 is almost entirely tranches 0.1.2–0.1.10's work). No `Contents.m` existed anywhere pre-cleanup; now 7 packages have one (`+experiment/`, `+experiment/+analysis/`, `+experiment/+main/`, `+general/`, `+lib/`, `+tests/`, `+vis/`). **Still missing: `+tinker/` and `+stats/`** (the latter excluded by design).
 - **Names, inside files.** Most-used opaque identifiers pre-cleanup: `stim` 157, `x` 150, `d` 94, `seed` 82, `n` 73, `cont` 62, `ml` 59, `N` 56, `S` 52, `z` 51, `len` 51, `idx` 49, `y` 47, `r` 47, `c` 43, `a` 37, `mask` 35, `p` 34, `u` 33, `img` 33, `f` 29, `th` 24, `b` 24, `e` 23, `amp` 22, `ppd` 21 — the bulk of these have since been expanded per the rename map (3.1.1) in whichever tranche their file fell into; `+tinker/` was expanded in 0.1.11, root (0.1.12, not started) still carries them unrenamed.
-- **Names, of files.** Fresh census, all 204 raw filenames (i.e. including the 29 excluded): 107 snake_case, 54 camelCase (concentrated in `+experiment/+analysis` 11, `+experiment/+main` 10, `+experiment/` root 18, `+lib/` 10, plus `gaborSimilarity.m`, `spatialPattern.m`, `examplePatches.m`), 8 TitleCase, 29 leading-underscore (the excluded dead set), 6 other (`2D`/`1D`-suffixed: `gabor2D.m`, `haar2D.m`, `spot2D.m`, `pink_noise_1D.m`, `pink_noise_1D_dist.m`, `test_Erlang.m`). Families with a broken pattern: `compute_*`/`computeX` (24 files) splits hard on directory — `+general/` uniformly snake, `+experiment/+analysis/` uniformly camel; `compute_edge_props_exp*` sprawl (5 siblings — `_exp`, `_exp_eq`, `_exp_full`, `_exp_pca`, `_exp_raw` — no enumeration scheme distinguishing precedence); `plot_*`/`show_*`/`view*` (6 files) split three ways by directory with no rule for which verb a given visualization gets; `fit_*` (camel in `+experiment/+analysis/fitPsychometric.m`, snake elsewhere); `gammaCorrect` triplicated (already flagged in README.md:209, unconsolidated — tracked as S1.14). **Superseded by tranche 0.1.1 for the in-scope set:** the counts above are the pre-rename census; 38 files were renamed and every family break listed here was resolved or explicitly deferred (map and rules in 3.1.1). What remains is `+experiment/`'s 43 camelCase filenames, held for S2.19. Filename/`function`-line mismatches, re-checked repo-wide: one in scope (`computeThreshold_edgeResponse.m`, fixed, B3.9) and 21 in `_`-prefixed dead files, including `+general/_changepower.m` declaring `function e=newpower(...)` — all left for S3.6.
-- **Casing census.** 107 snake / 54 camel / 8 TitleCase / 29 underscore-dead / 6 other, as above. camelCase assignment-target rough count: 574 across in-scope dirs — the split runs through variables too (`SubjectExpFile`, `ImgStats`, `bTarget`, `filePathOut`, all in `+experiment/`/`+stats/`). **Target is snake_case everywhere** per the new mandate; this is the size of what's still outstanding once 0.1.5–0.1.7's deliberate camelCase preservation is revisited (see S2.19).
-- **Names diverge across call boundaries.** `compute_nat_img_eff_coding_bins.m:73` passes `patch_rgb`→`ptch`(`ptch_norm.m`)→caught as `ptchout`→`ptch_rgb` (3 names, 1 quantity, pre-cleanup — since partly addressed in 0.1.8's vocabulary); `setUpExperiment_search.m:67` passes `'bg_size', Stimulus.stimulus_sz` and `'ml_b', Stimulus.ml`.
-- **Convention splits.** `+lib/`, `+general/`, `+tinker/` broadly snake_case; `+experiment/` (both subpackages) camelCase, Psychtoolbox heritage — **deliberately not converted** by 0.1.5/0.1.6/0.1.7, predates the snake_case mandate (see S2.19). `+vis/`/`+tests/` (0.1.10) turned out per-file mixed, harmonized only within each file.
+- **Names, of files.** *(Census below is the original pre-rename one; see the two bracketed updates at its end for current state.)* All 204 raw filenames (i.e. including the 29 excluded): 107 snake_case, 54 camelCase (concentrated in `+experiment/+analysis` 11, `+experiment/+main` 10, `+experiment/` root 18, `+lib/` 10, plus `gaborSimilarity.m`, `spatialPattern.m`, `examplePatches.m`), 8 TitleCase, 29 leading-underscore (the excluded dead set), 6 other (`2D`/`1D`-suffixed: `gabor2D.m`, `haar2D.m`, `spot2D.m`, `pink_noise_1D.m`, `pink_noise_1D_dist.m`, `test_Erlang.m`). Families with a broken pattern: `compute_*`/`computeX` (24 files) splits hard on directory — `+general/` uniformly snake, `+experiment/+analysis/` uniformly camel; `compute_edge_props_exp*` sprawl (5 siblings — `_exp`, `_exp_eq`, `_exp_full`, `_exp_pca`, `_exp_raw` — no enumeration scheme distinguishing precedence); `plot_*`/`show_*`/`view*` (6 files) split three ways by directory with no rule for which verb a given visualization gets; `fit_*` (camel in `+experiment/+analysis/fit_psychometric.m`, snake elsewhere); `gamma_correct` triplicated (already flagged in README.md:209, unconsolidated — tracked as S1.14). **Superseded by tranche 0.1.1 for the in-scope set:** the counts above are the pre-rename census; 38 files were renamed and every family break listed here was resolved or explicitly deferred (map and rules in 3.1.1). **Superseded again by S2.19:** `+experiment/`'s remaining camelCase filenames — 42 as measured, not the 43 first recorded — were converted in a second step-2a pass, so **no in-scope `.m` file has a camelCase name any more**; the only camelCase filenames left in the repo are the 29 excluded `_`-prefixed dead ones. Filename/`function`-line mismatches, re-checked repo-wide: one in scope (`compute_threshold_edge_response.m`, fixed, B3.9) and 21 in `_`-prefixed dead files, including `+general/_changepower.m` declaring `function e=newpower(...)` — all left for S3.6.
+- **Casing census.** Pre-cleanup: 107 snake / 54 camel / 8 TitleCase / 29 underscore-dead / 6 other filenames, and a camelCase assignment-target rough count of 574 across in-scope dirs. **Re-measured after S2.19:** filenames are 163 snake / 0 camel / 8 TitleCase (the `Contents.m` files) / 29 underscore-dead / 5 other; camelCase assignment targets are down to **69**, of which 16 are the five TitleCase settings/data structs S2.19 deliberately kept (`ExpSettings`, `SubjectExpFile`, `SessionSettings`, `SessionData`, `SettingsOut` — reasons in 3.3) and 49 are the leftover in `+vis/`/`+tests/`/`+general/`/`+lib/` now tracked as S2.20.
+- **Names diverge across call boundaries.** `compute_nat_img_eff_coding_bins.m:73` passes `patch_rgb`→`ptch`(`ptch_norm.m`)→caught as `ptchout`→`ptch_rgb` (3 names, 1 quantity, pre-cleanup — since partly addressed in 0.1.8's vocabulary); `set_up_experiment_search.m:67` passes `'bg_size', Stimulus.stimulus_sz` and `'ml_b', Stimulus.ml`.
+- **Convention splits.** As surveyed: `+lib/`, `+general/`, `+tinker/` broadly snake_case; `+experiment/` (both subpackages) camelCase, Psychtoolbox heritage, preserved as found by 0.1.5/0.1.6/0.1.7 because those tranches predate the snake_case mandate; `+vis/`/`+tests/` (0.1.10) per-file mixed, harmonized only within each file. **The `+experiment/` split is closed by S2.19**; the per-file `+vis/`/`+tests/` residue and the scattered camelCase in `+lib/`/`+general/` are what S2.20 still has to take.
 - **Builtin shadows.** Pre-cleanup: `mask` 18×, `filter` 12×, `contrast` 8×, `edge` 7× (`lib/edge.m` shadows Image Processing Toolbox `edge` — deliberate, same name as the concept), `alpha` 4×, `type` 2×, `output` 2× — all fixed in zone-1 renames by whichever tranche touched them. Fresh scan of *remaining untouched* files (`+tinker/`, root): essentially clean except `type` as a loop variable in `+tinker/pink_noise_seed_multiple_energies.m:43` and a comment echo in `whitened_pn_stim_edge_energy.m:43`.
 - **Commented-out code.** 780 of 2,659 comment lines were dead code pre-cleanup (~29% of comments); by directory `+general/` 297, `+lib/` 282, `+experiment/` 116, `+tinker/` 55, root 18, `+vis/` 12, `+tests/` 0. 37 contiguous ≥5-line blocks form the real worklist (triaged in 3.1.4); the rest are scattered 1–2-line fragments triaged in passing. `edge_props_stim.m` alone held 197 lines (19 separate blocks, since triaged in tranche 0.1.3). **`+tinker/` (0.1.11, not started) still carries its full 55 lines untriaged.**
 - **Argument validation.** `arguments` blocks: 0, repo-wide, still true after a fresh check. `inputParser`: 11 files (was 9 at original survey — 2 more counted in the fresh full-repo scan, `+general/video_demo.m` and `+tests/block_jumping.m`, likely miscounted the first time rather than new). Deferred to Stage 3 (S1.12).
@@ -319,7 +320,7 @@ Concentration: 41 files under 25 lines, 81 more under 75; 8 files ≥150 lines h
 
 <div style="margin-left:1.5em">
 
-**Casing.** `+lib/`, `+general/`, `+tinker/` are snake_case by established convention (tranches 0.1.2–0.1.4, 0.1.8–0.1.9). `+experiment/` (both subpackages) is camelCase by deliberate decision, not yet reconciled with the new mandate — see S2.19. `+vis/`/`+tests/` is genuinely mixed *inside* its files by original authorship, harmonized per-file by 0.1.10; its **filenames** are all snake_case since 0.1.1.
+**Casing.** snake_case everywhere, with no directory exceptions left. `+lib/`, `+general/`, `+tinker/` were already snake_case by established convention (tranches 0.1.2–0.1.4, 0.1.8–0.1.9); `+experiment/` (both subpackages) was camelCase by Psychtoolbox heritage until S2.19 retrofitted it, filenames and in-file identifiers together. Every filename in scope is snake_case; the camelCase that survives anywhere is either zone-3 frozen, an external API name, or the 49 in-file leftovers in `+vis/`/`+tests/`/`+general/`/`+lib/` that S2.20 still has to take.
 
 1. **File-local variables — free.** Cumulative vocabulary tables, one per completed tranche:
    - **0.1.2** (`+lib/` core): `theta`/`theta_grid`/`theta_field`/`theta_edge`/`theta_lags`; `filter_kernel`; `stim_grad`; `grad_normal`; `edge_amplitude_spectrum`/`edge_power_spectrum`/`edge_phase_spectrum`; `white_noise_bg`/`white_noise_target`; `stim_bg`; `source_image`; `boundary_`/`texture_` prefixes; `n_scales`/`n_orientations`/`neighborhood_size`/`n_synthesis_iter`; `disc_mask`/`disc_size`/`disc_center`/`disc_radius`.
@@ -330,6 +331,7 @@ Concentration: 41 files under 25 lines, 81 more under 75; 8 files ≥150 lines h
    - **0.1.9** (`+general/` remainder): `perf`→`accuracy`; `hitRate`/`faRate`/`dPrime`→`hit_rate`/`false_alarm_rate`/`d_prime`; `t`/`h`/`c`→`target_present`/`hits`/`correct_rejection`; `ep`→`edge_power`; `bd_strip`/`bd_pixels`→`mask_strip`/`boundary_edge_pixels`; `input_img`/`im0`→`source_image_path`/`source_image_grey`; `th`/`th_bin`→`theta`/`theta_bin`; `thislevel`→`this_level`.
    - **0.1.10** (`+vis/`+`+tests/`): per-file only, no shared cross-file vocabulary.
    - **0.1.11** (`+tinker/`): abbreviations expanded per established vocabulary where a repo-wide precedent existed (`ml`/`cont`→`luminance`/`contrast` per 0.1.7 decision A; `x`/`y`→`x_grid`/`y_grid` for coordinate grids per 0.1.4; `d_prime`/`hit_rate`-style snake_case for `dPrime`-family locals per 0.1.9), plus new `+tinker/`-local vocabulary: `klist`/`kmin`/`kmax`/`log_kmin`/`log_kmax`/`d_logk`→`k_list`/`k_min`/`k_max`/`log_k_min`/`log_k_max`/`d_log_k`; `d_alph`/`alph`→`angle_step`/`angle`; `fil1f`/`fil_whiten`/`fil_pinken`/`fil_1f`→`pink_noise_filter`/`whitening_filter`/`pinkening_filter`/`freq_filter`; `wn`/`wnf`→`white_noise`/`white_noise_fft` (matches 0.1.4's `white_noise_fft`); `img_*`→`pink_noise_*`/`conv_test_*`/`noise_image` per context (never bare `img`); `z`→`value` (theoretical-distribution support) or `distance` (norm computation, same file, minority use commented); `r`/`r_num`/`r_cont`→`corr_coef`/`corr_coef_sum`/`corr_coef_continuous` (not `correlation*` — collides with a pre-existing string literal, see 3.1.3); loop counters `i_<thing>`, with `n`'s majority ensemble-index role kept at its minority pixel-index site via an explanatory comment (rand_boundary.m precedent). The abbreviation list's `XX`/`YY`/`mnv`/`grad`/`haar`/`filt`/`N_b` tokens were not found in the current 13 files — stale from an earlier version; `th`/`S`/`p`/`idx` likewise absent.
+   - **S2.19** (`+experiment/`, retrofit): the casing conversion reused each tranche's own vocabulary rather than re-deciding it — 0.1.6's `threshold`/`threshold_sd` family absorbed `threshC`/`threshStdC`/`threshCDist` (and `thresholdsStd`→`thresholds_sd`, `pcBoot_sds`→`p_correct_boot_sds`), 0.1.2/0.1.6/0.1.8's `n_<thing>` absorbed `nLevels`/`nTrials`/`nSessions`/`numSamples`, 0.1.8's `i_<thing>` loop counters absorbed `iLevel`/`iTrial`/`iSession`/`iBoot`/`bootIndex`/`blockIndex`, and 0.1.4's `x_grid`/`y_grid` absorbed `X`/`Y`. New where nothing existed: `stim_edge_powers` (the per-stimulus edge power, kept distinct from the frozen `edge_powers` lookup table it is read from), `tone_high`/`tone_low`, `reaction_time` (was `RT`), `file_path_out` (was `fpOut`, matching its `filePathOut` siblings). Everything else is a plain casing change.
    - **0.1.12** (root): established vocabulary reapplied wherever it fit — `ml`/`cont`→`luminance`/`contrast` (0.1.7 decision A), `bd_strip`→`mask_strip` and `bd_pixels`→`boundary_edge_pixels` (0.1.9), `tx_*`→`texture_*` on the same pattern, `X`/`Y`→`x_grid`/`y_grid` (0.1.4), `i`→`i_<thing>` (convention 2). New root-local vocabulary: `bd_contour_props`/`tx_contour_props`→`boundary_contour_props`/`texture_contour_props` (+`mean_` forms); `bdry_contours`/`txtr_contours`→`boundary_contours`/`texture_contours`; `stim_grads_all`→`stim_grad_magnitudes`; `class_img`→`classification_image`; `idx`→`hit_idx`, `iTrial`/`iLevel`/`iSession`→`trial_idx`/`level_idx`/`session_idx`, `stims`→`hit_stimuli`; `th`→`threshold` and `n`→`exponent` (the callee's own output names); `edge`→`edge_profile` (builtin shadow). In `setup.m`: `commons`→`vislab_dir`, `fetch_commons`→`fetch_vislab_common`, `target`→`vislab_package`, `out`→`cmd_output`, `tb_dir`→`toolbox_root`, `d`→`toolboxes_dir`, `root`→`install_root`, `cand`→`candidate`, `w`→`which_path`, `probe`→`probe_name`, `i`→`i_folder`. `config.m` needed no rename at all (checked with an empty map). **Kept, with reasons:** `ppd` (it is the name of the `cfg.optics.ppd` field), `stim`, `contour` (mirrors the frozen `contour_props` struct field, 0.1.3 precedent, despite shadowing the `contour` builtin), `por_sim` (mirrors `cfg.paths.por_sim`), `folder` (the honest output name of a generic `locate_folder`), and every name-value mirror (`mask`, `mask_edge`, `mask_normal`, `kernel_size`, `target_radius`, `seed`, `texture`) per convention 3.
 
 2. **Cross-file vocabulary — repo-wide, or not at all.** Three kinds:
@@ -341,16 +343,16 @@ Concentration: 41 files under 25 lines, 81 more under 75; 8 files ≥150 lines h
 
 **Function and file rename map** (step 2a — tranche 0.1.1, done). 38 file renames plus one `function`-line-only fix. The rules came first; the map is their application.
 
-**Family rules (binding on every later rename in this repo, including S2.19's filename half).**
+**Family rules (binding on every rename in this repo; written for 0.1.1, applied again by S2.19).**
 
-- **R1 · A filename is snake_case unless its package is camelCase.** `+lib/`, `+general/`, `+tinker/`, `+tests/`, `+vis/` and the root are snake_case, so every camelCase filename in them was converted. `+experiment/` and its two subpackages were **left exactly as found** — see R2.
-- **R2 · `+experiment/` filename casing is S2.19's, not 0.1.1's.** 43 camelCase filenames live there. Their casing is inseparable from the ~574 camelCase in-file identifiers that tranches 0.1.5–0.1.7 deliberately preserved, and converting the filenames alone would produce `set_up_experiment.m` with a camelCase body — the exact split S2.19 exists to settle. 0.1.1 therefore changed names in `+experiment/` only where the *casing was not the problem*: `plotThresholdvsCondition_mine` → `plotThresholdVsCondition` (a meaningless `_mine` qualifier, plus `vs`→`Vs` inside the local convention) and the two run-on all-lowercase `testscripts/` names.
+- **R1 · Every filename this repo owns is snake_case.** As written for tranche 0.1.1 this rule read "snake_case unless its package is camelCase", which exempted `+experiment/` (see R2). S2.19 removed the exemption: the rule is now unconditional, and no in-scope `.m` file has a camelCase name.
+- **R2 · `+experiment/` filename casing was S2.19's, not 0.1.1's — and S2.19 has now done it.** Its casing was inseparable from the in-file camelCase that tranches 0.1.5–0.1.7 preserved, so converting the filenames alone would have produced `set_up_experiment.m` with a camelCase body. 0.1.1 therefore changed names in `+experiment/` only where the *casing was not the problem* (`plotThresholdvsCondition_mine` → `plotThresholdVsCondition`, and the two run-on all-lowercase `testscripts/` names), and S2.19 later converted all 42 of them, those three included, in one pass together with the in-file half. **Its map is the second table below; the first table is 0.1.1's, left as the record of what that tranche did rather than of current filenames.**
 - **R3 · Two display verbs, split by what is drawn, not by directory.** `show_<noun>` renders **images** (pixels on screen); `plot_<noun>` renders a **graph** of data (axes with quantities). Everything else — `view*`, `present*`, and a bare noun with no verb at all — is retired. This is why `show_image` and `show_example_stimuli` were already right and kept, while `viewpatches`/`presentpatches`/`examplePatches` became `show_*` and `edge_strength_dists`/`psychometrics_vs_*` gained a `plot_` prefix.
 - **R4 · A variant family's suffix names the axis it varies, and the same axis always spells the same way.** For `compute_edge_props_exp*` the two axes are the gradient-bin basis (`pca`, `eq`, `rescaled`) and, when it is not the default per-level `classify_normals` fit, the cross-scale combination (`_sum`). The canonical live-chain member is `_pca`; `_pca_all` is transparently "the same, over all 14 experiment paths." **Precedence is expressed by the canonical member having the shortest suffix, never by a filename swap** — a swap puts a name on both sides of the rename map, which `assert_rename_bijection` rejects and which can turn a real change into a false pass.
 - **R5 · One token per concept across filenames.** "Experiment" is `exp`/`exps`, never `expt`/`expts` (`exp_paths`, `exp_files/`, `exp_settings.mat` already settle it). "Camouflage" is `camo`, never `cam`. "Pink noise" is spelled out, never `pn`. A 1-D/2-D suffix is `_1d`/`_2d`, except where the repo already has a better word — `+lib/create_pink_noise_line/_square/_cube` is that better word, so `+tinker/pink_noise_1D*` joined it as `pink_noise_line*` rather than becoming `pink_noise_1d*`.
 - **R6 · No ad-hoc abbreviation where a sibling spells the word out**, and no `get` prefix on a function that just returns a value. Hence `diff_of_gaussians_filter` → `difference_of_gaussians_filter` (its sibling is `laplacian_of_gaussian_filter`), and `getTargetIndexFromString` → `target_index_from_string`.
 - **R7 · The `function` line always agrees with the filename**, even where dispatch does not care. One in-scope violation existed and was fixed (B3.9).
-- **R8 · `fit_*` needed no rename.** The camel/snake "split" the survey flagged is entirely R1: `fitPsychometric` is camel because `+experiment/+analysis/` is camel, and `fit_csf`/`fit_edge_model_with_exps`/`fit_hyperexp_dist` are snake because `+general/` is snake. The verb and the word order were already consistent. It resolves itself when S2.19 resolves.
+- **R8 · `fit_*` needed no rename in 0.1.1.** The camel/snake "split" the survey flagged was entirely R1: `fitPsychometric` was camel because `+experiment/+analysis/` was camel, while `fit_csf`/`fit_edge_model_with_exps`/`fit_hyperexp_dist` are snake because `+general/` is snake. The verb and word order were already consistent, and the split dissolved on its own when S2.19 made it `fit_psychometric`.
 
 | old file | new file | why |
 |---|---|---|
@@ -396,10 +398,58 @@ Concentration: 41 files under 25 lines, 81 more under 75; 8 files ≥150 lines h
 | `test_Erlang.m` | `test_erlang.m` | R1 — case-only rename |
 | *(no file rename)* `+experiment/+analysis/computeThreshold_edgeResponse.m` | — | R7 — `function` line only, `computeThreshold` → `computeThreshold_edgeResponse`; resolves B3.9 |
 
+**S2.19's filename map** (the second step-2a pass; 42 renames, all under the rules above). Every new name was checked for collisions with `which('<name>', '-all')` — 42 of 42 clear — and every one adds at least one underscore, so none needed the temporary-name two-step that a case-only rename does. **These are the current filenames.**
+
+| old file | new file | why |
+|---|---|---|
+| `+experiment/gammaCorrect.m` | `+experiment/gamma_correct.m` | R1; the *word* stays open for S1.14 |
+| `+experiment/generateTargetPresentMatrix.m` | `+experiment/generate_target_present_matrix.m` | R1 |
+| `+experiment/loadCurrentSession.m` | `+experiment/load_current_session.m` | R1 |
+| `+experiment/loadStimuliCamouflage.m` | `+experiment/load_stimuli_camouflage.m` | R1 |
+| `+experiment/sampleNoisePatchForExperiment.m` | `+experiment/sample_noise_patch_for_experiment.m` | R1 |
+| `+experiment/samplePatchesForExperiment.m` | `+experiment/sample_patches_for_experiment.m` | R1 |
+| `+experiment/sampleUniformPatchForExperiment.m` | `+experiment/sample_uniform_patch_for_experiment.m` | R1 |
+| `+experiment/saveCurrentLevel.m` | `+experiment/save_current_level.m` | R1 |
+| `+experiment/sessionSettings.m` | `+experiment/session_settings.m` | R1 |
+| `+experiment/sessionSettings_all.m` | `+experiment/session_settings_all.m` | R1 |
+| `+experiment/sessionSettings_diff_bg.m` | `+experiment/session_settings_diff_bg.m` | R1 |
+| `+experiment/sessionSettings_shape_exponent.m` | `+experiment/session_settings_shape_exponent.m` | R1 |
+| `+experiment/sessionSettings_texture_exponent.m` | `+experiment/session_settings_texture_exponent.m` | R1 |
+| `+experiment/setUpExperiment.m` | `+experiment/set_up_experiment.m` | R1 |
+| `+experiment/setUpExperiment_all.m` | `+experiment/set_up_experiment_all.m` | R1 |
+| `+experiment/setUpExperiment_diff_bg.m` | `+experiment/set_up_experiment_diff_bg.m` | R1 |
+| `+experiment/setUpExperiment_search.m` | `+experiment/set_up_experiment_search.m` | R1 |
+| `+experiment/setUpExperiment_shape_exponent.m` | `+experiment/set_up_experiment_shape_exponent.m` | R1 |
+| `+experiment/setUpExperiment_texture_exponent.m` | `+experiment/set_up_experiment_texture_exponent.m` | R1 |
+| `+experiment/subjectExperimentFile.m` | `+experiment/subject_experiment_file.m` | R1 |
+| `+experiment/+main/checkFixationCross.m` | `+experiment/+main/check_fixation_cross.m` | R1 |
+| `+experiment/+main/configureEyetracker.m` | `+experiment/+main/configure_eyetracker.m` | R1 |
+| `+experiment/+main/displayLevelStart.m` | `+experiment/+main/display_level_start.m` | R1 |
+| `+experiment/+main/fixationInterval.m` | `+experiment/+main/fixation_interval.m` | R1 |
+| `+experiment/+main/giveFeedback.m` | `+experiment/+main/give_feedback.m` | R1 |
+| `+experiment/+main/responseInterval.m` | `+experiment/+main/response_interval.m` | R1 |
+| `+experiment/+main/runCamouflageExperiment.m` | `+experiment/+main/run_camouflage_experiment.m` | R1 |
+| `+experiment/+main/runCamouflageExperiment_search.m` | `+experiment/+main/run_camouflage_experiment_search.m` | R1 |
+| `+experiment/+main/stimulusInterval.m` | `+experiment/+main/stimulus_interval.m` | R1 |
+| `+experiment/+main/testscripts/getTestExperimentStruct.m` | `+experiment/+main/testscripts/test_experiment_struct.m` | R1, R6 — drops the `get` prefix, as `getTargetIndexFromString` did in 0.1.1 |
+| `+experiment/+main/testscripts/runSingleTrialTest.m` | `+experiment/+main/testscripts/run_single_trial_test.m` | R1 |
+| `+experiment/+analysis/computeBootstrappedThreshold.m` | `+experiment/+analysis/compute_bootstrapped_threshold.m` | R1 |
+| `+experiment/+analysis/computeNegLogLikelihood.m` | `+experiment/+analysis/compute_neg_log_likelihood.m` | R1 |
+| `+experiment/+analysis/computeNegLogLikelihood_edgeResponse.m` | `+experiment/+analysis/compute_neg_log_likelihood_edge_response.m` | R1 |
+| `+experiment/+analysis/computeTemplateResponseSigma.m` | `+experiment/+analysis/compute_template_response_sigma.m` | R1 |
+| `+experiment/+analysis/computeThreshold_edgePower.m` | `+experiment/+analysis/compute_threshold_edge_power.m` | R1 |
+| `+experiment/+analysis/computeThreshold_edgeResponse.m` | `+experiment/+analysis/compute_threshold_edge_response.m` | R1 |
+| `+experiment/+analysis/computeThreshold_texture_exponent.m` | `+experiment/+analysis/compute_threshold_texture_exponent.m` | R1 |
+| `+experiment/+analysis/computeThresholdsVsStatistic.m` | `+experiment/+analysis/compute_thresholds_vs_statistic.m` | R1 |
+| `+experiment/+analysis/fitPsychometric.m` | `+experiment/+analysis/fit_psychometric.m` | R1 |
+| `+experiment/+analysis/plotThresholdVsCondition.m` | `+experiment/+analysis/plot_threshold_vs_condition.m` | R1 |
+| `+experiment/+analysis/psychometricFun.m` | `+experiment/+analysis/psychometric_fun.m` | R1 — `fun` kept, not expanded: it is MATLAB's own word for a function handle argument, not an ad-hoc abbreviation |
+
 **Deliberately not renamed, with the reason** (documented negatives, so a later pass does not re-open them):
 
-- **All 43 camelCase filenames in `+experiment/`** — R2, deferred to S2.19.
-- **`+experiment/gammaCorrect.m`** — the survey's "triplicated `gammaCorrect`" is one file, one inline anonymous function (`runCamouflageExperiment_search.m:36`), and one sibling-repo function. With a single file there is nothing to disambiguate by suffix, and renaming it is entangled with S1.14's choice of which implementation survives.
+- ~~**All 43 camelCase filenames in `+experiment/`** — R2, deferred to S2.19.~~ **Done by S2.19** — 42 as measured, map above.
+- **`+experiment/gammaCorrect.m`** — the survey's "triplicated `gammaCorrect`" is one file, one inline anonymous function (`run_camouflage_experiment_search.m:36`), and one sibling-repo function. With a single file there is nothing to disambiguate by suffix, and picking a *different word* for it is entangled with S1.14's choice of which implementation survives. S2.19 still snake_cased it to `gamma_correct.m`: that entanglement is about the word, not the casing, and leaving one camelCase filename behind would have defeated the retrofit.
+- **`+experiment/+analysis/compute_thresholds_vs_lum_cont.m`** — already snake_case, so outside S2.19's casing scope. `lum_cont` is an abbreviation where the sibling vocabulary spells the words out (`luminance`/`contrast`, 0.1.7 decision A), which is an R6 case, but expanding it is a fresh naming judgement rather than a casing fix and the file's own live variable is spelled `lum_cont` too. Left for whoever next opens a naming pass on `+experiment/+analysis/`.
 - **`+general/plot_shape_exponent_exps.m`** — it plots nothing (unfinished stub). Renaming it to `load_*` would make the name truthful about a state nobody wants to keep; finishing or deleting it is Stage 3.
 - **`+lib/hyperexp_nll.m`, `+general/fit_hyperexp_dist.m`** — the name is wrong (they fit a *hypo*exponential, B3.6), but correcting it is the bug fix, not a rename; it goes with Stage 4.
 - **`+lib/edge.m`, `+lib/autocorr.m`, `+lib/deg2rad.m`** — deliberate builtin/toolbox shadows, package-scoped and documented in-file.
@@ -438,7 +488,7 @@ Concentration: 41 files under 25 lines, 81 more under 75; 8 files ≥150 lines h
 
 **Escalation rule:** if `check_stage1` fails and the cause isn't obvious from the diff — stop, hand the file to `matlab-cleanup-escalation`, don't loosen the check.
 
-**"Done" checklist** — as in the skill's Step 3, plus: every identifier the repo owns is snake_case except external-API/frozen/class names (not yet satisfied by 0.1.2–0.1.10, see S2.19); each file's `function` line agrees with its filename (checked repo-wide in 0.1.1 — one in-scope violation found and fixed, the rest are `_`-prefixed dead files).
+**"Done" checklist** — as in the skill's Step 3, plus: every identifier the repo owns is snake_case except external-API/frozen/class names (satisfied in `+experiment/` by S2.19; 49 in-file leftovers elsewhere are S2.20's); each file's `function` line agrees with its filename (checked repo-wide in 0.1.1 — one in-scope violation found and fixed, the rest are `_`-prefixed dead files).
 
 One commit per tranche, per the skill's Committing section.
 
@@ -763,22 +813,22 @@ All five passed first try. `assert_rename_bijection` passed for each per-file ma
 | T3.4 | `+lib/autocorr.m:12` | 0.1.4 | **alternative** — normalized-correlation vs raw dot |
 | T3.5 | `+lib/detect_edge_pixels.m:7` | 0.1.4 | **alternative** — DoG vs LoG filter |
 | T3.6 | `+lib/embed_image_in_center.m:30` | 0.1.4 | **scaffolding** — stray warning |
-| T4.1 | `+experiment/+main/displayLevelStart.m:39-45` | 0.1.5 | **alternative** — draw-order branch |
-| T4.2 | `+experiment/+main/giveFeedback.m:20,23,26` | 0.1.5 | **alternative** — `sound()` vs `Beeper()` |
-| T5.1 | `computeNegLogLikelihood.m:17-18,24-30,32-33,38,40` | 0.1.6 | **alternative** ×3 |
-| T5.2 | `computeNegLogLikelihood_edgeResponse.m:50-54` | 0.1.6 | **alternative** — bias-aware model, same as T7.18 |
-| T5.3 | `fitPsychometric.m:16-28` | 0.1.6 | **superseded** — old API computed `target_means` itself |
-| T5.4 | `computeThreshold_edgePower.m:62-64,96-97` + `computeThreshold_texture_exponent.m:96-97` | 0.1.6 | **superseded** — mu-fixed-at-0 decision |
-| T5.5 | `computeThreshold_edgeResponse.m:8,33,67-69` | 0.1.6 | **unfinished** ×2 |
-| T6.1 | `setUpExperiment.m:21,52-64` | 0.1.7 | **alternative** — automatic bin-edge rule |
-| T6.2 | `setUpExperiment.m:26,29` | 0.1.7 | **superseded** by exp_type-derived path |
-| T6.3 | `setUpExperiment.m:71-77,81,84,90` | 0.1.7 | **alternative** / **superseded** (hardcoded subject list) |
-| T6.4 | `saveCurrentLevel.m:24-33` | 0.1.7 | **alternative** — per-subject storage the author stopped keeping |
-| T6.5 | `loadStimuliCamouflage.m:29-30,78-81,99` | 0.1.7 | **alternative** / **superseded** (edge-power reads) |
+| T4.1 | `+experiment/+main/display_level_start.m:39-45` | 0.1.5 | **alternative** — draw-order branch |
+| T4.2 | `+experiment/+main/give_feedback.m:20,23,26` | 0.1.5 | **alternative** — `sound()` vs `Beeper()` |
+| T5.1 | `compute_neg_log_likelihood.m:17-18,24-30,32-33,38,40` | 0.1.6 | **alternative** ×3 |
+| T5.2 | `compute_neg_log_likelihood_edge_response.m:50-54` | 0.1.6 | **alternative** — bias-aware model, same as T7.18 |
+| T5.3 | `fit_psychometric.m:16-28` | 0.1.6 | **superseded** — old API computed `target_means` itself |
+| T5.4 | `compute_threshold_edge_power.m:62-64,96-97` + `compute_threshold_texture_exponent.m:96-97` | 0.1.6 | **superseded** — mu-fixed-at-0 decision |
+| T5.5 | `compute_threshold_edge_response.m:8,33,67-69` | 0.1.6 | **unfinished** ×2 |
+| T6.1 | `set_up_experiment.m:21,52-64` | 0.1.7 | **alternative** — automatic bin-edge rule |
+| T6.2 | `set_up_experiment.m:26,29` | 0.1.7 | **superseded** by exp_type-derived path |
+| T6.3 | `set_up_experiment.m:71-77,81,84,90` | 0.1.7 | **alternative** / **superseded** (hardcoded subject list) |
+| T6.4 | `save_current_level.m:24-33` | 0.1.7 | **alternative** — per-subject storage the author stopped keeping |
+| T6.5 | `load_stimuli_camouflage.m:29-30,78-81,99` | 0.1.7 | **alternative** / **superseded** (edge-power reads) |
 | T6.6 | `generate_camouflage_stimuli.m:6,36,41,51-54` | 0.1.7 | **superseded** ×3 / **unfinished** ×1 |
 | T6.7 | `generate_camouflage_stimuli_shape_exponent.m:2-5,19,22` | 0.1.7 | **superseded**, all 4 |
-| T6.8 | `setUpExperiment_shape_exponent.m:25,30-31` | 0.1.7 | **superseded**, ties to S2.3 |
-| T6.9 | `setUpExperiment_search.m:12-16` | 0.1.7 | **alternative** — per-paradigm session count |
+| T6.8 | `set_up_experiment_shape_exponent.m:25,30-31` | 0.1.7 | **superseded**, ties to S2.3 |
+| T6.9 | `set_up_experiment_search.m:12-16` | 0.1.7 | **alternative** — per-paradigm session count |
 | T7.1 | `compute_nat_img_eff_coding_bins.m:5` | 0.1.8 | **alternative** — reproducibility seed, disabled |
 | T7.2 | `compute_nat_img_eff_coding_bins.m:9,110` | 0.1.8 | **unfinished** — thresholding step never wired |
 | T7.3 | `compute_nat_img_eff_coding_bins.m:26` | 0.1.8 | **alternative** — do-not-delete, ties to B3.10 |
@@ -861,7 +911,75 @@ Not started. Coverage gaps: most of `+general/`, `+tinker/`, `+experiment/` have
 
 <div style="margin-left:1.5em">
 
-Not started. Commented-out code triaged in 3.1.4; nothing acted on yet.
+One item done (S2.19). Commented-out code triaged in 3.1.4; nothing acted on yet.
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">S2.19 &mdash; snake_case retrofit of <code>+experiment/</code> (59 files, 5 commits)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+**The open question, answered: retrofit, not grandfather.** The item was recorded with the grandfather-vs-retrofit choice still open and no tier consensus. It is settled in favour of the retrofit, on three grounds. First, the casing rule is the user's standing preference and is explicitly not a per-repo or per-directory judgement call — a camelCase majority does not earn an exemption. Second, grandfathering would have had to be permanent rather than temporary: the seam runs through function names that `+general/`, `+vis/` and the root all call, so "leave `+experiment/` alone" really means "keep a camel/snake seam down the middle of the repo forever". Third, it turned out cheaper than the plan feared, because the whole thing is mechanically checkable — `check_stage1` covers bare identifiers and, via R0's widened map, package-qualified call sites too — so the real risk sat in the frozen-name triage, not in the renaming.
+
+**Baseline.** HEAD at each part's start; the working tree was clean throughout. The filename half compared against a copy of every tracked `.m` file taken before the first `git mv`, so each renamed file was checked against its own old path.
+
+**Verification — verbatim checker output**, MATLAB R2024b Update 6.
+
+Part 1 (filenames), run over **all 205 `.m` files** in the repo (in-scope, plus the 29 `_`-prefixed dead ones, plus `tools/`), excluding only the vendored `por_sim_tx_synth/` tree:
+
+```
+bijection OK (336 rows)
+
+CHECK_STAGE1: 205 passed, 0 failed, 205 total
+```
+
+```
+RESOLUTION SWEEP: 47 of 47 new names resolve
+```
+
+Parts 2-4 (in-file identifiers), each file against its own map:
+
+```
+CHECK_STAGE1: 59 passed, 0 failed, 59 total
+ALL_OK: true
+```
+
+`golden_harness('replay', ...)` after every part: `golden_harness: replay matched all 32 fields`. The item was meant to be output-preserving and is. `checkcode` over the 59 files: **99 messages before, 99 after** — no lint introduced, none removed.
+
+**Decision A — the four sweeps, again, for the filename half.**
+
+1. **Package-qualified call sites.** R0's technique applied unchanged: the map was widened from 42 bare pairs to **336 rows** by adding, for each rename, every qualifier that occurs in the tree (`experiment.`, `experiment.analysis.`, `analysis.`, `experiment.main.`, `main.`, `experiment.main.testscripts.`, `testscripts.`). The regex was not loosened, and `assert_rename_bijection` passes on all 336. The whole 70-file, 388-line diff was then read line by line; every changed line is one old name replaced by its new one and nothing else. Three things only diff-reading caught, all handled: `golden.computeNegLogLikelihood` and `golden.fitPsychometric` in `tools/golden_harness.m` are **frozen golden-reference struct fields serialised into `tools/golden_ref.mat`**, so they were protected while the calls beside them were repointed (the same trap 0.1.1 hit with `golden.compute_pClipped`); `lib.gammaCorrect` resolves to nothing and is a *different* name from `experiment.gammaCorrect`, so it was left alone rather than swept along, preserving the evidence for B2.9 and S1.14; and `nm.analysis.fitPsychometric` likewise names a package that does not exist here.
+2. **References outside `.m` files — 8 hits, all fixed.** `README.md` (quick-start block, call-graph diagram, psychometric-model paragraph, the "not done" list), `CLEANUP.md` (5 lines), and this plan document throughout. Two aligned ASCII blocks had to be re-laid-out by hand because longer names broke them: README's call-graph arrows, and `+experiment/Contents.m`'s description column. `.gitignore` and `CITATION.cff`: no hits. No `.mlx`, shell or batch file exists in the repo, and no data filename derives from a renamed function name. Left deliberately: `CLEANUP.md`'s `saveCurrentSession` and `subjectExperimentFile_alpha`, both files deleted before this plan began, and its two `lib.gammaCorrect` mentions.
+3. **Dynamic references — a documented negative.** Grepping every old name as a quoted string across all `.m` files returns nothing. The only `exist` calls in `+experiment/` test `'bPlot'` and `'nBootIter'` (local variables, renamed together with their string literal in part 3) and a filename variable; there is no `feval`, `str2func`, `which` or `help` reference to a renamed function anywhere.
+4. **Case-only renames — none.** All 42 new names insert at least one underscore, so the Windows temporary-name two-step was not needed. Git recorded all 42 as renames (`R`), not delete-plus-create.
+
+**Decision B — 42, not 43.** The plan recorded 43 camelCase filenames in `+experiment/`; the measured number is **42**. This is not a missed file: a fresh census of every in-scope `.m` name finds zero camelCase afterwards. The recorded 43 was simply off by one, and section 2's number has been corrected rather than reconciled.
+
+**Decision C — what keeps its camelCase, and why.** Four categories, none of them ours to move:
+
+- **Zone-3 frozen `save`/`load` names:** `ExpSettings`, `SubjectExpFile`, `Stimulus`, `edgePowerBlockEdges` (in `set_up_experiment.m` it arrives from `load(..., 'edgePowerBlockEdges')`, so the *variable* name is frozen too), and `trialInfo` in `compute_bootstrapped_threshold.m`, injected by a bare `load` — 0.1.8's decision B, and the one thing this item got wrong before catching it (Decision F).
+- **Frozen struct-field names, in both of their forms:** dot-qualified accesses (`ExpSettings.nLevels`) and the string literals that create them (`struct('nLevels', n_levels, ...)`). The substitution protected every quoted occurrence of a mapped name, and a before/after diff of all single-quoted identifier-shaped literals across all 59 files confirms **not one literal changed**, except the two `exist('...','var')` pairs that were meant to. The resulting `'nLevels', n_levels` mismatch is exactly the one the skill sanctions and S3.10 closes.
+- **External API names:** Psychtoolbox and EyeLink functions and option strings (`Screen`, `Eyelink`, `CenterRectOnPointd`, `'TickDir'`, `'FontSize'`, and so on), plus `textureAnalysis` and `prepareSurfaceData`.
+- **The five TitleCase settings/data structs** — `ExpSettings`, `SubjectExpFile`, `SessionSettings`, `SessionData`, `SettingsOut`, and the parameter-only `ImgStats`, `BlockStimuli`, `Stimulus`. Three of the eight are zone-3 frozen and cannot move at all, so converting the rest would have split the family rather than unified it; `SessionSettings` to `session_settings` would additionally have **shadowed the package function `experiment.session_settings`** inside `load_stimuli_camouflage.m`, trading a casing problem for a resolution problem; and all of them are zone-2 cross-file argument names, whose identity is S1.9's to settle rather than this item's. The cost of the carve-out was measured before it was taken: 20 of the 408 camelCase assignment-target occurrences, under 5%.
+
+**Decision D — the typo that existed only to avoid a collision is gone.** 0.1.7 kept the local `responseInvervalMs` misspelled in all five `session_settings*` files, because correcting it to `responseIntervalMs` would have made it identical to the frozen field-name string literal in the same file. Snake-casing the local to `response_interval_ms` dissolves that collision, so the typo went with it; the in-file note that recorded the constraint now records its removal. The other frozen misspelling, the field `.moniter_brightness`, is untouched and still S3.10's.
+
+**Decision E — `edgePowers` could not become `edge_powers`.** In `generate_camouflage_stimuli.m` the per-stimulus output `edgePowers` sits beside the frozen lookup table `edge_powers` loaded from disk, so the obvious casing target was already occupied. One name per concept: the per-stimulus quantity became `stim_edge_powers` in all six files that carry it, which also makes the two readable apart. A scripted collision guard ran the same check on every candidate name in every file; this was its only hit.
+
+**Decision F — one self-inflicted regression, caught and fixed before it could matter.** Part 3 snake_cased `trialInfo` in `compute_bootstrapped_threshold.m`, missing that the name is injected into the workspace by the bare `load(file_path)` two lines above it. `check_stage1` cannot see this class of error at all: the reverse-rename restores the name, so a broken file still passes. It was caught by a systematic re-read of every bare `load` in the tranche, reverted in commit 3a, and the file now carries an in-line note saying why that one name stays camelCase. **The general lesson, worth the next tranche's attention: `check_stage1` is blind to a wrongly-renamed name that the map itself reverses — bare `load`, `exist('x','var')`, and struct-field string literals each need their own sweep, not the checker.**
+
+**Line endings, and a second self-inflicted slip.** The `+experiment/` root files are CRLF while `+main`/`+analysis` are LF. Eight root files briefly acquired bare-LF line breaks from a reflow, leaving them mixed; caught by a per-file CRLF/LF count and normalised back before committing. 0.1.9's decision B, rediscovered the hard way.
+
+**Formatting carried by the retrofit.** The renames pushed 24 lines past 100 characters; 22 were reflowed with a 4-space hanging-indent `...`, and three MATLAB H1 summary lines that cannot be split were shortened instead. Header `Inputs`/`Output` blocks were re-aligned wherever a longer name broke the dash column (26 files), and `+experiment/Contents.m`'s description column was re-laid-out. `compute_bootstrapped_threshold.m`'s one tab and its column-aligned assignments were fixed in passing, per 0.1.12's no-aligned-assignments decision. **Line-length exceptions: 9 in scope**, unchanged in kind from earlier tranches — `display_level_start.m:41` (169 characters, an unbreakable `DrawFormattedText` string literal, inherited from 0.1.5) and eight commented-out dead lines (`compute_threshold_edge_response.m:132`, `compute_threshold_texture_exponent.m:165`, `run_camouflage_experiment_search.m:75`, `generate_camouflage_stimuli.m:107`, `generate_camouflage_stimuli_shape_exponent.m:71`, `load_current_session.m:70`, `set_up_experiment.m:84` and `:119`).
+
+**Commented-out code: nothing triaged, nothing deleted.** Every block in these files already carries a verdict from 0.1.5/0.1.6/0.1.7 (T4.1-T6.9 in 3.1.4) and none was acted on here — acting on them is S1.16's job. Identifiers *inside* commented-out code were renamed alongside their live counterparts (0.1.11's precedent), which is invisible to `canon` and keeps the dead lines naming live identifiers correctly; `displayMask` and `pcBoot_sds`, which exist only inside dead blocks, were snake_cased for local consistency and are recorded here rather than mapped, since they have no live occurrence to map.
+
+**Bugs found: none new** — a documented negative. Nothing in the 2,891 lines turned up that was not already recorded. B2.9's `analysis.compute_template_response_sigma` had its tail renamed along with the function it (fails to) name, so the reference is still broken in exactly the way B2.9 describes. No optimization and no structural opportunity was acted on. One new structural item was **recorded, not done**: **S2.20**, the same retrofit for the 49 camelCase identifiers still in `+vis/`, `+tests/`, `+general/` and `+lib/`, which this item's closing census made visible.
+
+**Commits: four, plus a fix.** Split on tranche boundaries so each is separately reviewable and separately verified — part 1 filenames (70 files), part 2 `+experiment/+main/` (11 files, 123 renames), part 3 `+experiment/+analysis/` (12 files, 103 renames), part 3a the `trialInfo` revert, part 4 `+experiment/` root (26 files, 308 renames) together with the plan update.
+
+</div>
+
+</details>
 
 </div>
 

@@ -12,8 +12,8 @@ function run_camouflage_experiment_search(subject_str, exp_type)
 %   Inputs
 %     subject_str - subject identifier string.
 %     exp_type    - 'detect' or 'search'; selects both the cueing behaviour
-%                  (which location is marked) and the scoring rule (click
-%                  side vs. click location).
+%                   (which location is marked) and the scoring rule (click
+%                   side vs. click location).
 %
 %   Output
 %     none (side effect: runs the experiment, saves SubjectExpFile after

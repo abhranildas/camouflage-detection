@@ -10,7 +10,7 @@ function display_level_start(SessionSettings, block_number)
 %     SessionSettings - session settings struct; uses .nTrials, .fixPosPix,
 %                       .stimPosPix, .window, .fixationTarget,
 %                       .pixelsPerDeg, .targetSamples.
-%     block_number     - level (block) index into SessionSettings.fixPosPix /
+%     block_number    - level (block) index into SessionSettings.fixPosPix /
 %                       .stimPosPix / .targetSamples.
 %
 %   Output

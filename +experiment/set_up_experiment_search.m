@@ -1,6 +1,6 @@
-function set_up_experiment_search(exp_type, subjectStr)
+function set_up_experiment_search(exp_type, subject_str)
 % SET_UP_EXPERIMENT_SEARCH  Set up the visual-search / peripheral-detection experiment.
-%   experiment.set_up_experiment_search(exp_type, subjectStr)
+%   experiment.set_up_experiment_search(exp_type, subject_str)
 %
 %   A different paradigm from the other set_up_experiment files, not a variant
 %   of them: a large 1/f-noise field carrying a ring of candidate target
@@ -12,9 +12,9 @@ function set_up_experiment_search(exp_type, subjectStr)
 %   calling experiment.session_settings.
 %
 %   Inputs
-%     exp_type   - 'detect' or 'search'.
-%     subjectStr - subject initials, a single string, becoming one
-%                  subject_out/<initials>.mat file.
+%     exp_type    - 'detect' or 'search'.
+%     subject_str - subject initials, a single string, becoming one
+%                   subject_out/<initials>.mat file.
 %
 %   Output
 %     none (side effects: creates exp_files/search/<exp_type>/exp_settings.mat
@@ -28,9 +28,9 @@ function set_up_experiment_search(exp_type, subjectStr)
 %   unlike the milliseconds of experiment.session_settings.
 %
 %   In 'detect', the session number doubles as the cued location index, so
-%   nSessions is tied to the number of spot locations.
+%   n_sessions is tied to the number of spot locations.
 %
-%   The unsuppressed [iSession iTrial target_loc] line prints generation
+%   The unsuppressed [i_session i_trial target_loc] line prints generation
 %   progress to the console; it is deliberate, not a missing semicolon.
 %
 %   lib.gammaCorrect does not exist anywhere in the tree (B2.9), so this
@@ -87,8 +87,8 @@ function set_up_experiment_search(exp_type, subjectStr)
         ExpSettings.nTrials, ExpSettings.nSessions);
 
     Stimulus.tLocation = nan(ExpSettings.nTrials, ExpSettings.nSessions);
-    for iSession = 1:ExpSettings.nSessions
-        for iTrial = 1:ExpSettings.nTrials
+    for i_session = 1:ExpSettings.nSessions
+        for i_trial = 1:ExpSettings.nTrials
             % generate target location
             if rand < 0.5
                 target_loc_index = 0;
@@ -99,12 +99,12 @@ function set_up_experiment_search(exp_type, subjectStr)
                     target_loc_index = randi(Stimulus.nLocations);
                 end
             end
-            Stimulus.tLocation(iTrial, iSession) = target_loc_index;
-            [iSession iTrial target_loc_index]  % unsuppressed on purpose: progress report
+            Stimulus.tLocation(i_trial, i_session) = target_loc_index;
+            [i_session i_trial target_loc_index]  % unsuppressed on purpose: progress report
             % create stimulus
             if target_loc_index % if there is a target
                 if strcmpi(exp_type, 'detect')
-                    target_loc_index = iSession;
+                    target_loc_index = i_session;
                 end
                 target_coords = Stimulus.spotCenters(target_loc_index, :);
                 [stim, ~, seed] = lib.stimulus('texture', texture, ...
@@ -117,16 +117,16 @@ function set_up_experiment_search(exp_type, subjectStr)
             end
             stim = uint8(lib.gammaCorrect(stim, ExpSettings.monitorGamma, ...
                 ExpSettings.monitorBit));
-            Stimulus.stimuli(:, :, iTrial, iSession) = stim;
-            Stimulus.seeds(iTrial, iSession) = seed;
+            Stimulus.stimuli(:, :, i_trial, i_session) = stim;
+            Stimulus.seeds(i_trial, i_session) = seed;
         end
     end
 
     %% store experiment and stimulus
-    folderOut = ['exp_files/search/' exp_type];
-    mkdir(folderOut);
-    filePathOut = [folderOut '/exp_settings.mat'];
-    save(filePathOut, 'ExpSettings', 'Stimulus', '-v7.3');
+    folder_out = ['exp_files/search/' exp_type];
+    mkdir(folder_out);
+    file_path_out = [folder_out '/exp_settings.mat'];
+    save(file_path_out, 'ExpSettings', 'Stimulus', '-v7.3');
 
     %% Subject result files
     SubjectExpFile.expCompleted = false(ExpSettings.nSessions, 1);
@@ -137,8 +137,8 @@ function set_up_experiment_search(exp_type, subjectStr)
     end
     SubjectExpFile.reactionTime = zeros(ExpSettings.nTrials, ExpSettings.nSessions);
 
-    folderOut = ['exp_files/search/' exp_type '/subject_out'];
-    mkdir(folderOut);
-    filePathOut = [folderOut '/' subjectStr '.mat'];
-    save(filePathOut, 'SubjectExpFile');
+    folder_out = ['exp_files/search/' exp_type '/subject_out'];
+    mkdir(folder_out);
+    file_path_out = [folder_out '/' subject_str '.mat'];
+    save(file_path_out, 'SubjectExpFile');
 end
