@@ -48,7 +48,7 @@ function [stimuli, textures, seeds, b_target_present, p_clipped] = ...
 %   n_trials_eachtx must be even, and n_tex*n_trials_eachtx must equal
 %   n_trials*n_levels*n_sessions; neither is checked.
 %
-%   See also experiment.SESSION_SETTINGS_ALL, experiment.GENERATE_CAMOUFLAGE_STIMULI,
+%   See also experiment.SESSION_SETTINGS, experiment.GENERATE_CAMOUFLAGE_STIMULI,
 %   lib.STIMULUS.
 
     [~, ~, ~, mask_strip] = lib.target_mask('bg_size', bg_size, 'target_radius', target_radius);

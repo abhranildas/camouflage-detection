@@ -50,8 +50,8 @@ function [stimuli, seeds, stim_edge_powers, p_clipped] = ...
 %   The parfor writes only sliced outputs, so worker order cannot change any
 %   result.
 %
-%   See also experiment.SESSION_SETTINGS_TEXTURE_EXPONENT,
-%   experiment.GENERATE_CAMOUFLAGE_STIMULI, lib.STIMULUS.
+%   See also experiment.SESSION_SETTINGS, experiment.GENERATE_CAMOUFLAGE_STIMULI,
+%   lib.STIMULUS.
 
     texture.type = 'pink_noise';
     n_edge = 1e4;  kernel_sigma = 1;

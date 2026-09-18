@@ -38,8 +38,9 @@ function set_up_experiment_search(exp_type, subject_str)
 %   repointed it to experiment.gamma_correct, this repo's single
 %   gamma-compression implementation, whose signature it already matched.
 %
-%   S3.3 collapses the five near-duplicate experiment variants, but explicitly
-%   leaves this file alone: it is a genuinely different paradigm.
+%   S2.3 collapsed the five near-duplicate experiment variants into one
+%   experiment.set_up_experiment taking a variant name, but explicitly left
+%   this file alone: it is a genuinely different paradigm.
 %
 %   See also experiment.main.RUN_CAMOUFLAGE_EXPERIMENT_SEARCH,
 %   experiment.GAMMA_CORRECT, lib.STIMULUS, lib.FIND_SPOT_CENTERS.

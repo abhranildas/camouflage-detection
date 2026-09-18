@@ -30,9 +30,9 @@ function SubjectExpFile = subject_experiment_file(ExpSettings)
 %   These field names are serialised into every subject .mat file on disk, so
 %   none of them may be renamed without a migration (zone 3, S3.10).
 %
-%   .nLevels is also the field the _texture_exponent chain stopped emitting,
+%   .nLevels is also the field the 'texture_exponent' chain stopped emitting,
 %   renaming it .nBlocks, so this function errors on settings produced by
-%   experiment.session_settings_texture_exponent (B2.6).
+%   experiment.session_settings's 'texture_exponent' variant (B2.6).
 %
 %   See also experiment.SET_UP_EXPERIMENT, experiment.SESSION_SETTINGS,
 %   experiment.SAVE_CURRENT_LEVEL.

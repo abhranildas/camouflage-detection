@@ -21,13 +21,16 @@
 %                                    mean luminance and contrast
 %
 % Experiment variants
-% Four near-duplicate families of the three files above, differing only in what
-% varies across levels. S3.3 collapses them into one parameterised function;
-% until then an edit to one belongs in all five.
-%   *_all              - level is the texture, drawn from a texture list
-%   *_diff_bg          - level is the background's 1/f exponent
-%   *_shape_exponent   - level is the target boundary's 1/f exponent
-%   *_texture_exponent - level is the texture's 1/f exponent
+% Five variants, differing only in what varies across levels. set_up_experiment
+% and session_settings take the variant as their first argument (S2.3); the
+% generators stay five separate files, because past the shared bookkeeping they
+% share no computation.
+%   'edge_power'       - level is a band of target edge power (the original)
+%   'all'              - level is the texture, drawn from a texture list
+%   'diff_bg'          - level is the background's 1/f exponent
+%   'shape_exponent'   - level is the target boundary's 1/f exponent
+%   'texture_exponent' - level is the texture's 1/f exponent
+%   generate_camouflage_stimuli_all, _diff_bg, _shape_exponent, _texture_exponent
 %
 % A separate paradigm, not one of those variants
 %   set_up_experiment_search            - peripheral search / detection over a ring

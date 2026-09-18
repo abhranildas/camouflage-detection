@@ -27,10 +27,11 @@ function [stimuli, seeds, stim_edge_powers, p_clipped, b_target_present] = ...
 %     b_target_present - the source target-present flags, unchanged.
 %
 %   This function reads ExpSettings.nBlocks and ExpSettings.stimuliSeed, which
-%   only experiment.session_settings_texture_exponent emits; every other
-%   generator writes .nLevels and .seeds. So the transform path of the base
-%   experiment.session_settings errors on any settings file it did not itself
-%   produce (B2.18, same root cause as B2.6).
+%   only experiment.session_settings's 'texture_exponent' variant emits; every
+%   other variant writes .nLevels and .seeds. So the transform path of the
+%   'edge_power' variant, which is the only one that calls this function,
+%   errors on any settings file the 'texture_exponent' variant did not produce
+%   (B2.18, same root cause as B2.6).
 %
 %   See also experiment.SESSION_SETTINGS, experiment.GENERATE_CAMOUFLAGE_STIMULI.
 

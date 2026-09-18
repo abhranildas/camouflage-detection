@@ -66,12 +66,12 @@ This is the clean, working entry point for understanding the core measurement. S
 ## Running an experiment (Psychtoolbox)
 
 ```matlab
-experiment.set_up_experiment(exp_type, subjectStr)               % once: pre-generate stimuli + subject files
+experiment.set_up_experiment(variant, exp_type, subjectStr)      % once: pre-generate stimuli + subject files
 experiment.main.run_camouflage_experiment(subjectStr, exp_type)  % run / resume a session
 experiment.analysis.compute_threshold_edge_power(exp_type, subj, bPlot, bBootstrap)
 ```
 
-Subject data is written to `exp_files/<exp_type>/subject_out/<subject>.mat`.
+Subject data is written to `exp_files/<exp_type>/subject_out/<subject>.mat`. `variant` is one of `'edge_power'` (the original experiment, levels are bands of target edge power), `'all'`, `'diff_bg'`, `'shape_exponent'` or `'texture_exponent'` — see `experiment.set_up_experiment`'s header.
 
 > `set_up_experiment` **does not run as committed** — it loads from a directory that does not exist. See item B2.1 in [`docs/repo-cleanup.md`](docs/repo-cleanup.md).
 
@@ -83,7 +83,7 @@ camouflage_detection/
 ├── edge_power_demo.m       the one clean, working demo — start here
 ├── scratch.m, test_erlang.m  scratchpads
 ├── +lib/        (56 fns)   camouflage-domain helpers: stimulus, masks, edge measures, filters
-├── +experiment/ (56 files) PTB experiment: setup → run → analyse
+├── +experiment/ (48 files) PTB experiment: setup → run → analyse
 │   ├── +main/              runtime (interval functions, EyeLink, search paradigm)
 │   └── +analysis/          psychometric fitting & thresholds
 ├── +general/    (41 files) model fitting + offline analysis; almost all top-level SCRIPTS
@@ -136,7 +136,7 @@ run_camouflage_experiment → load_current_session        (resume: lowest incomp
 compute_threshold_edge_power → fit_psychometric → compute_neg_log_likelihood → psychometric_fun
 ```
 
-The stimulus loader is injected as a function handle stored *in the settings struct* (`session_settings.m:37`, `loadSessionStimuli = @experiment.load_stimuli_camouflage`), which is what keeps the shared `vislab.psychframework` harness domain-agnostic.
+The stimulus loader is injected as a function handle stored *in the settings struct* (`session_settings.m:107`, `loadSessionStimuli = @experiment.load_stimuli_camouflage`), which is what keeps the shared `vislab.psychframework` harness domain-agnostic.
 
 **The psychometric model** (`+experiment/+analysis/psychometric_fun.m:2-5`) is
 

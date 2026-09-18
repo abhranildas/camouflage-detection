@@ -71,11 +71,17 @@ either, so they were already broken before the extraction — the local `+lib` d
   `vislab.lib.gamma_compress` is the same power law on a fixed 0..255 scale with no rounding, so it is not
   a drop-in; unifying with it is S3.19 in `docs/repo-cleanup.md`.
 
-## 6. Copy-paste experiment-variant families (canonicalize with a parameter) — LEFT AS-IS (user's call)
-- `generate_camouflage_stimuli{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m`,
-  `session_settings{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m`,
-  `set_up_experiment{,_all,_diff_bg,_search,_shape_exponent,_texture_exponent}.m`. Heavy duplication;
-  fold into one parameterized generator/settings/setup per family.
+## 6. Copy-paste experiment-variant families (canonicalize with a parameter) — DONE in part (S2.3)
+- **DONE (S2.3):** `session_settings{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m` and
+  `set_up_experiment{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m` are now one file each,
+  taking the variant (`'edge_power'`, `'all'`, `'diff_bg'`, `'shape_exponent'`,
+  `'texture_exponent'`) as their first argument. 10 files / 958 lines → 2 files / 463 lines.
+- **Declined, with reasons:** `generate_camouflage_stimuli{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m`
+  stay five files. Past ~4 lines of bookkeeping they share no computation — different mask source,
+  seed provenance, array class, `lib.stimulus` argument set, edge-power measure, output arity and
+  loop nesting — and merging them would have had to move `_shape_exponent`'s `parfor` off the level
+  axis, which changes the RNG draw order and hence the stimuli. See S2.3 in `docs/repo-cleanup.md`.
+- `set_up_experiment_search.m` was never part of this family; it is a different paradigm.
 
 ## 7. Data reconciliation
 - `data/edge_powers/natural/*.mat` (source/derivation) vs `vislab-common/data/edge_powers/*.mat` (deployed,
