@@ -1,8 +1,10 @@
 % +tests  (package namespace: tests.*)
 % Ad-hoc, un-asserted check scripts — no test runner and no pass/fail
 % assertions; each just plots or prints something for the author to
-% inspect by eye. See S3.5 in docs/repo-cleanup.md for the plan to add a
-% real, assertion-based smoke test.
+% inspect by eye. The repo's real, assertion-based smoke test is not here
+% but with the rest of the cleanup tooling: run it as
+% >> addpath('tools'); smoke_test
+% (S3.5 in docs/repo-cleanup.md).
 %
 % Call functions/scripts as tests.<name>. Requires the repo root on the
 % MATLAB path (see setup.m).

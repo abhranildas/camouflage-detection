@@ -65,7 +65,7 @@
 
 **Description.** Signature changes, `arguments` blocks, merging duplicate functions, reordering statements, float/RNG-order changes, renaming a config struct field or a frozen `save`/`load` name, acting on the Stage 1 commented-out-code triage — not behaviour-preserving, done after Stage 1/2. **Rating:** 🔴 clear win, low risk · 🟠 real cost (design decision or wide call-site surface) · 🟡 marginal, defer. Id `S<tier>.<n>`, never renumbered.
 
-**Status.** S2.19 is done; the rest not started. S3.5 (smoke test) should still be taken early — it is cheap insurance for every item below it.
+**Status.** S2.19 and S3.5 are done; the rest not started. `tools/smoke_test.m` now runs green, so every item below it has a cheap regression gate to check itself against.
 
 **To-do.**
 
@@ -83,7 +83,7 @@
 - [ ] 🟠 **S2.17.** Validate Psychtoolbox harness on hardware; two latent issues (`S.targetTypeStr` never set; `stimulus_interval`'s discarded onset return); EyeLink layer unreachable (`load_stimuli_camouflage.m:16` hardcodes `bFovea=1`). Needs user hardware sign-off.
 - [x] 🟠 **S2.19.** Snake_case retrofit of `+experiment/` and its subpackages (tranches 0.1.5/0.1.6/0.1.7). **The open grandfather-vs-retrofit question is settled: retrofit.** Both halves done together, as decision R2 required — 42 camelCase filenames converted in a second step-2a pass under 3.1.1's rules, and 534 in-file camelCase identifiers snake_cased across the 49 live files. What stays camelCase is only what is not ours to move: the zone-3 frozen `save`/`load` and struct-field names, the TitleCase settings-struct variables, and external Psychtoolbox/EyeLink API names.
 - [ ] 🟠 **S2.20 (new).** Finish the snake_case retrofit outside `+experiment/`. S2.19 measured the leftover while closing its own scope: **49 camelCase assignment targets survive in `+vis/` (21), `+tests/` (5), `+general/` (14) and `+lib/` (9)** — tranches 0.1.2/0.1.4/0.1.9/0.1.10 also predate the mandate, and 0.1.10 explicitly kept three `+vis/` files "pure camelCase" as their authors wrote them. Same shape as S2.19 and the same method applies; the count is a tenth of S2.19's, but it needs the same frozen/external triage per file before anything is converted — at least one of the 49 (`edgePowerBlockEdges` in `+general/pick_edge_power_bins.m`) is a zone-3 frozen name that must not move. Filenames there are already all snake_case (0.1.1), so this is the in-file half only.
-- [ ] 🟡 **S3.5.** Add a real smoke test (seed→edge-power check, round-trip, minimal-arg call sweep, package-resolution sweep). Would have caught B2.1–B2.6, B2.9. Should run early despite its 🟡 tier — it's cheap insurance against every later tranche.
+- [x] 🟡 **S3.5.** Add a real smoke test (seed→edge-power check, round-trip, minimal-arg call sweep, package-resolution sweep). Would have caught B2.1–B2.6, B2.9. Should run early despite its 🟡 tier — it's cheap insurance against every later tranche. **Done:** `tools/smoke_test.m`, 50 assertions, green on the current tree; found one new bug (B3.24).
 - [ ] 🟡 **S3.6.** Quarantine/delete the 29 `_`-prefixed dead files properly (currently only renamed in place); fix `+tests/gabor_similarity.m:42`'s broken call.
 - [ ] 🟡 **S3.10.** Rename zone-3 frozen `save`/`load` names, only with a migration script (~100GB of real data at risk).
 - [ ] 🟡 **S3.11.** Repoint `+lib/ptch_norm.m`/`watson_otf.m` to `vislab.lib.*`, delete local copies (resolves B3.3; signature differs, not drop-in).
@@ -104,7 +104,7 @@
 
 **Description.** Bugs found anywhere during Stage 1/2/3, fixed here after Structure. **Rating:** 🔴 severity 1, silently wrong results on a run path · 🟠 severity 2, reachable but not silent · 🟡 severity 3, latent. Id `B<severity>.<n>`, never renumbered. **User launches each fix manually — never auto-dispatched.**
 
-**Status.** 60 of the 61 recorded bugs are unfixed; B3.9 closed as a side effect of tranche 0.1.1's filename/`function`-line rule. Highest ids: B1.11, B2.27, B3.23.
+**Status.** 61 of the 62 recorded bugs are unfixed; B3.9 closed as a side effect of tranche 0.1.1's filename/`function`-line rule. Highest ids: B1.11, B2.27, B3.24.
 
 **To-do.**
 
@@ -169,6 +169,8 @@
 - [ ] 🟡 **B3.21.** `+tinker/pink_noise_stimuli_autocorrelations.m:66-92` (2nd and 3rd cells) reference `corr_blank_cross`, `corr_target_cross`, `terms`, and `corr_same` — none defined, loaded, or saved anywhere in this file; only runnable if a prior manual run happened to leave them in the workspace.
 - [ ] 🟡 **B3.22.** `scratch.m:97` sets `texture.alpha = 2` where `lib.stimulus` reads `texture.exponent` (`stimulus.m:122-123,201`), so the brown-noise setting is silently ignored and the cell falls back to exponent 1 — a second site of B3.18's pattern. Latent rather than silent-wrong today for two reasons: cell 2 also calls `lib.edge_vector`, which resolves to nothing (B2.9), so it errors first; and if cell 1 was run beforehand, `texture` already carries `.exponent = 2` from `scratch.m:51` and the cell works by accident. Promotes with B3.18 and B2.9.
 - [ ] 🟡 **B3.23.** `scratch.m` cells 4–8 read `ExpSettings`, `SubjectExpFile`, `stims_all`, `stims_miss` and `bdry_strip`, none of which this file creates, loads or saves — same shape as B3.21, and the reason those five names were deliberately left unrenamed in tranche 0.1.12. Within that, one concrete size bug: `scratch.m:141` preallocates `nan(256, 256, length(hit_idx))` but `:143` loops over `size(stims_miss, 3)`, two unrelated counts, so the classification image at `:147` averages trailing NaN pages (or the array grows) whenever they disagree.
+
+- [ ] 🟡 **B3.24.** `lib.embed_image_in_center` errors on its own default path. `bAdditive` defaults to 0 (`:17-19`), and the `else` branch that default selects reads `target_window` at `:74`, which the defaults block at `:33-35` never assigns — its whole body is a commented-out warning. So any call with fewer than 7 arguments that does not opt into the additive branch dies with "Not enough input arguments", including the two-argument call the function's own header advertises. Latent rather than reachable: the one live caller, `+lib/difference_of_gaussians_2d.m:89`, passes `bAdditive = 1` and takes the other branch. Found by S3.5's minimal-argument call sweep, which now carries the call as an expected failure citing this id.
 
 **Recorded and disproved (not a bug):** unqualified `edge(...)` in `detect_edge_pixels.m:20`/`edge_measures.m:18` resolves correctly to Image Processing Toolbox `edge`, not `lib.edge`. Do not "fix."
 
@@ -911,7 +913,7 @@ Not started. Coverage gaps: most of `+general/`, `+tinker/`, `+experiment/` have
 
 <div style="margin-left:1.5em">
 
-One item done (S2.19). Commented-out code triaged in 3.1.4; nothing acted on yet.
+Two items done (S2.19, S3.5). Commented-out code triaged in 3.1.4; nothing acted on yet.
 
 <details style="margin:0.7em 0 0.7em 1.5em">
 <summary><h5 style="display:inline; margin:0; font-size:0.92em">S2.19 &mdash; snake_case retrofit of <code>+experiment/</code> (59 files, 5 commits)</h5></summary>
@@ -976,6 +978,70 @@ ALL_OK: true
 **Bugs found: none new** — a documented negative. Nothing in the 2,891 lines turned up that was not already recorded. B2.9's `analysis.compute_template_response_sigma` had its tail renamed along with the function it (fails to) name, so the reference is still broken in exactly the way B2.9 describes. No optimization and no structural opportunity was acted on. One new structural item was **recorded, not done**: **S2.20**, the same retrofit for the 49 camelCase identifiers still in `+vis/`, `+tests/`, `+general/` and `+lib/`, which this item's closing census made visible.
 
 **Commits: four, plus a fix.** Split on tranche boundaries so each is separately reviewable and separately verified — part 1 filenames (70 files), part 2 `+experiment/+main/` (11 files, 123 renames), part 3 `+experiment/+analysis/` (12 files, 103 renames), part 3a the `trialInfo` revert, part 4 `+experiment/` root (26 files, 308 renames) together with the plan update.
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">S3.5 &mdash; the smoke test (<code>tools/smoke_test.m</code>, 1 new file)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+**Where it lives, and why there rather than `+tests/`.** `tools/smoke_test.m`, beside `canon`, `check_stage1` and `golden_harness`, run the same way they are:
+
+```
+matlab -batch "addpath('tools'); smoke_test"
+```
+
+`+tests/` was the other candidate and was rejected: its two members are ad-hoc, un-asserted eyeball scripts that both error on the first call (B2.24, B2.25), it is itself part of the file set the smoke test sweeps, and a `tests.smoke_test` would only be reachable through the very package resolution it exists to check. This is cleanup tooling, so it sits with the cleanup tooling. `+tests/Contents.m` previously pointed forward to "the plan to add a real, assertion-based smoke test"; that line now points at the file.
+
+**What it is for, next to the golden harness.** The golden harness answers *did the numbers move*, and cannot answer anything without `tools/golden_ref.mat`. The smoke test answers *does the code resolve, parse and run at all*, from a clean checkout with no reference data. Coverage is deliberately disjoint where it can be: the call sweep leaves out the sixteen entry points the harness already pins, except where one is needed as an input.
+
+**The four checks.**
+
+1. **Seed → edge power.** One fixed seed (35096) through `lib.stimulus` at 128 px with a 32 px target, then `lib.edge`. Eleven assertions: shape, finiteness, `theta_grid` spanning (-π, π], `edge_power` a finite positive scalar, and `edge_power == mean(edge_vector.^2)` — the relation `+lib/edge.m`'s own header states, worth pinning because outputs 3 and 4 of that same function already silently stopped meaning what a caller thought (B1.5). Two determinism assertions bracket it in both directions: the same seed under a *different* ambient RNG state must give a bit-identical stimulus, and a different seed must give a different one. The second is what catches an argument that is quietly ignored, the shape of B1.3.
+2. **Round trips.** `lib.whiten` must invert `lib.create_pink_noise_square` at exponent 1 (they multiply and divide by the same 1/f filter), to 1e-9 relative. And `lib.stimulus` forwards its whole `varargin` to `lib.target_mask` at `+lib/stimulus.m:251`, so its four mask outputs must be `isequal` to an independent `lib.target_mask` call with the same arguments — a destructure shifted by one slot, which is what B2.4 records, shows up here as a mismatch instead of as silence.
+3. **Minimal-argument call sweep.** 33 curated functions from `+lib/` and `+experiment/`, called with trivial arguments and asserted only to run and return something finite of the documented size. Curation criteria: pure, cheap, no plotting, no file I/O, no `rng('shuffle')`. This is where a signature that no longer accepts what its own header advertises shows up — B2.3 and B2.20 are both "called positionally against a name-value-only signature".
+4. **Package-resolution sweep.** Two halves. (a) All **162** in-scope files with a callable name — the plan's 164, minus the two under `+experiment/+main/testscripts/` — resolve under their package-qualified name to their own file, with a NOTE for any that is shadowed but still wins. (b) All **98** distinct package-qualified references written in in-scope source resolve to something. Half (b) is the one that would have caught B2.9, and it does: all fifteen of B2.9's dead references are found by it and accounted for.
+
+**Both known-broken lists are two-way, on purpose.** Checks 3 and 4 each carry a list of things expected to be broken, every entry citing its bug id. An unlisted breakage fails the check; a listed one that has *started working* also fails it, with a message naming the bug to tick and the entry to drop. A one-way list rots silently the first time someone fixes a bug, which is exactly when you want to be told. Today those lists hold `lib.mismatch_template` and `lib.embed_image_in_center` (check 3) and B2.9's fifteen references (check 4).
+
+**The `which_sweep.m` question from step 0.1.0, answered.** That entry deferred a `which_sweep.m` to "S3.5(d)". The file exists nowhere — not in this repo, not in the skill's `tools/`, not in history — so it was a scratch script that was never kept. Check 4 is written fresh and supersedes the deferral; nothing is owed.
+
+**Verification. A green run proves nothing on its own, so the test was broken deliberately, five ways, one per assertion class**, each reverted afterwards (`git checkout --`; the tree was clean throughout and is clean again):
+
+| injected fault | expected to fire | fired |
+|---|---|---|
+| `+lib/edge.m`: `mean(v.^2)` → `mean(abs(v))` | check 1's documented-relation assertion | `FAIL edge_power == mean(edge_vector.^2)` |
+| `+lib/whiten.m`: filter `1/z` → `1/z^1.05` | check 2's inverse round trip | `FAIL whiten inverts create_pink_noise_square` |
+| `+lib/deg2rad.m`: a second required argument | check 3's call sweep | `FAIL lib.deg2rad errored: Not enough input arguments` (and `lib.gabor_2d`, which calls it) |
+| `+vis/show_image.m`: a call to `lib.no_such_function` | check 4(b), unlisted dead reference | `FAIL reference lib.no_such_function resolves to nothing, and is not a known bug` |
+| a synthetic `lib.definitely_not_here` in the sweep's own name list | check 4(a) | `FAIL lib.definitely_not_here does not resolve` |
+| `lib.whiten` added to the known-dead list | the two-way rule's second direction | `FAIL reference lib.whiten now resolves -- ... looks fixed; tick it` |
+
+**Verbatim output on the clean tree**, MATLAB R2024b Update 6:
+
+```
+--- summary ---
+  passed  50
+  failed  0
+  xfail   2  (broken as a recorded bug says it should be)
+  skipped 0
+smoke_test: PASS
+```
+
+with, inside check 1, `edge power at seed 35096: 1808.24`. `checkcode('tools/smoke_test.m')`: no messages. `canon` parses it. `golden_harness('replay', ...)`: `replay matched all 32 fields` — expected, since this item adds a file and changes no repo code.
+
+**What it caught on its first run: one new bug, B3.24.** `lib.embed_image_in_center`'s default path (`bAdditive` unset, so 0) reads `target_window`, which the defaults block leaves unassigned because its body is a commented-out warning; the two-argument call the header advertises therefore errors. Latent — the only live caller passes `bAdditive = 1`. Recorded in 0.4, **not fixed**, and carried in check 3 as an expected failure citing B3.24.
+
+**Three findings recorded here rather than as items, with the reason.**
+
+- **`+experiment/+main/testscripts/` is not addressable.** MATLAB does not put a non-package subfolder of a package folder on the path, so `run_single_trial_test.m` and `test_experiment_struct.m` cannot be called under any qualified name; they can only be run by `cd`-ing to them or pressing Run in the editor. That is a layout fact, not a defect in the code, and moving them is S3.6's kind of work, so it is printed as a NOTE by check 4 and left here rather than filed.
+- **162, not 164.** The in-scope count the sweep derives from the filesystem is the plan's 164 minus exactly those two files, which is the expected agreement, not a discrepancy.
+- **No optimization and no structural opportunity was acted on**, and none new was found — the item adds a file and reads others.
+
+**A limitation worth stating.** Check 4(b) scans text, not the AST: it drops whole-line comments and then requires a `(` or a leading `@`, which is what keeps a `See also` line or a commented-out call from counting. An inline comment containing something that looks like a call would be a false positive, and a reference built at runtime by `str2func` is invisible to it. Neither occurs today — the 98 references it finds include all fifteen of B2.9's, which is the evidence that the scan is not missing the class of thing it is for.
 
 </div>
 
