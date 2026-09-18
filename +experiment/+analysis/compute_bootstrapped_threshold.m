@@ -63,13 +63,15 @@ for i_block = 1:length(blocks)
             '\' num2str(bin_index(1)) num2str(bin_index(2)) num2str(bin_index(3)) ...
             '_' num2str(blocks(i_block)) '.mat'];
     end;
+    % trialInfo is injected into the workspace by this bare load, so it is a
+    % frozen name and keeps its camelCase (zone 3), unlike every other local here.
     load(file_path);
 
     % get the contrast levels
-    contrast_block = repmat(trial_info.targetContrast', [1 size(trial_info.correct, 2)]);
+    contrast_block = repmat(trialInfo.targetContrast', [1 size(trialInfo.correct, 2)]);
     contrast = [contrast contrast_block(:)];
 
-    correct_mat = [correct_mat trial_info.correct];
+    correct_mat = [correct_mat trialInfo.correct];
 end;
 
 % build a row subscript index for indexing into the correct response matrix
