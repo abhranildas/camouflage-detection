@@ -42,11 +42,11 @@ function el = configure_eyetracker(SessionSettings)
     Screen('FillRect', SessionSettings.window, SessionSettings.bgPixValGamma);
     Screen('Flip', SessionSettings.window);
 
-    sessionNumber = SessionSettings.currentSession;
-    edfFile = [num2str(sessionNumber) '.edf'];
+    session_number = SessionSettings.currentSession;
+    edf_file = [num2str(session_number) '.edf'];
 
-    edfOpenStatus = Eyelink('Openfile', edfFile);
-    if edfOpenStatus ~= 0
+    edf_open_status = Eyelink('Openfile', edf_file);
+    if edf_open_status ~= 0
         fprintf('Cannot create EDF file');
         cleanup;
         Eyelink('Shutdown');

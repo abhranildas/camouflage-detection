@@ -1,6 +1,6 @@
-function run_camouflage_experiment_search(subjectStr, expType)
+function run_camouflage_experiment_search(subject_str, exp_type)
 % RUN_CAMOUFLAGE_EXPERIMENT_SEARCH  Launch the search/detect variant of the camouflage experiment.
-%   experiment.main.run_camouflage_experiment_search(subjectStr, expType)
+%   experiment.main.run_camouflage_experiment_search(subject_str, exp_type)
 %
 %   A separate, self-contained implementation from experiment.main.
 %   RUN_CAMOUFLAGE_EXPERIMENT: instead of the shared vislab.psychframework
@@ -10,30 +10,30 @@ function run_camouflage_experiment_search(subjectStr, expType)
 %   support. Run `setup` first (adds vislab). Requires Psychtoolbox.
 %
 %   Inputs
-%     subjectStr - subject identifier string.
-%     expType    - 'detect' or 'search'; selects both the cueing behaviour
+%     subject_str - subject identifier string.
+%     exp_type    - 'detect' or 'search'; selects both the cueing behaviour
 %                  (which location is marked) and the scoring rule (click
 %                  side vs. click location).
 %
 %   Output
 %     none (side effect: runs the experiment, saves SubjectExpFile after
-%     each session to exp_files/search/<expType>/subject_out/<subjectStr>.mat).
+%     each session to exp_files/search/<exp_type>/subject_out/<subject_str>.mat).
 %
 %   See also experiment.main.RUN_CAMOUFLAGE_EXPERIMENT.
 
     %% load experiment settings and subject results file
-    load(['exp_files/search/' expType '/exp_settings.mat'], 'ExpSettings', 'Stimulus');
-    load(['exp_files/search/' expType '/subject_out/' subjectStr '.mat'], 'SubjectExpFile');
+    load(['exp_files/search/' exp_type '/exp_settings.mat'], 'ExpSettings', 'Stimulus');
+    load(['exp_files/search/' exp_type '/subject_out/' subject_str '.mat'], 'SubjectExpFile');
 
     %% resume experiment
-    currentSession = find(SubjectExpFile.expCompleted == 0, 1);
+    current_session = find(SubjectExpFile.expCompleted == 0, 1);
 
-    if isempty(currentSession)
+    if isempty(current_session)
         error('Congratulations! This experiment has been completed.');
     end
 
     %% functions
-    gammaCorrection = @(x, bit, gamma) (x./(2^bit-1)).^(1/gamma)*(2^bit-1);
+    gamma_correction = @(x, bit, gamma) (x./(2^bit-1)).^(1/gamma)*(2^bit-1);
 
     %% Psychtoolbox initialization
     rng('default');
@@ -41,181 +41,181 @@ function run_camouflage_experiment_search(subjectStr, expType)
     Screen('Preference', 'SkipSyncTests', 1);
     sca;
     PsychDefaultSetup(2);
-    screenNumber = max(Screen('Screens'));
-    bgMeanGamma = gammaCorrection(Stimulus.bgMean, ExpSettings.monitorBit, ...
+    screen_number = max(Screen('Screens'));
+    bg_mean_gamma = gamma_correction(Stimulus.bgMean, ExpSettings.monitorBit, ...
         ExpSettings.monitorGamma);
-    [win, winRect] = Screen('OpenWindow', screenNumber, bgMeanGamma);
-    ExpSettings.monitorPx = winRect(3:4);
+    [win, win_rect] = Screen('OpenWindow', screen_number, bg_mean_gamma);
+    ExpSettings.monitorPx = win_rect(3:4);
     % ExpSettings.blank=0.5;
 
-    toneH = 600;
-    toneL = toneH/3;
+    tone_high = 600;
+    tone_low = tone_high/3;
 
     %% Luminance sheet
-    luminanceSheet = ones(ExpSettings.monitorPx(2), ExpSettings.monitorPx(1)) * Stimulus.bgMean;
-    luminanceSheetGc = gammaCorrection(luminanceSheet, ExpSettings.monitorBit, ...
+    luminance_sheet = ones(ExpSettings.monitorPx(2), ExpSettings.monitorPx(1)) * Stimulus.bgMean;
+    luminance_sheet_gc = gamma_correction(luminance_sheet, ExpSettings.monitorBit, ...
         ExpSettings.monitorGamma);
-    blankTex = Screen('MakeTexture', win, luminanceSheetGc);
-    stimulus = luminanceSheetGc;
+    blank_tex = Screen('MakeTexture', win, luminance_sheet_gc);
+    stimulus = luminance_sheet_gc;
 
     %% Stimulus mask
 
-    stimStart = floor((size(luminanceSheet, 2) - Stimulus.stimulus_sz)/2) + 1;
-    stimEnd = stimStart + Stimulus.stimulus_sz - 1;
+    stim_start = floor((size(luminance_sheet, 2) - Stimulus.stimulus_sz)/2) + 1;
+    stim_end = stim_start + Stimulus.stimulus_sz - 1;
 
-    shiftedSpotCenters = Stimulus.spotCenters;
-    shiftedSpotCenters(:, 1) = shiftedSpotCenters(:, 1) + ...
+    shifted_spot_centers = Stimulus.spotCenters;
+    shifted_spot_centers(:, 1) = shifted_spot_centers(:, 1) + ...
         (ExpSettings.monitorPx(2)-Stimulus.stimulus_sz)/2;
-    shiftedSpotCenters(:, 2) = shiftedSpotCenters(:, 2) + ...
+    shifted_spot_centers(:, 2) = shifted_spot_centers(:, 2) + ...
         (ExpSettings.monitorPx(1)-Stimulus.stimulus_sz)/2;
 
-    [displayY, displayX] = meshgrid(1:ExpSettings.monitorPx(1), 1:ExpSettings.monitorPx(2));
-    % displayMask = false(ExpSettings.monitorPx(2), ExpSettings.monitorPx(1));
-    % for iLocation = 1:Stimulus.nLocations
-    %     displayMask(sqrt((displayX-shiftedSpotCenters(iLocation,1)).^2+(displayY-shiftedSpotCenters(iLocation,2)).^2)...
+    [display_y, display_x] = meshgrid(1:ExpSettings.monitorPx(1), 1:ExpSettings.monitorPx(2));
+    % display_mask = false(ExpSettings.monitorPx(2), ExpSettings.monitorPx(1));
+    % for i_location = 1:Stimulus.nLocations
+    %     display_mask(sqrt((display_x-shifted_spot_centers(i_location,1)).^2+(display_y-shifted_spot_centers(i_location,2)).^2)...
     %         <= Stimulus.spotLength/2)= true;
     % end
 
     %% Main
     ShowCursor('CrossHair');
-    for iSession = currentSession:ExpSettings.nSessions
-        disp(['Current session: ', num2str(iSession)]);
+    for i_session = current_session:ExpSettings.nSessions
+        disp(['Current session: ', num2str(i_session)]);
 
         %% Create circular cues and fixation dot
-        circularCue = zeros(ExpSettings.monitorPx(2), ExpSettings.monitorPx(1));
-        for iLocation = 1:Stimulus.nLocations
-            centerRing = round(sqrt((displayX-shiftedSpotCenters(iLocation, 1)).^2 ...
-                +(displayY-shiftedSpotCenters(iLocation, 2)).^2)) ...
+        circular_cue = zeros(ExpSettings.monitorPx(2), ExpSettings.monitorPx(1));
+        for i_location = 1:Stimulus.nLocations
+            center_ring = round(sqrt((display_x-shifted_spot_centers(i_location, 1)).^2 ...
+                +(display_y-shifted_spot_centers(i_location, 2)).^2)) ...
                 == floor(Stimulus.spotLength/2);
-            innerRing = round(sqrt((displayX-shiftedSpotCenters(iLocation, 1)).^2 ...
-                +(displayY-shiftedSpotCenters(iLocation, 2)).^2)) ...
+            inner_ring = round(sqrt((display_x-shifted_spot_centers(i_location, 1)).^2 ...
+                +(display_y-shifted_spot_centers(i_location, 2)).^2)) ...
                 == floor(Stimulus.spotLength/2) - 1;
-            outerRing = round(sqrt((displayX-shiftedSpotCenters(iLocation, 1)).^2 ...
-                +(displayY-shiftedSpotCenters(iLocation, 2)).^2)) ...
+            outer_ring = round(sqrt((display_x-shifted_spot_centers(i_location, 1)).^2 ...
+                +(display_y-shifted_spot_centers(i_location, 2)).^2)) ...
                 == floor(Stimulus.spotLength/2) + 1;
-            if strcmpi(expType, 'detect')
-                if iLocation == iSession
-                    circularCue(centerRing | innerRing | outerRing) = -Stimulus.bgMean*0.2;
+            if strcmpi(exp_type, 'detect')
+                if i_location == i_session
+                    circular_cue(center_ring | inner_ring | outer_ring) = -Stimulus.bgMean*0.2;
                 else
-                    circularCue(centerRing | innerRing | outerRing) = Stimulus.bgMean*0.2;
+                    circular_cue(center_ring | inner_ring | outer_ring) = Stimulus.bgMean*0.2;
                 end
-            elseif strcmpi(expType, 'search')
-                circularCue(centerRing | innerRing | outerRing) = Stimulus.bgMean*0.2;
+            elseif strcmpi(exp_type, 'search')
+                circular_cue(center_ring | inner_ring | outer_ring) = Stimulus.bgMean*0.2;
             end
         end
 
-        fixDotRadius = 3;                      % radius in px (adjust to taste)
-        fixDotValue = Stimulus.bgMean * 0.6;    % contrast level
+        fix_dot_radius = 3;                      % radius in px (adjust to taste)
+        fix_dot_value = Stimulus.bgMean * 0.6;    % contrast level
 
         % logical mask for a filled circle around the middle of the screen
-        fixMask = (displayX - ExpSettings.monitorPx(2)/2).^2 + ...
-            (displayY - ExpSettings.monitorPx(1)/2).^2 <= fixDotRadius^2;
+        fix_mask = (display_x - ExpSettings.monitorPx(2)/2).^2 + ...
+            (display_y - ExpSettings.monitorPx(1)/2).^2 <= fix_dot_radius^2;
 
-        circularCue(fixMask) = fixDotValue;    % write the dot into the image
+        circular_cue(fix_mask) = fix_dot_value;    % write the dot into the image
 
-        circleCues = luminanceSheet + circularCue;
-        circleCues = round(gammaCorrection(circleCues, ExpSettings.monitorBit, ...
+        circle_cues = luminance_sheet + circular_cue;
+        circle_cues = round(gamma_correction(circle_cues, ExpSettings.monitorBit, ...
             ExpSettings.monitorGamma));
 
-        cueTex = Screen('MakeTexture', win, circleCues);
+        cue_tex = Screen('MakeTexture', win, circle_cues);
 
-        nCorrect = 0;
+        n_correct = 0;
         tic
-        if SubjectExpFile.expCompleted(iSession) == 0
+        if SubjectExpFile.expCompleted(i_session) == 0
 
             %% show starting screen
-            sampleStimulus = luminanceSheet + circularCue;
-            sampleStimulusGc = gammaCorrection(sampleStimulus, ExpSettings.monitorBit, ...
+            sample_stimulus = luminance_sheet + circular_cue;
+            sample_stimulus_gc = gamma_correction(sample_stimulus, ExpSettings.monitorBit, ...
                 ExpSettings.monitorGamma);
-            tex = Screen('MakeTexture', win, sampleStimulusGc);
+            tex = Screen('MakeTexture', win, sample_stimulus_gc);
             Screen('DrawTexture', win, tex);
 
-            DrawFormattedText(win, sprintf('Session %d. Click to start.', iSession), ...
+            DrawFormattedText(win, sprintf('Session %d. Click to start.', i_session), ...
                 'center', Stimulus.ppd);
 
             Screen('Flip', win);
-            GetClicks(screenNumber, 0); % wait for click before starting session
+            GetClicks(screen_number, 0); % wait for click before starting session
 
-            for iTrial = 1:ExpSettings.nTrials
+            for i_trial = 1:ExpSettings.nTrials
 
                 %% get stimulus
-                stimulus(:, stimStart:stimEnd) = Stimulus.stimuli(:, :, iTrial, iSession);
+                stimulus(:, stim_start:stim_end) = Stimulus.stimuli(:, :, i_trial, i_session);
 
                 %% wait for click before starting trial
-                % GetClicks(screenNumber, 0);
+                % GetClicks(screen_number, 0);
 
                 %% show blank screen
                 HideCursor;
-                Screen('DrawTexture', win, blankTex);
-                trialStart = GetSecs();
+                Screen('DrawTexture', win, blank_tex);
+                trial_start = GetSecs();
                 Screen('Flip', win);
 
                 %% show the stimulus
-                % trialStart = GetSecs();
+                % trial_start = GetSecs();
                 tex = Screen('MakeTexture', win, stimulus);
                 Screen('DrawTexture', win, tex);
-                Screen('Flip', win, trialStart + ExpSettings.blank);
+                Screen('Flip', win, trial_start + ExpSettings.blank);
 
                 %% show circular cues
-                Screen('DrawTexture', win, cueTex);
-                Screen('Flip', win, trialStart + ExpSettings.blank + ExpSettings.stim_on);
+                Screen('DrawTexture', win, cue_tex);
+                Screen('Flip', win, trial_start + ExpSettings.blank + ExpSettings.stim_on);
                 ShowCursor;
 
                 %% get response
-                responseStart = GetSecs();
-                [clicks, clickX, clickY, whichButton, clickSecs] = GetClicks(screenNumber, 0);
+                response_start = GetSecs();
+                [clicks, click_x, click_y, which_button, click_secs] = GetClicks(screen_number, 0);
                 if clicks == 1
-                    SubjectExpFile.reactionTime(iTrial, iSession) = clickSecs - responseStart;
-                    if whichButton == 1
-                        if strcmpi(expType, 'detect')
-                            SubjectExpFile.response(iTrial, iSession) = 1;
-                        elseif strcmpi(expType, 'search')
-                            validClick = 0;
-                            for iLocation = 1:Stimulus.nLocations
-                                if sqrt((clickX-shiftedSpotCenters(iLocation, 2)).^2 ...
-                                        +(clickY-shiftedSpotCenters(iLocation, 1)).^2) ...
+                    SubjectExpFile.reactionTime(i_trial, i_session) = click_secs - response_start;
+                    if which_button == 1
+                        if strcmpi(exp_type, 'detect')
+                            SubjectExpFile.response(i_trial, i_session) = 1;
+                        elseif strcmpi(exp_type, 'search')
+                            valid_click = 0;
+                            for i_location = 1:Stimulus.nLocations
+                                if sqrt((click_x-shifted_spot_centers(i_location, 2)).^2 ...
+                                        +(click_y-shifted_spot_centers(i_location, 1)).^2) ...
                                         < Stimulus.spotLength/2
-                                    validClick = 1;
-                                    SubjectExpFile.response(iTrial, iSession) = iLocation;
+                                    valid_click = 1;
+                                    SubjectExpFile.response(i_trial, i_session) = i_location;
                                     break;
                                 end
                             end
 
-                            if validClick == 0
+                            if valid_click == 0
                                 warning('Your left click did not land in a target location.')
-                                SubjectExpFile.response(iTrial, iSession) = 0;
+                                SubjectExpFile.response(i_trial, i_session) = 0;
                             end
                         end
 
                     else
-                        SubjectExpFile.response(iTrial, iSession) = 0;
+                        SubjectExpFile.response(i_trial, i_session) = 0;
                     end
                 else
                     warning('You did not make a decision in the trial.');
-                    SubjectExpFile.response(iTrial, iSession) = 0;
+                    SubjectExpFile.response(i_trial, i_session) = 0;
                 end
 
                 %% auditory feedback
 
-                if(Stimulus.tLocation(iTrial, iSession) == ...
-                        SubjectExpFile.response(iTrial, iSession))
-                    Beeper(toneH, 1.5, .1);
-                    nCorrect = nCorrect + 1;
+                if(Stimulus.tLocation(i_trial, i_session) == ...
+                        SubjectExpFile.response(i_trial, i_session))
+                    Beeper(tone_high, 1.5, .1);
+                    n_correct = n_correct + 1;
                 else
-                    Beeper(toneL, 1.5, .1);
+                    Beeper(tone_low, 1.5, .1);
                 end
             end
         end
 
         %% save results
-        SubjectExpFile.expCompleted(iSession) = 1;
-        folderOut = ['exp_files/search/' expType '/subject_out'];
-        fpOut = [folderOut '/' subjectStr '.mat'];
-        save(fpOut, 'SubjectExpFile');
+        SubjectExpFile.expCompleted(i_session) = 1;
+        folder_out = ['exp_files/search/' exp_type '/subject_out'];
+        file_path_out = [folder_out '/' subject_str '.mat'];
+        save(file_path_out, 'SubjectExpFile');
 
         fprintf('\n*****Progress summary*****\n');
-        disp(['Accuracy: ', num2str(100*nCorrect/ExpSettings.nTrials) '%']);
-        disp(['Session finishing: ', num2str(iSession), '/', num2str(ExpSettings.nSessions)]);
+        disp(['Accuracy: ', num2str(100*n_correct/ExpSettings.nTrials) '%']);
+        disp(['Session finishing: ', num2str(i_session), '/', num2str(ExpSettings.nSessions)]);
         toc
 
     end

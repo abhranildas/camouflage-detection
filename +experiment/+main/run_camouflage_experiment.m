@@ -1,9 +1,9 @@
-function SessionData = run_camouflage_experiment(subjectStr, expTypeStr, condition, ...
-    sessionNumber, levelNumber)
+function SessionData = run_camouflage_experiment(subject_str, exp_type_str, condition, ...
+    session_number, level_number)
 % RUN_CAMOUFLAGE_EXPERIMENT  Launch the camouflage detection experiment.
-%   SessionData = experiment.main.run_camouflage_experiment(subjectStr, expTypeStr)
-%   SessionData = experiment.main.run_camouflage_experiment(subjectStr, expTypeStr, ...
-%       condition, sessionNumber, levelNumber)
+%   SessionData = experiment.main.run_camouflage_experiment(subject_str, exp_type_str)
+%   SessionData = experiment.main.run_camouflage_experiment(subject_str, exp_type_str, ...
+%       condition, session_number, level_number)
 %
 %   Delegates the session->level->trial loop, screen setup, and teardown to the
 %   shared vislab harness (vislab.psychframework.run_experiment), wiring this repo's
@@ -16,13 +16,13 @@ function SessionData = run_camouflage_experiment(subjectStr, expTypeStr, conditi
 %   peripheral / non-foveal runs).
 %
 %   Inputs
-%     subjectStr    - subject identifier string.
-%     expTypeStr    - experiment type string (selects the settings/data path).
-%     condition     - (optional) condition to resume; with sessionNumber and
-%                     levelNumber, resumes a specific session/level instead of
+%     subject_str    - subject identifier string.
+%     exp_type_str    - experiment type string (selects the settings/data path).
+%     condition     - (optional) condition to resume; with session_number and
+%                     level_number, resumes a specific session/level instead of
 %                     the subject's current progress.
-%     sessionNumber - (optional) session index to resume.
-%     levelNumber   - (optional) level index to resume.
+%     session_number - (optional) session index to resume.
+%     level_number   - (optional) level index to resume.
 %
 %   Output
 %     SessionData - struct returned by vislab.psychframework.run_experiment,
@@ -32,10 +32,10 @@ function SessionData = run_camouflage_experiment(subjectStr, expTypeStr, conditi
 %   vislab.psychframework.RUN_EXPERIMENT.
 
     if nargin < 4
-        ExpSettings = experiment.load_current_session(subjectStr, expTypeStr);
+        ExpSettings = experiment.load_current_session(subject_str, exp_type_str);
     else
-        ExpSettings = experiment.load_current_session(subjectStr, expTypeStr, condition, ...
-            sessionNumber, levelNumber);
+        ExpSettings = experiment.load_current_session(subject_str, exp_type_str, condition, ...
+            session_number, level_number);
     end
 
     hooks.load_session = @load_session;
@@ -76,14 +76,14 @@ function session_post(S)
     WaitSecs(0.5);
     Eyelink('CloseFile');
     try
-        edfFilePath = ['eyetracking_files/' S.expTypeStr '/' S.targetTypeStr '/' ...
+        edf_file_path = ['eyetracking_files/' S.expTypeStr '/' S.targetTypeStr '/' ...
             num2str(S.currentBin) '/' S.subjectStr '/'];
-        edfFile = [num2str(S.currentSession) '.edf'];
-        fprintf('Receiving data file ''%s''\n', edfFile);
-        status = Eyelink('ReceiveFile', edfFile, edfFilePath, 1);
+        edf_file = [num2str(S.currentSession) '.edf'];
+        fprintf('Receiving data file ''%s''\n', edf_file);
+        status = Eyelink('ReceiveFile', edf_file, edf_file_path, 1);
         if status > 0, fprintf('ReceiveFile status %d\n', status); end
-        if 2 == exist(edfFile, 'file')
-            fprintf('Data file ''%s'' can be found in ''%s''\n', edfFile, pwd);
+        if 2 == exist(edf_file, 'file')
+            fprintf('Data file ''%s'' can be found in ''%s''\n', edf_file, pwd);
         end
     catch
         fprintf('Problem receiving data file\n');
