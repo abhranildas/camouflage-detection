@@ -1,4 +1,4 @@
-function edge_pixels = detect_edge_pixels(stim, varargin)
+function edge_pixels = detect_edge_pixels(stim, options)
 % DETECT_EDGE_PIXELS  Zero-crossing edge pixels, thresholded by local gradient magnitude.
 %   edge_pixels = lib.detect_edge_pixels(stim, ...)
 %   edge_pixels = lib.detect_edge_pixels(stim, 'edge_detection_filter', filt)
@@ -24,20 +24,15 @@ function edge_pixels = detect_edge_pixels(stim, varargin)
 %
 %   See also lib.EDGE_MEASURES, lib.LAPLACIAN_OF_GAUSSIAN_FILTER, lib.STEERABLE_GRAD.
 
-    %% parse inputs
-    parser = inputParser;
-    parser.KeepUnmatched = true;
-    addRequired(parser, 'stim', @isnumeric);
-    % edge_detection_filter=lib.difference_of_gaussians_filter(2,4,2);
-    edge_detection_filter = lib.laplacian_of_gaussian_filter(2, 3);
-    addParameter(parser, 'edge_detection_filter', edge_detection_filter, @isnumeric);
-    addParameter(parser, 'thresh', 4, @isscalar);
+    arguments
+        stim {mustBeNumeric}
+        % edge_detection_filter=lib.difference_of_gaussians_filter(2,4,2);
+        options.edge_detection_filter {mustBeNumeric} = lib.laplacian_of_gaussian_filter(2, 3)
+        options.thresh (1, 1) = 4
+    end
 
-    % parse inputs
-    parse(parser, stim, varargin{:});
-    stim = parser.Results.stim;
-    edge_detection_filter = parser.Results.edge_detection_filter;
-    thresh = parser.Results.thresh;
+    edge_detection_filter = options.edge_detection_filter;
+    thresh = options.thresh;
 
     %% compute normalized gradients, and thresholded edge pixels
     edge_pixels = edge(stim, 'zerocross', 0, edge_detection_filter);

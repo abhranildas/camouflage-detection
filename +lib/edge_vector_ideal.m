@@ -1,5 +1,5 @@
 function [edge_vector, edge_field, edge_normal_field, theta_grid] = ...
-    edge_vector_ideal(stim, varargin)
+    edge_vector_ideal(stim, options)
 % EDGE_VECTOR_IDEAL  Dimensionless edge vector along a target boundary.
 %   [edge_vector, edge_field] = lib.edge_vector_ideal(stim)
 %   [...] = lib.edge_vector_ideal(stim, 'mask', mask, 'mask_edge', mask_edge, ...
@@ -47,34 +47,32 @@ function [edge_vector, edge_field, edge_normal_field, theta_grid] = ...
 %   See also lib.EDGE_MEASURES_IDEAL, lib.EDGE, lib.TARGET_MASK,
 %   lib.STEERABLE_GRAD.
 
-    parser = inputParser;
-    parser.KeepUnmatched = true;
-    addRequired(parser, 'stim', @isnumeric);
-    % a scalar mask means a circular mask of that radius
-    addParameter(parser, 'mask', 64, @(x) isscalar(x) || islogical(x));
-    addParameter(parser, 'mask_edge', [], @islogical);
-    addParameter(parser, 'mask_normal', [], @isnumeric);
-    addParameter(parser, 'n_edge', 1e3, @isnumeric);
-    addParameter(parser, 'kernel_size', [1 3], @isnumeric);
-
-    parse(parser, stim, varargin{:});
-    stim = parser.Results.stim;
-    if isscalar(parser.Results.mask)
-        target_radius = parser.Results.mask;
-    else
-        mask = parser.Results.mask;
-        mask_edge = parser.Results.mask_edge;
-        mask_normal = parser.Results.mask_normal;
+    arguments
+        stim {mustBeNumeric}
+        % a scalar mask means a circular mask of that radius
+        options.mask {must_be_scalar_or_logical} = 64
+        options.mask_edge {must_be_logical_or_empty} = []
+        options.mask_normal {mustBeNumeric} = []
+        options.n_edge {mustBeNumeric} = 1e3
+        options.kernel_size {mustBeNumeric} = [1 3]
     end
-    n_edge = parser.Results.n_edge;
-    kernel_size = parser.Results.kernel_size;
+
+    if isscalar(options.mask)
+        target_radius = options.mask;
+    else
+        mask = options.mask;
+        mask_edge = options.mask_edge;
+        mask_normal = options.mask_normal;
+    end
+    n_edge = options.n_edge;
+    kernel_size = options.kernel_size;
 
     bg_size = size(stim, 1);
     target_center = floor(bg_size/2)*[1 1];
 
     % field of parameter theta along the boundary
     theta_field = nan(bg_size);
-    if isscalar(parser.Results.mask)  % if circular mask
+    if isscalar(options.mask)  % if circular mask
 
         % array of angles theta for circular mask
         for i_row = 1:bg_size
@@ -148,4 +146,21 @@ function [edge_vector, edge_field, edge_normal_field, theta_grid] = ...
 
     edge_magnitude = edge_magnitude_interp(theta_grid);
     edge_vector = edge_normal_interp(theta_grid)/rms(edge_magnitude);
+end
+
+function must_be_scalar_or_logical(value)
+% Validator for mask: either a scalar target radius, or a logical mask image.
+    if ~(isscalar(value) || islogical(value))
+        error('lib:edge_vector_ideal:invalidMask', ...
+            'mask must be a scalar target radius, or a logical mask image.');
+    end
+end
+
+function must_be_logical_or_empty(value)
+% Validator for mask_edge: a logical image, or empty. Empty is admitted only
+% because it is this argument's own default, which inputParser never validated.
+    if ~(islogical(value) || isempty(value))
+        error('lib:edge_vector_ideal:invalidMaskEdge', ...
+            'mask_edge must be a logical image.');
+    end
 end

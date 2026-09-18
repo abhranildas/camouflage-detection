@@ -1,5 +1,5 @@
 function [texture_edge_density, n_boundary_edge_pixels, boundary_contours, texture_contours] = ...
-    edge_measures(stim, varargin)
+    edge_measures(stim, options)
 % EDGE_MEASURES  Split an image's edge contours into boundary and texture sets.
 %   [texture_edge_density, n_boundary_edge_pixels] = lib.edge_measures(stim)
 %   [...] = lib.edge_measures(stim, 'bdry_strip', mask_strip)
@@ -14,9 +14,9 @@ function [texture_edge_density, n_boundary_edge_pixels, boundary_contours, textu
 %     bdry_strip  - (name-value) logical ribbon along the target boundary.
 %                   Defaults to the fourth output of lib.target_mask() called
 %                   with no arguments, i.e. a 256-pixel image with a
-%                   64-pixel-radius circular target. That default is computed
-%                   on every call and is wrong for any other image size; see
-%                   B3.13 in the plan.
+%                   64-pixel-radius circular target. That default is rebuilt
+%                   on every call that does not supply one, and is wrong for
+%                   any other image size; see B3.13 in the plan.
 %     edge_kernel - (name-value) 3x3 smoothing kernel handed to EDGE's
 %                   'zerocross' method. Defaults to a binomial kernel.
 %
@@ -37,18 +37,16 @@ function [texture_edge_density, n_boundary_edge_pixels, boundary_contours, textu
 %
 %   See also lib.TARGET_MASK, lib.EDGE_VECTOR_IDEAL, EDGE, BWBOUNDARIES.
 
-    parser = inputParser;
-    parser.KeepUnmatched = true;
-    addRequired(parser, 'stim', @isnumeric);
-    [~, ~, ~, bdry_strip] = lib.target_mask();
-    addParameter(parser, 'bdry_strip', bdry_strip, @islogical);
-    edge_kernel = [1/16 1/8 1/16;
-        1/8 1/4 1/8;
-        1/16 1/8 1/16];
-    addParameter(parser, 'edge_kernel', edge_kernel, @isnumeric);
-    parse(parser, stim, varargin{:});
-    bdry_strip = parser.Results.bdry_strip;
-    edge_kernel = parser.Results.edge_kernel;
+    arguments
+        stim {mustBeNumeric}
+        options.bdry_strip {mustBeA(options.bdry_strip, 'logical')} = default_bdry_strip()
+        options.edge_kernel {mustBeNumeric} = [1/16 1/8 1/16;
+            1/8 1/4 1/8;
+            1/16 1/8 1/16]
+    end
+
+    bdry_strip = options.bdry_strip;
+    edge_kernel = options.edge_kernel;
 
     %% compute all edge contours in the image
 %     all_edges=edge(stim,'canny',[.2 .3]); % threshold for foliage
@@ -85,4 +83,12 @@ function [texture_edge_density, n_boundary_edge_pixels, boundary_contours, textu
     %         contour_edge=contour_normal_gradient./stim_std(contour_indices);
     %         all_contours_e(i)=mean(contour_edge.^2);
     %     end
+end
+
+function bdry_strip = default_bdry_strip()
+% The default boundary ribbon: lib.target_mask's fourth output, with no
+% arguments, i.e. a 256-pixel image with a 64-pixel-radius circular target.
+% A local function because an arguments-block default must be one expression,
+% and this needs the fourth of several outputs. See B3.13.
+    [~, ~, ~, bdry_strip] = lib.target_mask();
 end
