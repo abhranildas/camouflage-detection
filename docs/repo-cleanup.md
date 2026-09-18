@@ -37,22 +37,22 @@
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h3 style="display:inline; margin:0; font-size:1.05em">⬜ 0.2 · Stage 2 · Tidying</h3></summary>
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">🚧 0.2 · Stage 2 · Tidying</h3></summary>
 
 <div style="margin-left:1.5em">
 
 **Description.** Adding a suppressing `;`, preallocation, `find`→logical indexing, deleting a provably unused assignment. Checked by a whitelisted-pattern diff **plus** a runtime golden-output match. A closed list of four: anything bigger is a Speed item (0.5).
 
-**Status.** Not started. Only the `+lib/` core chain and the three psychometric functions in `+experiment/+analysis/` are covered by the golden harness (see 2) — everything else is pattern-check only.
+**Status.** Every tranche below except `+vis/`/`+tests/`/root now has at least one golden-checked entry point; what remains pattern-check-only is the measured set of files with no callable, side-effect-free entry point at all (see 2 and the 0.2.0 log entry).
 
 **To-do.**
 
-- [ ] **0.2.0.** Extend the golden harness to cover every tranche not yet in its 16-entry-point/32-field coverage.
-- [ ] **0.2.1.** `+lib/` (tranches 0.1.2–0.1.4) — golden-checked.
-- [ ] **0.2.2.** `+experiment/+analysis/` (tranche 0.1.6) — golden-checked for the three psychometric functions, pattern-only for the rest.
-- [ ] **0.2.3.** `+experiment/` and `+experiment/+main/` (tranches 0.1.5, 0.1.7) — pattern-check only.
-- [ ] **0.2.4.** `+general/` (tranches 0.1.8, 0.1.9) — pattern-check only.
-- [ ] **0.2.5.** `+vis/`, `+tests/`, `+tinker/`, root — pattern-check only.
+- [x] **0.2.0.** Extend the golden harness to cover every tranche not yet in its 16-entry-point/32-field coverage — now 26 entry points / 57 fields.
+- [ ] **0.2.1.** `+lib/` (tranches 0.1.2–0.1.4) — golden-checked, 13 entry points.
+- [ ] **0.2.2.** `+experiment/+analysis/` (tranche 0.1.6) — golden-checked for 5 of its 12 files, pattern-only for the other 7 (all `.mat`-loading, plotting, or scripts).
+- [ ] **0.2.3.** `+experiment/` and `+experiment/+main/` (tranches 0.1.5, 0.1.7) — golden-checked for `gamma_correct` and `generate_target_present_matrix`, pattern-check only for the rest.
+- [ ] **0.2.4.** `+general/` (tranches 0.1.8, 0.1.9) — golden-checked for `compute_nll_edge_model`, its only function; the other 30 files are scripts, pattern-check only.
+- [ ] **0.2.5.** `+vis/`, `+tests/`, `+tinker/`, root — golden-checked for `+tinker/`'s 5 functions; the rest pattern-check only.
 
 </div>
 
@@ -248,7 +248,15 @@ isequal(canon(old_file), c_new)   % must be true
 
 The lookahead matters: without it a short name (`patch`) can wrongly match inside a longer one (`patch_size`). The rename map must be a bijection with disjoint domain/range, asserted before use (`assert_rename_bijection.m`). `mtree`/`tree2str` are undocumented APIs — pin the MATLAB version (R2024b Update 6) in every commit that depends on the check.
 
-**Stage 2's extra requirement: runtime golden output.** `tools/golden_harness.m` + `tools/golden_ref.mat` capture/replay 32 fields across 16 entry points, seeded explicitly via `rng(cfg.seed)`, never through the top-level driver: `lib.stimulus`, `lib.edge`, `lib.edge_vector_ideal`, `lib.edge_measures_ideal`, `lib.steerable_grad`, `lib.steerable_filter`, `lib.local_sd`, `lib.target_mask`, `lib.create_pink_noise_square`, `lib.whiten`, `lib.compute_p_clipped`, `lib.autocorr`, `lib.csf_fitted`, plus `experiment.analysis.psychometric_fun`/`compute_neg_log_likelihood`/`fit_psychometric`. Everything else (most of `+general/`, `+tinker/`, `+experiment/` — scripts, hardware-bound, or needing loaded `.mat` files) is pattern-check only, decided explicitly, not an oversight. `parfor` baseline: all 24 loops write to sliced outputs, none is a reduction — except two no-op cases now filed as O2.1/O2.2.
+**Stage 2's extra requirement: runtime golden output.** `tools/golden_harness.m` + `tools/golden_ref.mat` capture/replay **57 fields across 26 entry points**, seeded explicitly via `rng(cfg.seed)`, never through the top-level driver:
+
+- `+lib/` (13): `lib.stimulus`, `lib.edge`, `lib.edge_vector_ideal`, `lib.edge_measures_ideal`, `lib.steerable_grad`, `lib.steerable_filter`, `lib.local_sd`, `lib.target_mask`, `lib.create_pink_noise_square`, `lib.whiten`, `lib.compute_p_clipped`, `lib.autocorr`, `lib.csf_fitted`.
+- `+experiment/+analysis/` (5): `psychometric_fun`, `compute_neg_log_likelihood`, `fit_psychometric`, `compute_neg_log_likelihood_edge_response`, `compute_template_response_sigma`.
+- `+experiment/` (2): `gamma_correct`, `generate_target_present_matrix`.
+- `+general/` (1): `compute_nll_edge_model` — the package's only `function` file.
+- `+tinker/` (5): `pink_noise_dist`, `pink_noise_line`, `pink_noise_line_dist`, `pink_noise_square_manual`, `spatial_pattern` — the package's only `function` files.
+
+Everything else is pattern-check only, decided explicitly per file (0.2.0's log entry), not an oversight. The measured reason, repo-wide: of the 31 in-scope `+general/` files exactly 1 has a `function` line and of the 13 `+tinker/` files exactly 5 do — the rest are top-level scripts with no callable entry point; the remaining `+experiment/+analysis/`, `+experiment/`, `+experiment/+main/`, `+vis/` and `+tests/` files either load session `.mat` files from `exp_files/`, open figures, are Psychtoolbox-bound, or error on their first statement against a recorded bug. `tools/smoke_test.m` is the does-it-run-at-all backstop for that set. `parfor` baseline: all 24 loops write to sliced outputs, none is a reduction — except two no-op cases now filed as O2.1/O2.2.
 
 Semicolon insertion is Stage 2, not Stage 1: the canonical diff is exactly `X` → `X;` — trivially whitelisted, but not invisible.
 
@@ -900,9 +908,71 @@ All five passed first try. `assert_rename_bijection` passed for each per-file ma
 
 <div style="margin-left:1.5em">
 
-Not started. Coverage gaps: most of `+general/`, `+tinker/`, `+experiment/` have no callable entry point for the golden harness (scripts, hardware-bound, or `.mat`-dependent) — decided as pattern-check-only, not an oversight.
+Harness extension (0.2.0) done; no tranche edits yet. Coverage now 26 entry points / 57 fields, with the pattern-check-only residue enumerated per file below.
 
-**Per-tranche work log:** empty — nothing done yet.
+**Per-tranche work log.**
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.2.0 — extending the golden harness (<code>tools/golden_harness.m</code>, <code>tools/golden_ref.mat</code>)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+MATLAB R2024b Update 6. Baseline: clean HEAD (`593639e`), working tree clean, nothing else changed in this step. **16 entry points / 32 fields → 26 entry points / 57 fields.**
+
+**How the candidate set was found, so the negative is measured and not an impression.** `grep -c '^function'` over every in-scope file in each directory, then a read of each hit. `+general/`: 31 in-scope files, **exactly 1** has a `function` line. `+tinker/`: 13 files, **exactly 5**. `+vis/`: 5 of 8. `+tests/`: 1 of 2. Everything else in those four packages is a top-level script — no callable entry point exists to add, so "pattern-check only" there is a fact about the files, not a choice.
+
+**Ten entry points added, one line of reason each.**
+
+| entry point | tranche | why it qualified |
+|---|---|---|
+| `experiment.analysis.compute_neg_log_likelihood_edge_response` | 0.2.2 | Pure: takes synthetic contour-group cell arrays and count vectors, calls only `lib.edge_response`/`normcdf`/`binopdf`. It is the objective `compute_threshold_edge_response` minimizes, so it is the numerically load-bearing half of that file's chain. Three branches pinned: optimal, subject, out-of-domain `+Inf`. |
+| `experiment.analysis.compute_template_response_sigma` | 0.2.2 | Pure, no I/O, no figures; only needs an `ImgStats`-shaped struct, which can be synthesised. Toolbox-free. |
+| `experiment.gamma_correct` | 0.2.3 | An easy win the smoke test had already proved safe to call: a pure display-calibration curve whose numbers would move silently if touched. |
+| `experiment.generate_target_present_matrix` | 0.2.3 | Same; RNG-driven (`binornd`, `randperm`), so both its branches are worth pinning under an explicit seed. |
+| `general.compute_nll_edge_model` | 0.2.4 | `+general/`'s **only** function. Pure given a synthetic `edge_model` struct array. Without it tranche 0.2.4 would have had no runtime check at all. |
+| `tinker.pink_noise_dist` | 0.2.5 | Deterministic, no RNG, no I/O; 1-D and 2-D branches both pinned. |
+| `tinker.pink_noise_line_dist` | 0.2.5 | Deterministic, no RNG, no I/O. |
+| `tinker.pink_noise_line` | 0.2.5 | Pure given a seed (`unifrnd`). |
+| `tinker.pink_noise_square_manual` | 0.2.5 | Pure given a seed; kept at 32 px and two frequencies because it is the deliberately slow literal implementation. |
+| `tinker.spatial_pattern` | 0.2.5 | Pure given a seed (`rand`); complex-valued output, which `chk` handles unchanged. |
+
+**Declined, explicitly, with the reason — `+experiment/+analysis/`, file by file.** The seven of its twelve files that are not covered:
+
+| file | why not |
+|---|---|
+| `compute_bootstrapped_threshold.m` | Bare `load` of a hardcoded, machine-specific Dropbox path (B2.11), then delegates the fit to `nm.analysis.fitPsychometric`, which resolves to nothing (B2.9). Not callable at all here. |
+| `compute_threshold_edge_power.m` | `load`s `./exp_files/<type>/exp_settings.mat` and `subject_out/<subject>.mat`; no synthetic stand-in without inventing the whole session format, which is S3.7's work. |
+| `compute_threshold_edge_response.m` | Same two loads, plus `fminsearch` with `'PlotFcns', @optimplotfval`, which opens a figure. |
+| `compute_threshold_texture_exponent.m` | Same two loads. |
+| `compute_thresholds_vs_lum_cont.m` | A script — no `function` line — and its loop body calls the unresolved `analysis.computeThresholdInBin` (B2.9). |
+| `compute_thresholds_vs_statistic.m` | A function, but its *first* statement calls the same unresolved `analysis.computeThresholdInBin`, and the rest is plotting. |
+| `plot_threshold_vs_condition.m` | A script that errors on its first line on an undefined `dur` (B2.17). |
+
+**Declined elsewhere, en bloc, each with its measured reason.** `+general/`: the 30 files without a `function` line — top-level scripts, most of them doing real image I/O. `+tinker/`: the 8 files without a `function` line. `+vis/`: all 8 — the five functions (`plot_edge_energy_hists`, `show_example_patches`, `show_image`, `show_patch_grid`, `show_patches_one_by_one`) exist only for their figure side effect and return nothing to fingerprint. `+tests/`: both — `block_jumping.m` is a script and `gabor_similarity.m` errors on its first call (B2.24/B2.25). `+experiment/` and `+experiment/+main/`: the remainder are Psychtoolbox/display-bound, write into `exp_files/`, or need a loaded session; the two easy wins above were taken and nothing else was, per this step's brief.
+
+**Three conventions set here, binding on anything that touches the harness later.**
+
+1. **New golden field names are snake_case, mirroring the function name**, with a short suffix per extra output (`compute_nll_edge_model_pc`, `..._d`, `..._resp`). The six pre-existing camelCase field names — `compute_pClipped`, `compute_pClipped_clipped`, `computeNegLogLikelihood`, `computeNegLogLikelihood_out_of_range`, `psychometricFun_*`, `fitPsychometric` — are **zone-3 frozen**: they are serialised inside `tools/golden_ref.mat`, and 0.1.1 and S2.19 each already had to rescue one of them from a blanket rename. Do not harmonize them; add new ones in snake_case.
+2. **`compute_template_response_sigma`'s synthetic bin grid is deliberately non-cubic (3×4×5).** B3.4 is that its `i_similarity` loop bound is `size(template_sigma, 1)` rather than `(..., 3)`; on a cube that bug is invisible, on 3×4×5 the last two similarity slices stay zero and the fingerprint records it. **This means fixing B3.4 must fail replay** — that is intended, and its Stage-4 log entry should recapture deliberately rather than treat it as drift.
+3. **Toolbox gating is now three-way, not two.** A new `if has_stats` section sits between the toolbox-free block and the existing `has_stats && has_ipt` block, because the entry points added here need `binornd`/`unifrnd`/`normcdf`/`binopdf` but not Image Processing. Each section warns rather than errors when its toolbox is missing.
+
+**Capture-then-replay, verified against the old reference before overwriting it.** Because a reflex recapture can bless a bad edit, the new harness was first captured to a scratch file and all 32 pre-existing fields compared field by field against the committed `tools/golden_ref.mat`: `old fields 32, drifted 0, new total 57`. Only then was `tools/golden_ref.mat` recaptured. Verbatim, MATLAB R2024b Update 6:
+
+```
+golden_harness: captured 57 fields to tools/golden_ref.mat
+=== REPLAY ===
+golden_harness: replay matched all 57 fields
+```
+
+`checkcode('tools/golden_harness.m')`: no messages. `canon` parses it (9816 chars).
+
+**One pre-existing oddity, checked and cleared.** A capture run prints five bare `ans = <n>` lines. They are **not** from anything added here: the HEAD copy of the harness, run unchanged from a scratch directory, prints the same five, in a different order each time — they are the parallel-pool worker ids from `lib.autocorr`'s `parfor`. Noted, not fixed, not a new finding.
+
+**No bug, optimization, or structural item was found or acted on.** This step adds harness code and reads repo code; the three bugs it leans on (B2.9, B2.17, B3.4) were all already recorded.
+
+</div>
+
+</details>
 
 </div>
 
@@ -996,7 +1066,7 @@ matlab -batch "addpath('tools'); smoke_test"
 
 `+tests/` was the other candidate and was rejected: its two members are ad-hoc, un-asserted eyeball scripts that both error on the first call (B2.24, B2.25), it is itself part of the file set the smoke test sweeps, and a `tests.smoke_test` would only be reachable through the very package resolution it exists to check. This is cleanup tooling, so it sits with the cleanup tooling. `+tests/Contents.m` previously pointed forward to "the plan to add a real, assertion-based smoke test"; that line now points at the file.
 
-**What it is for, next to the golden harness.** The golden harness answers *did the numbers move*, and cannot answer anything without `tools/golden_ref.mat`. The smoke test answers *does the code resolve, parse and run at all*, from a clean checkout with no reference data. Coverage is deliberately disjoint where it can be: the call sweep leaves out the sixteen entry points the harness already pins, except where one is needed as an input.
+**What it is for, next to the golden harness.** The golden harness answers *did the numbers move*, and cannot answer anything without `tools/golden_ref.mat`. The smoke test answers *does the code resolve, parse and run at all*, from a clean checkout with no reference data. Coverage is deliberately disjoint where it can be: the call sweep leaves out the entry points the harness already pins, except where one is needed as an input or where 0.2.0 later promoted a swept function to golden coverage too.
 
 **The four checks.**
 

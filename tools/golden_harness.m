@@ -9,25 +9,32 @@ function golden = golden_harness(mode, golden_file)
 %   ('capture') or reloads GOLDEN_FILE and asserts isequal against a fresh
 %   run ('replay').
 %
-%   Entry points, by tranche (docs/repo-cleanup.md sections 2 and 4.1.2):
-%     tranche 1  lib.stimulus, lib.edge, lib.edge_vector_ideal,
-%                lib.edge_measures_ideal, lib.steerable_grad,
-%                lib.steerable_filter, lib.local_sd, lib.target_mask,
-%                lib.compute_p_clipped
-%     tranche 3  lib.create_pink_noise_square, lib.whiten, lib.autocorr,
-%                lib.csf_fitted
-%     tranche 5  experiment.analysis.psychometric_fun,
-%                experiment.analysis.compute_neg_log_likelihood,
-%                experiment.analysis.fit_psychometric
+%   Entry points, by Stage-2 tranche (docs/repo-cleanup.md sections 0.2 and 2):
+%     0.2.1  lib.stimulus, lib.edge, lib.edge_vector_ideal,
+%            lib.edge_measures_ideal, lib.steerable_grad,
+%            lib.steerable_filter, lib.local_sd, lib.target_mask,
+%            lib.compute_p_clipped, lib.create_pink_noise_square, lib.whiten,
+%            lib.autocorr, lib.csf_fitted
+%     0.2.2  experiment.analysis.psychometric_fun,
+%            experiment.analysis.compute_neg_log_likelihood,
+%            experiment.analysis.fit_psychometric,
+%            experiment.analysis.compute_neg_log_likelihood_edge_response,
+%            experiment.analysis.compute_template_response_sigma
+%     0.2.3  experiment.gamma_correct,
+%            experiment.generate_target_present_matrix
+%     0.2.4  general.compute_nll_edge_model
+%     0.2.5  tinker.pink_noise_dist, tinker.pink_noise_line,
+%            tinker.pink_noise_line_dist, tinker.pink_noise_square_manual,
+%            tinker.spatial_pattern
 %
-%   Not covered, by decision recorded in plan sections 2 and 4.2: every file
-%   in +general/, +tinker/, +vis/, +tests/, +experiment/+main/, the
-%   +experiment/ top level, and the non-psychometric half of
-%   +experiment/+analysis/. Those are top-level scripts with no callable
-%   entry point, are Psychtoolbox/display bound, write into exp_files/, or
-%   need loaded session .mat files. Restructuring any of them into callable
-%   functions is itself Stage 3 (S3.7), so their Stage-2 edits are verified
-%   by pattern check only.
+%   Not covered, by decision recorded in plan sections 0.2 and 2: every
+%   remaining file in +general/, +tinker/, +vis/, +tests/, +experiment/,
+%   +experiment/+main/ and +experiment/+analysis/. Those are top-level
+%   scripts with no callable entry point at all, are Psychtoolbox/display
+%   bound, open figures, write into exp_files/, or need loaded session .mat
+%   files. Restructuring any of them into callable functions is itself
+%   Stage 3 (S3.7), so their Stage-2 edits are verified by pattern check
+%   only, with tools/smoke_test.m as the does-it-run-at-all backstop.
 %
 % Inputs
 %   mode         'capture' or 'replay', char
@@ -62,6 +69,141 @@ golden.csf_fitted = chk(lib.csf_fitted(linspace(0.5, 30, 20)));
 % On a real stimulus it returns 0, which would make the fingerprint degenerate.
 % The >1% branch warns; that warning in the harness log is expected.
 golden.compute_pClipped_clipped = chk(lib.compute_p_clipped([-0.5, 0.2, 1.5, 0.7]));
+
+rng(cfg.seed);
+golden.gamma_correct = chk(experiment.gamma_correct(linspace(0, 1, 64), 2.089, 8));
+
+% Synthetic ImgStats, because the real one is built by the excluded +stats/
+% package. patch_index is deliberately 3x4x5 rather than a cube: the
+% i_similarity loop bound is size(template_sigma, 1), not (..., 3) -- that is
+% B3.4 -- so on a non-cubic bin grid the last two similarity slices stay 0,
+% and this fingerprint pins the bug as it stands. Fixing B3.4 must therefore
+% fail replay, deliberately.
+rng(cfg.seed);
+ImgStats = struct();
+ImgStats.Settings.targetKey = {'gabor', 'haar'};
+ImgStats.Settings.targets = reshape(1:32, 4, 4, 2) / 32;
+ImgStats.tMatch = reshape(1:240, 20, 6, 2) / 17;
+patch_index = cell(3, 4, 5);
+for i_bin = 1:numel(patch_index)
+    patch_index{i_bin} = mod((1:7) * i_bin, 120) + 1;
+end
+ImgStats.patchIndex = {patch_index, patch_index};
+[template_sigma, small_sample] = experiment.analysis.compute_template_response_sigma( ...
+    ImgStats, 'haar', true);
+golden.compute_template_response_sigma = chk(template_sigma);
+golden.compute_template_response_sigma_small = chk(small_sample);
+
+rng(cfg.seed);
+[pn_density_1d, pn_value_1d] = tinker.pink_noise_dist(1, [1, 2, 4]);
+golden.pink_noise_dist_1d = chk(pn_density_1d);
+golden.pink_noise_dist_1d_value = chk(pn_value_1d);
+
+rng(cfg.seed);
+[pn_density_2d, pn_value_2d] = tinker.pink_noise_dist(2, [1, 2], pi/2);
+golden.pink_noise_dist_2d = chk(pn_density_2d);
+golden.pink_noise_dist_2d_value = chk(pn_value_2d);
+
+rng(cfg.seed);
+[pn_line_density, pn_line_value] = tinker.pink_noise_line_dist(0, 1, 0.5);
+golden.pink_noise_line_dist = chk(pn_line_density);
+golden.pink_noise_line_dist_value = chk(pn_line_value);
+
+% spatial_pattern draws rand(dim) and returns a complex array; chk's sum and
+% index-weighted sum stay complex, which is fine for isequal.
+rng(cfg.seed);
+golden.spatial_pattern = chk(tinker.spatial_pattern([32, 32], -1));
+
+% -------------------------------------------------------------------------
+% Statistics and Machine Learning Toolbox only (binornd, unifrnd, normcdf,
+% binopdf) -- no Image Processing Toolbox needed
+% -------------------------------------------------------------------------
+
+if has_stats
+    rng(cfg.seed);
+    golden.generate_target_present_matrix = chk( ...
+        experiment.generate_target_present_matrix(10, 3, 2));
+    rng(cfg.seed);
+    golden.generate_target_present_matrix_fixed = chk( ...
+        experiment.generate_target_present_matrix(10, 3, 2, 0.4, false));
+
+    rng(cfg.seed);
+    golden.pink_noise_line = chk(tinker.pink_noise_line(128, 1:8));
+
+    rng(cfg.seed);
+    golden.pink_noise_square_manual = chk(tinker.pink_noise_square_manual(32, [1, 2], pi/2));
+
+    % --- the edge-response likelihood: the objective
+    %     compute_threshold_edge_response minimizes. Synthetic contour-group
+    %     data, built without any RNG draw so the cells are stable. ---
+    n_trials = 8;
+    n_levels = 4;
+    stim_l_groups = cell(n_trials, n_levels);
+    stim_e_groups = cell(n_trials, n_levels);
+    b_target = false(n_trials, n_levels);
+    for i_trial = 1:n_trials
+        for i_level = 1:n_levels
+            n_groups = 2 + mod(i_trial + i_level, 3);
+            stim_l_groups{i_trial, i_level} = 5 + (1:n_groups) * i_level;
+            stim_e_groups{i_trial, i_level} = 0.1 * (1:n_groups) + 0.05 * i_trial;
+            b_target(i_trial, i_level) = mod(i_trial, 2) == 0;
+        end
+    end
+    n_blanks = sum(~b_target);
+    n_targets = sum(b_target);
+    n_hits = [3, 3, 4, 4];
+    n_correct_rejections = [3, 4, 4, 4];
+    p_edge = [0.3, 1.2, 0.5];
+
+    [nll_opt, pc_opt, d_opt] = ...
+        experiment.analysis.compute_neg_log_likelihood_edge_response( ...
+        p_edge, stim_l_groups, stim_e_groups, b_target, true);
+    golden.compute_nll_edge_response_opt = chk(nll_opt);
+    golden.compute_nll_edge_response_opt_pc = chk(pc_opt);
+    golden.compute_nll_edge_response_opt_d = chk(d_opt);
+
+    golden.compute_nll_edge_response_subj = chk( ...
+        experiment.analysis.compute_neg_log_likelihood_edge_response( ...
+        p_edge, stim_l_groups, stim_e_groups, b_target, false, n_blanks, n_targets, ...
+        n_hits, n_correct_rejections));
+
+    % Out-of-domain parameters, pinning the +Inf branch, same idea as
+    % computeNegLogLikelihood_out_of_range above.
+    golden.compute_nll_edge_response_out_of_range = chk( ...
+        experiment.analysis.compute_neg_log_likelihood_edge_response( ...
+        [-1, 1.2, 0.5], stim_l_groups, stim_e_groups, b_target, true));
+
+    % --- the edge-counting model likelihood. edge_model.mat lives in
+    %     vislab-common and is not loaded here; this is a synthetic
+    %     two-experiment stand-in with the four fields the function reads. ---
+    edge_model = struct('target', {}, 'n_bdry_edge_pixels', {}, ...
+        'txtr_edge_density', {}, 'subject_data', {});
+    for i_exp = 1:2
+        target_present = mod((1:8).', 2) == 0;
+        target_present = repmat(target_present, 1, 3);
+        edge_model(i_exp).target = target_present;
+        edge_model(i_exp).n_bdry_edge_pixels = ...
+            reshape(20 + mod((1:24) * i_exp, 11), 8, 3);
+        edge_model(i_exp).txtr_edge_density = 0.2 + 0.05 * i_exp;
+        edge_model(i_exp).subject_data(1).correct = target_present;
+    end
+
+    [nll_model, pc_model, d_model, resp_model] = ...
+        general.compute_nll_edge_model(1.5, edge_model, 100, 1);
+    golden.compute_nll_edge_model = chk(nll_model);
+    golden.compute_nll_edge_model_pc = chk(pc_model);
+    golden.compute_nll_edge_model_d = chk(cell2mat(d_model));
+    golden.compute_nll_edge_model_resp = chk(resp_model);
+
+    golden.compute_nll_edge_model_optimal = chk( ...
+        general.compute_nll_edge_model(1.5, edge_model, 100, 0));
+    golden.compute_nll_edge_model_out_of_range = chk( ...
+        general.compute_nll_edge_model(-1, edge_model, 100, 1));
+else
+    warning('golden_harness:noStats', ...
+        ['Statistics and Machine Learning Toolbox not found -- the ', ...
+         'stats-only entry points were skipped.']);
+end
 
 % -------------------------------------------------------------------------
 % Statistics and Machine Learning Toolbox (normrnd, knnsearch, normcdf,
