@@ -1,35 +1,63 @@
 function cfg = config()
-% CONFIG  Central configuration for the camouflage-detection project.
-%   cfg = config()  returns a struct of data paths and shared physical/optical
-%   constants. Pass it to code that needs paths or parameters instead of relying
-%   on hardcoded absolute paths or the ambient MATLAB path.
+% CONFIG  Data paths and shared physical constants for the camouflage project.
+%   cfg = CONFIG()
 %
-%   EDIT cfg.paths.data_root below if the shared data store (vislab-common/data)
-%   is not next to this repo.
+%   One place to look up a path or a physical constant. Pass the returned
+%   struct to code that needs one, instead of hardcoding an absolute path or
+%   relying on whatever happens to be on the ambient MATLAB path.
 %
-%   (Mirrors the config.m convention in the sibling texture-learning /
-%   texture-segmentation repos so the three projects share one layout.)
+%   Edit cfg.paths.data_root below if the shared data store
+%   (vislab-common/data) does not sit next to this repo.
+%
+%   Inputs
+%     none.
+%
+%   Output
+%     cfg - struct with these fields:
+%           paths.repo_root      - this repo's root directory.
+%           paths.data_root      - shared lab data store (~23 GB), a sibling
+%                                  of this repo. All paths below hang off it.
+%           paths.natural_images - CPS calibrated natural image database.
+%           paths.textures       - synthesized texture database.
+%           paths.images         - source images for texture synthesis.
+%           paths.edge_powers    - deployed per-texture edge-power bins.
+%           paths.exp_files      - per-experiment settings and subject output.
+%           paths.data           - analysis artifacts written by this repo.
+%           paths.por_sim        - vendored Portilla-Simoncelli synthesis code.
+%           optics.ppd            - sampling density, pixels per degree.
+%           optics.pupil_diameter - pupil diameter, mm.
+%           optics.wavelength     - light wavelength, nm.
+%           norm.target_mean      - target mean grey level, image units
+%                                   (128 assumes an 8-bit 0-255 range).
+%           norm.target_contrast  - target RMS contrast, dimensionless.
+%           seed                  - integer seed for rng().
+%
+%   Mirrors the config.m convention in the sibling texture-learning /
+%   texture-segmentation repos, so the three projects share one layout.
+%
+%   See also setup, rng.
 
     repo_root = fileparts(mfilename('fullpath'));
 
     % --- data locations ---
-    cfg.paths.repo_root      = repo_root;
-    cfg.paths.data_root      = fullfile(repo_root, '..', 'vislab-common', 'data');   % shared lab data store
+    cfg.paths.repo_root = repo_root;
+    cfg.paths.data_root = fullfile(repo_root, '..', 'vislab-common', 'data');
     cfg.paths.natural_images = fullfile(cfg.paths.data_root, 'CPS natural images');
-    cfg.paths.textures       = fullfile(cfg.paths.data_root, 'textures');
-    cfg.paths.images         = fullfile(cfg.paths.data_root, 'images');      % source images for texture synthesis
-    cfg.paths.edge_powers    = fullfile(cfg.paths.data_root, 'edge_powers');  % deployed per-texture edge-power bins
-    cfg.paths.exp_files      = fullfile(repo_root, 'exp_files');             % per-experiment settings + subject output
-    cfg.paths.data           = fullfile(repo_root, 'data');                 % analysis artifacts
-    cfg.paths.por_sim        = fullfile(repo_root, 'por_sim_tx_synth');     % vendored Portilla-Simoncelli synthesis
+    cfg.paths.textures = fullfile(cfg.paths.data_root, 'textures');
+    cfg.paths.images = fullfile(cfg.paths.data_root, 'images');
+    cfg.paths.edge_powers = fullfile(cfg.paths.data_root, 'edge_powers');
+    cfg.paths.exp_files = fullfile(repo_root, 'exp_files');
+    cfg.paths.data = fullfile(repo_root, 'data');
+    cfg.paths.por_sim = fullfile(repo_root, 'por_sim_tx_synth');
 
     % --- eye optics (Watson OTF); shared lab constants ---
-    cfg.optics.ppd            = 60;      % pixels per degree
-    cfg.optics.pupil_diameter = 4;       % mm
-    cfg.optics.wavelength     = 550;     % nm  (note: some legacy scripts passed 555 -- see CLEANUP.md)
+    cfg.optics.ppd = 60;
+    cfg.optics.pupil_diameter = 4;
+    % Some legacy scripts pass 555 nm instead -- see CLEANUP.md.
+    cfg.optics.wavelength = 550;
 
     % --- luminance/contrast normalization ---
-    cfg.norm.target_mean     = 128;
+    cfg.norm.target_mean = 128;
     cfg.norm.target_contrast = 0.25;
 
     % --- reproducibility ---

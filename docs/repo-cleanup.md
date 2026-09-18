@@ -8,13 +8,13 @@
 <summary><h2 style="display:inline; margin:0; font-size:1.15em">0. Status</h2></summary>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h3 style="display:inline; margin:0; font-size:1.05em">🚧 0.1 · Stage 1 · Style</h3></summary>
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">✅ 0.1 · Stage 1 · Style</h3></summary>
 
 <div style="margin-left:1.5em">
 
 **Description.** Comments, header docs, whitespace, operator and bracket spacing, indentation, reflow, blank-line grouping, file-local renames, plus function and file renames repo-wide (step 2a), and triaging any commented-out code found in each tranche's files (verdict only, nothing deleted). Checked by `isequal` on a canonical AST fingerprint — no execution needed.
 
-**Status.** Tranches 0.1.2–0.1.10 predate the mandatory-snake_case rule, and 0.1.1 ran after them rather than before, so it also swept their headers, `See also` lines and `Contents.m` for the old names (see S2.19 for the in-file camelCase retrofit this still leaves open). `+stats/` (12 files) is entirely `_`-prefixed known-dead code, excluded from scope the same way it was in the original survey — no tranche assigned to it unless S3.6 revives it.
+**Status.** Every in-scope file has been through a Stage 1 tranche. Two things are still open by design, not by omission: tranches 0.1.2–0.1.10 predate the mandatory-snake_case rule, so `+experiment/`'s in-file camelCase and its 43 camelCase filenames remain as found (S2.19 settles both halves at once); and `+stats/` (12 files) is entirely `_`-prefixed known-dead code, excluded from scope the same way it was in the original survey, so no tranche was ever assigned to it unless S3.6 revives it.
 
 **To-do.**
 
@@ -30,7 +30,7 @@
 - [x] **0.1.9.** `+general/` remainder — 27 files, 1641 lines.
 - [x] **0.1.10.** `+vis/` + `+tests/` — 10 files, 484 lines. *(per-file convention, genuinely mixed authorship)*
 - [x] **0.1.11.** `+tinker/` — 13 files, 1040 lines.
-- [ ] **0.1.12.** Root files: `config.m`, `setup.m`, `edge_power_demo.m`, `scratch.m`, `test_erlang.m` — 5 files, 356 lines. **Not started.** → `matlab-cleanup-lead` (`model: "opus"`)
+- [x] **0.1.12.** Root files: `config.m`, `setup.m`, `edge_power_demo.m`, `scratch.m`, `test_erlang.m` — 5 files, 356 lines.
 
 </div>
 
@@ -76,7 +76,7 @@
 - [ ] 🔴 **S1.13.** Remove dead scaffolding in the live path (global `bdry_ribbon`, duplicate write, debug `randi(10)`/`imshow`, 3 unconditional bar plots) — 7 named sites.
 - [ ] 🔴 **S1.14.** Consolidate the 3 gamma-compression implementations onto `vislab.lib.gamma_compress`. Tranche 0.1.1 established that only **one** is a file in this repo (`+experiment/gammaCorrect.m`); the second is the inline `gammaCorrection` anonymous function at `runCamouflageExperiment_search.m:36`, and `lib.gammaCorrect` (`setUpExperiment_search.m:118`) resolves to nothing at all (B2.9). No rename was made — with one file there is nothing to disambiguate, and any name change belongs with the consolidation.
 - [ ] 🔴 **S1.16.** Act on the Stage 1 commented-out-code triage (3.1.4) — delete superseded/scaffolding, convert alternative/unfinished, leave unknown.
-- [ ] 🟠 **S2.2.** Route every path through `config.m` (currently zero callers) — resolves B2.1.
+- [ ] 🟠 **S2.2.** Route every path through `config.m` — resolves B2.1. Re-checked repo-wide in tranche 0.1.12: still **zero callers in the repo's own code**. The only two references anywhere are `tools/golden_harness.m:43` (`cfg = config(); ... rng(cfg.seed)`, added by tranche 0.1.0, i.e. cleanup tooling rather than production code) and the `cfg = config;` example at `README.md:53`. So the item stands as written; the cleanup harness is now the config's only consumer, which is exactly backwards.
 - [ ] 🟠 **S2.3.** Collapse the 5 experiment-variant families (`{setUpExperiment,sessionSettings,generate_camouflage_stimuli}×{base,_all,_diff_bg,_shape_exponent,_texture_exponent}`, 15 files, 75–81% duplicate lines).
 - [ ] 🟠 **S2.7.** Make live `+general/` scripts into functions (~8 of 41 are live; not yet enumerated).
 - [ ] 🟠 **S2.8.** Fix `edge_powers` producer/consumer path-layout split.
@@ -103,7 +103,7 @@
 
 **Description.** Bugs found anywhere during Stage 1/2/3, fixed here after Structure. **Rating:** 🔴 severity 1, silently wrong results on a run path · 🟠 severity 2, reachable but not silent · 🟡 severity 3, latent. Id `B<severity>.<n>`, never renumbered. **User launches each fix manually — never auto-dispatched.**
 
-**Status.** 40 of the 41 recorded bugs are unfixed; B3.9 closed as a side effect of tranche 0.1.1's filename/`function`-line rule. Highest open ids: B1.11, B2.26, B3.21.
+**Status.** 60 of the 61 recorded bugs are unfixed; B3.9 closed as a side effect of tranche 0.1.1's filename/`function`-line rule. Highest ids: B1.11, B2.27, B3.23.
 
 **To-do.**
 
@@ -144,12 +144,13 @@
 - [ ] 🟠 **B2.24.** `tests.block_jumping`'s recompute loop calls `lib.stimulus` positionally.
 - [ ] 🟠 **B2.25.** `tests.gabor_similarity` calls `stats.computeSceneSimilarityAmplitude`, unreachable due to `_`-prefix rename.
 - [ ] 🟠 **B2.26.** `+tinker/pink_noise.m:84,311` calls a bare `colored_noise(...)`, which resolves to no function anywhere in this repo (not package-qualified, so outside B2.9's sweep) — errors if either cell is run. Related, same cell: the `parfor` at `:311` reuses its own loop variable and a temporary (`autocorr_image`, `i_ensemble`) after the loop ends (`:337-338`), which `parfor` does not guarantee to hold a value for — moot until B2.26 itself is fixed, since the cell already errors before reaching it.
+- [ ] 🟠 **B2.27.** `scratch.m:92` (cell 1) quivers `edge_vector(:, 1)` / `-edge_vector(:, 2)`, but `edge_vector` is never assigned anywhere in `scratch.m`. Cell 1 is otherwise self-contained, so running it from a clean workspace reaches this line and errors. Even with an `edge_vector` inherited from a manual `edge_power_demo` run it would still error: `lib.edge`'s edge vector is a 1-D profile, so `(:, 2)` is out of bounds. The boundary loop immediately above uses `boundary_contour_props(i).target_normal`, so the intended expression is almost certainly `texture_contour_props(i_contour).target_normal` — but that is a fix, not a Stage 1 edit, so the line is left as found.
 - [ ] 🟡 **B3.1.** `lib.edge_props_stim.m:21,129` hardcodes 256×256/radius-64 mask regardless of input size.
 - [ ] 🟡 **B3.2.** `lib.crop_image.m:21` — `indColorChannel` missing trailing `s`, guard always true; `:33-35` swaps row/col for non-square patch.
 - [ ] 🟡 **B3.3.** `lib.ptch_norm.m:15-16` undefined var `m`, `ntype==2` branch broken. Resolved by S3.11.
 - [ ] 🟡 **B3.4.** `computeTemplateResponseSigma.m:44` — comparison inside `size()`; `:42` loop bound possibly wrong dimension.
 - [ ] 🟡 **B3.5.** `lib.find_spot_centers.m:7` — `ismember(...,'row')` should be `'rows'`.
-- [ ] 🟡 **B3.6.** `lib.hyperexp_nll.m` fits hypoexponential, not hyperexponential — name/code mismatch.
+- [ ] 🟡 **B3.6.** `lib.hyperexp_nll.m` fits hypoexponential, not hyperexponential — name/code mismatch. Second site, found in tranche 0.1.12: root `test_erlang.m` plots the same hypoexponential density (two *different* rates), while an Erlang is the equal-rate case. The file was not renamed (0.1.1 fixes filenames, not misnomers that are really this bug); its header now states plainly what it actually plots.
 - [ ] 🟡 **B3.7.** `sessionSettings.m:40` — stray transpose in `strcmp(transformExpName','')`.
 - [ ] 🟡 **B3.8.** `loadStimuliCamouflage.m:34` — `pixelsPerDeg = ExpSettings.monitor_distance` (field-name trap; correct today, migration needs S3.10).
 - [x] 🟡 **B3.9.** `computeThreshold_edgeResponse.m:1` — function named `computeThreshold`, filename differs. **Resolved in tranche 0.1.1**: step 2a requires the `function` line to agree with the filename, so the declaration was renamed to `computeThreshold_edgeResponse`. Dispatch was always on the filename, so no call site moved.
@@ -165,6 +166,8 @@
 - [ ] 🟡 **B3.19.** `compute_nll_edge_model.m:18,35,52-53` — 3 of 4 outputs unreliable (loop-index bug, unassigned branch).
 - [ ] 🟡 **B3.20.** `analyze_search_exps.m` writes `.hitRate`/`.dPrime` under the same field names for scalar vs. 19-vector quantities — unverified whether both cells ever run against the same struct.
 - [ ] 🟡 **B3.21.** `+tinker/pink_noise_stimuli_autocorrelations.m:66-92` (2nd and 3rd cells) reference `corr_blank_cross`, `corr_target_cross`, `terms`, and `corr_same` — none defined, loaded, or saved anywhere in this file; only runnable if a prior manual run happened to leave them in the workspace.
+- [ ] 🟡 **B3.22.** `scratch.m:97` sets `texture.alpha = 2` where `lib.stimulus` reads `texture.exponent` (`stimulus.m:122-123,201`), so the brown-noise setting is silently ignored and the cell falls back to exponent 1 — a second site of B3.18's pattern. Latent rather than silent-wrong today for two reasons: cell 2 also calls `lib.edge_vector`, which resolves to nothing (B2.9), so it errors first; and if cell 1 was run beforehand, `texture` already carries `.exponent = 2` from `scratch.m:51` and the cell works by accident. Promotes with B3.18 and B2.9.
+- [ ] 🟡 **B3.23.** `scratch.m` cells 4–8 read `ExpSettings`, `SubjectExpFile`, `stims_all`, `stims_miss` and `bdry_strip`, none of which this file creates, loads or saves — same shape as B3.21, and the reason those five names were deliberately left unrenamed in tranche 0.1.12. Within that, one concrete size bug: `scratch.m:141` preallocates `nan(256, 256, length(hit_idx))` but `:143` loops over `size(stims_miss, 3)`, two unrelated counts, so the classification image at `:147` averages trailing NaN pages (or the array grows) whenever they disagree.
 
 **Recorded and disproved (not a bug):** unqualified `edge(...)` in `detect_edge_pixels.m:20`/`edge_measures.m:18` resolves correctly to Image Processing Toolbox `edge`, not `lib.edge`. Do not "fix."
 
@@ -326,7 +329,8 @@ Concentration: 41 files under 25 lines, 81 more under 75; 8 files ≥150 lines h
    - **0.1.8** (`+general/` live model chain): `d_prime`/`d_primes`/`d_primes_model`/`d_prime_subj`/`d_prime_contributions`; `noise_sd`; `edge_count_z`; pooled response moments (as 0.1.6); `d_prime_hit_false_alarm`/`false_alarm_rate`; `error_rates_model`/`error_rates_subj`/`error_rate_sd_subj`; `efficiency_scalar`/`squared_error`; `overall_boundary`; `norm_mean`/`norm_contrast`/`norm_type`; `patch_row_start`/`patch_col_start`; `patch_size`/`patch_padded_size`/`max_filter_size`/`source_image_size`/`n_elements`; `kernel_sigma_list`/`kernel_sigma_max`/`kernel_n_sigma`; `source_image_rgb`/`_grey`/`_otf`/`_path`; `filter_kernel`; `corr_raw`/`corr_pca`; `trial_grid`/`level_grid`/`session_grid`.
    - **0.1.9** (`+general/` remainder): `perf`→`accuracy`; `hitRate`/`faRate`/`dPrime`→`hit_rate`/`false_alarm_rate`/`d_prime`; `t`/`h`/`c`→`target_present`/`hits`/`correct_rejection`; `ep`→`edge_power`; `bd_strip`/`bd_pixels`→`mask_strip`/`boundary_edge_pixels`; `input_img`/`im0`→`source_image_path`/`source_image_grey`; `th`/`th_bin`→`theta`/`theta_bin`; `thislevel`→`this_level`.
    - **0.1.10** (`+vis/`+`+tests/`): per-file only, no shared cross-file vocabulary.
-   - **0.1.11** (`+tinker/`): abbreviations expanded per established vocabulary where a repo-wide precedent existed (`ml`/`cont`→`luminance`/`contrast` per 0.1.7 decision A; `x`/`y`→`x_grid`/`y_grid` for coordinate grids per 0.1.4; `d_prime`/`hit_rate`-style snake_case for `dPrime`-family locals per 0.1.9), plus new `+tinker/`-local vocabulary: `klist`/`kmin`/`kmax`/`log_kmin`/`log_kmax`/`d_logk`→`k_list`/`k_min`/`k_max`/`log_k_min`/`log_k_max`/`d_log_k`; `d_alph`/`alph`→`angle_step`/`angle`; `fil1f`/`fil_whiten`/`fil_pinken`/`fil_1f`→`pink_noise_filter`/`whitening_filter`/`pinkening_filter`/`freq_filter`; `wn`/`wnf`→`white_noise`/`white_noise_fft` (matches 0.1.4's `white_noise_fft`); `img_*`→`pink_noise_*`/`conv_test_*`/`noise_image` per context (never bare `img`); `z`→`value` (theoretical-distribution support) or `distance` (norm computation, same file, minority use commented); `r`/`r_num`/`r_cont`→`corr_coef`/`corr_coef_sum`/`corr_coef_continuous` (not `correlation*` — collides with a pre-existing string literal, see 3.1.3); loop counters `i_<thing>`, with `n`'s majority ensemble-index role kept at its minority pixel-index site via an explanatory comment (rand_boundary.m precedent). The abbreviation list's `XX`/`YY`/`mnv`/`grad`/`haar`/`filt`/`N_b` tokens were not found in the current 13 files — stale from an earlier version; `th`/`S`/`p`/`idx` likewise absent. **0.1.12** (root): not started.
+   - **0.1.11** (`+tinker/`): abbreviations expanded per established vocabulary where a repo-wide precedent existed (`ml`/`cont`→`luminance`/`contrast` per 0.1.7 decision A; `x`/`y`→`x_grid`/`y_grid` for coordinate grids per 0.1.4; `d_prime`/`hit_rate`-style snake_case for `dPrime`-family locals per 0.1.9), plus new `+tinker/`-local vocabulary: `klist`/`kmin`/`kmax`/`log_kmin`/`log_kmax`/`d_logk`→`k_list`/`k_min`/`k_max`/`log_k_min`/`log_k_max`/`d_log_k`; `d_alph`/`alph`→`angle_step`/`angle`; `fil1f`/`fil_whiten`/`fil_pinken`/`fil_1f`→`pink_noise_filter`/`whitening_filter`/`pinkening_filter`/`freq_filter`; `wn`/`wnf`→`white_noise`/`white_noise_fft` (matches 0.1.4's `white_noise_fft`); `img_*`→`pink_noise_*`/`conv_test_*`/`noise_image` per context (never bare `img`); `z`→`value` (theoretical-distribution support) or `distance` (norm computation, same file, minority use commented); `r`/`r_num`/`r_cont`→`corr_coef`/`corr_coef_sum`/`corr_coef_continuous` (not `correlation*` — collides with a pre-existing string literal, see 3.1.3); loop counters `i_<thing>`, with `n`'s majority ensemble-index role kept at its minority pixel-index site via an explanatory comment (rand_boundary.m precedent). The abbreviation list's `XX`/`YY`/`mnv`/`grad`/`haar`/`filt`/`N_b` tokens were not found in the current 13 files — stale from an earlier version; `th`/`S`/`p`/`idx` likewise absent.
+   - **0.1.12** (root): established vocabulary reapplied wherever it fit — `ml`/`cont`→`luminance`/`contrast` (0.1.7 decision A), `bd_strip`→`mask_strip` and `bd_pixels`→`boundary_edge_pixels` (0.1.9), `tx_*`→`texture_*` on the same pattern, `X`/`Y`→`x_grid`/`y_grid` (0.1.4), `i`→`i_<thing>` (convention 2). New root-local vocabulary: `bd_contour_props`/`tx_contour_props`→`boundary_contour_props`/`texture_contour_props` (+`mean_` forms); `bdry_contours`/`txtr_contours`→`boundary_contours`/`texture_contours`; `stim_grads_all`→`stim_grad_magnitudes`; `class_img`→`classification_image`; `idx`→`hit_idx`, `iTrial`/`iLevel`/`iSession`→`trial_idx`/`level_idx`/`session_idx`, `stims`→`hit_stimuli`; `th`→`threshold` and `n`→`exponent` (the callee's own output names); `edge`→`edge_profile` (builtin shadow). In `setup.m`: `commons`→`vislab_dir`, `fetch_commons`→`fetch_vislab_common`, `target`→`vislab_package`, `out`→`cmd_output`, `tb_dir`→`toolbox_root`, `d`→`toolboxes_dir`, `root`→`install_root`, `cand`→`candidate`, `w`→`which_path`, `probe`→`probe_name`, `i`→`i_folder`. `config.m` needed no rename at all (checked with an empty map). **Kept, with reasons:** `ppd` (it is the name of the `cfg.optics.ppd` field), `stim`, `contour` (mirrors the frozen `contour_props` struct field, 0.1.3 precedent, despite shadowing the `contour` builtin), `por_sim` (mirrors `cfg.paths.por_sim`), `folder` (the honest output name of a generic `locate_folder`), and every name-value mirror (`mask`, `mask_edge`, `mask_normal`, `kernel_size`, `target_radius`, `seed`, `texture`) per convention 3.
 
 2. **Cross-file vocabulary — repo-wide, or not at all.** Three kinds:
    - **Function and file names** — tranche 0.1.1, **done**; 38 renames, map and family rules below.
@@ -661,11 +665,51 @@ ALL_OK: true
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.12 — root (not started)</h5></summary>
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.12 — root (5 files, 356 lines)</h5></summary>
 
 <div style="margin-left:1.5em">
 
-Not started. Root's 5 files (`config.m`, `setup.m`, `edge_power_demo.m`, `scratch.m`, `test_erlang.m`) are the config file and user-facing driver — per the skill, these go late and get the strongest model.
+**Baseline.** HEAD, for all five files — the working tree was clean at tranche start, including the two `+general/` files the 0.1.0 entry flagged (their `colorbarpzn` repoint was committed in `chore: carry forward pre-existing uncommitted edits`, so that caveat is now spent and no longer constrains any baseline). Verified via `check_stage1` per file, MATLAB R2024b Update 6:
+
+```
+config.m                 true
+setup.m                  true
+edge_power_demo.m        true
+scratch.m                true
+test_erlang.m            true
+
+ALL_OK: true
+```
+
+All five passed first try. `assert_rename_bijection` passed for each per-file map (run inside `check_stage1`). Renames are file-local only (zone 1); no zone-2 name-value parameter and no zone-3 frozen name was touched, and no file was renamed (0.1.1 already did `test.m`→`scratch.m` and `test_Erlang.m`→`test_erlang.m`).
+
+**`config.m`'s two extra checks, both clean.** Per the skill's "config files get an extra check": (a) `check_stage1` passed with an **empty** rename map, which is the stronger statement — the file's AST is byte-identical, so the returned struct cannot have moved; (b) belt-and-braces, `config()` was run before and after from separate folders and compared field by field, with each struct's own `repo_root` prefix stripped from the paths (they necessarily differ, since the paths are built from `mfilename('fullpath')`): `paths`, `optics`, `norm`, `seed` and the field-name lists all `isequal`-identical. The golden harness, which calls `config()` and seeds from `cfg.seed`, replayed clean: `golden_harness: replay matched all 32 fields`. `checkcode` unchanged across all five files — three messages, all on `scratch.m`'s one deliberately-unsuppressed line, same ids as before.
+
+**S2.2 re-checked: `config.m` still has zero callers, with one correction to record.** A repo-wide grep for `config()`, `= config`, and `cfg.` finds exactly two references outside `config.m` itself: `tools/golden_harness.m:43` and the `cfg = config;` example at `README.md:53`. So the substance of S2.2 stands — no production code reads it — but the flat phrase "zero callers" is now slightly wrong, and in an ironic direction: the only thing calling the config is the cleanup tooling this plan added in 0.1.0. S2.2's entry has been amended to say so.
+
+**Decision — no column-aligned assignments, anywhere.** `config.m` and `setup.m` were the last two files in the repo written as aligned tables (`cfg.paths.repo_root      = ...`). A grep across every already-cleaned package found **zero** surviving aligned assignments, so single-space is the established convention and was applied here rather than preserved. Alignment is also fragile in exactly the way step 2b warns about for continuations: one longer field name re-indents nine lines. Aligned columns are kept *inside header comments*, where every file in the repo aligns its `Inputs`/`Output` descriptions.
+
+**Decision — the trailing-comment table in `config.m` became a documented `Output` block.** Nine of `config.m`'s fifteen assignments carried a trailing `% what this is` comment, six of which pushed the line past 100 characters. Rather than reflow nine comments, the descriptions moved into the header's `Output` block as the field-by-field list the exemplar shape asks for, with units attached (`optics.ppd` pixels per degree, `pupil_diameter` mm, `wavelength` nm, `norm.target_mean` mean grey level in image units — 128 implies an 8-bit 0–255 range, cross-checked against `lib.ptch_norm`'s `m0` — and `norm.target_contrast` dimensionless RMS contrast). Net effect: `config.m` now has **no** line over 100 characters, down from six. The one comment kept inline-as-prose is the 555-vs-550 nm note, because it is a live discrepancy (B1.10), not a description.
+
+**Multi-role loop variable, `scratch.m`'s `i`.** Six loops: four index contours (`:81`, `:89`, `:163`, `:168`), two index stimuli (the hit-trial loop at `:132` and the gradient loop at `:143`). One token gets one name per file (convention 1), so the majority name `i_contour` was applied throughout and an explanatory comment added at each of the two minority sites — the `+tinker/pink_noise.m` (0.1.11) and `+general/rand_boundary.m` (0.1.9) precedent for exactly this. The split here is 4-vs-2 rather than 10-vs-2, so this is the least comfortable application of that rule so far; it was still preferred over inventing a meaning-neutral counter name, which would have made all six loops worse to read instead of two.
+
+**Decision — `scratch.m`'s undefined workspace variables are left unrenamed, deliberately.** `ExpSettings` and `SubjectExpFile` are zone-3 frozen. `stims_all`, `stims_miss`, `bdry_strip` and the `edge_vector` at `:92` are neither frozen nor defined anywhere in the file: they are a de-facto interface to whatever a previous manual run left in the workspace. Renaming them would both break that (already broken) contract and erase the evidence for B3.23/B2.27 — the same reasoning that kept `mean_subj_acc` untruthful in 0.1.6. The header now says outright which cells are self-contained and which are not.
+
+**Names kept, with reasons** (so a later pass does not re-open them): `ppd` — it is the spelling of the `cfg.optics.ppd` field, and expanding it in one file only would desynchronise them; `contour` — mirrors the frozen `contour_props` struct field and follows 0.1.3, accepted despite shadowing the `contour` builtin, since the file never plots a contour map; `por_sim` — mirrors `cfg.paths.por_sim` and the `por_sim_tx_synth/` folder; `folder` — the honest output name of a deliberately generic `locate_folder`; and every name-value mirror (`mask`, `mask_edge`, `mask_normal`, `kernel_size`, `target_radius`, `seed`, `texture`, `stim`) per convention 3.
+
+**`setup.m`'s two same-meaning locals could not share a name.** `tb_dir` (in `ensure_addon_on_path`) and `d` (the output of `addons_toolboxes_dir`) hold the same thing in two different local functions, but a map sending both to `toolboxes_dir` is not injective and `assert_rename_bijection` rejects it. Split as `toolbox_root` and `toolboxes_dir` — both accurate, neither abbreviated. Worth knowing for any later tranche that hits the same shape: the bijection constraint is per *file*, so two local functions in one file cannot converge on a name.
+
+**Local subfunction renamed, and why that is still zone 1.** `fetch_commons` → `fetch_vislab_common`. A local subfunction is invisible outside its file, so it is a file-local name, not a step-2a file rename; `check_stage1` covers it as a bare identifier at its one call site. `commons` was a token used nowhere else in the repo, while `vislab-common` is the actual repo being cloned (R5, one token per concept). `locate_folder` was **not** renamed — it takes a `name` argument and its generality is real, even though it is only ever called with `'+vislab'`.
+
+**Header docs.** All five rewritten to the exemplar shape. The two scripts (`edge_power_demo.m`, `scratch.m`) and `test_erlang.m` use `Script, no arguments` with `Output: none (side effect: ...)`, per 0.1.5/0.1.11. `setup.m`'s four local functions each got their own `Inputs`/`Output` block too, since three of them return a value whose empty case is meaningful. `scratch.m`'s header enumerates its eight cells and states up front which ones depend on workspace state. **No root `Contents.m`** — the root is not a package, so the per-package `Contents.m` convention does not apply; `+lib/`, `+general/`, `+vis/`, `+tests/`, `+tinker/`, `+experiment/` and its two subpackages all have theirs.
+
+**Line-length exceptions: 3.** `setup.m:82` (111) and `:83` (104) are elements of a `[...]` string concatenation in the `noData` warning; re-splitting them would change the string literals, a real AST change Stage 1 forbids — both were already over the limit before this tranche (111/105 at the old `:60`/`:61`). `scratch.m:99` (103) is a commented-out dead line, T10.2, the same category as 0.1.2/0.1.3/0.1.11's dead-line exceptions. Everything else that came out long was reflowed with a 4-space hanging-indent `...`, including six lines in `config.m` (103–119 characters in the original) and five in `scratch.m` (101–138; the sixth is T10.2's exception above). One pre-existing tab, inside T10.1's commented block (`% Niter = 25;<TAB>%`), was converted to two spaces — whitespace inside a comment, invisible to `canon`, and the "never tabs" rule admits no exception.
+
+**Bugs found: B2.27, B3.22, B3.23**, plus a second site recorded against the existing **B3.6**. None fixed, per Stage 1 rules.
+
+**Optimizations: none — a documented negative.** All seven survey patterns were checked over the 356 lines: no loop-invariant work (the four contour loops and two stimulus loops each do genuinely per-iteration work), no file I/O in any loop, no `inv`/`pinv`/`det`, no `parfor`, no whole-array recomputation, and no vectorizable elementwise loop. The one array that grows, `stims_all = cat(3, stims_all, hit_stimuli)`, grows once per manual cell invocation rather than inside a loop, which the skill excludes explicitly. No structural opportunity was acted on either; S2.2 was annotated with what this tranche learned about it.
+
+**Commented-out code: 3 blocks triaged**, T10.1–T10.3 (3.1.4), all in `scratch.m`. The other four files carry none.
 
 </div>
 
@@ -785,7 +829,11 @@ Not started. Root's 5 files (`config.m`, `setup.m`, `edge_power_demo.m`, `scratc
 | T9.19 | `+tinker/whitening_tinker.m` (`%plot([50 50],ylim,'k')`) | 0.1.11 | **scaffolding** — marker-line diagnostic |
 | T9.20 | `+tinker/whitening_tinker.m` (`%title(sprintf(...))`) | 0.1.11 | **scaffolding** — debug title |
 
-`+tinker/`'s dead-code lines (0.1.11) are triaged above, T9.1–T9.20.
+| T10.1 | `scratch.m:35-46,48` | 0.1.12 | **alternative** — a Portilla-Simoncelli texture source (`textureAnalysis` on `foliage.jpg`, `Nsc`/`Nor`/`Na`/`Niter`, then `lib.stimulus`), switched away from in favour of the live pink-noise texture two lines below, which reuses the same seed 35096. Complete and runnable, given the vendored toolbox and the image on disk |
+| T10.2 | `scratch.m:99-100` | 0.1.12 | **superseded** by the live `:102-105` — literally the same two calls (`lib.stimulus`, `lib.edge_vector`), with the mask outputs threaded through instead of discarded |
+| T10.3 | `scratch.m:110` | 0.1.12 | **alternative** — quivers `edge_field` where the live `:111` quivers `mask_normal`; same plot, different vector field |
+
+`+tinker/`'s dead-code lines (0.1.11) are triaged above, T9.1–T9.20. Root's (0.1.12) are T10.1–T10.3; `config.m`, `setup.m`, `edge_power_demo.m` and `test_erlang.m` carry **no** commented-out code at all, only prose comments.
 
 </div>
 
