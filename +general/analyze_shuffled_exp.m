@@ -1,8 +1,8 @@
-% analyze_shuffled_expt  Compare a blocked vs. an unblocked pink-noise
+% analyze_shuffled_exp  Compare a blocked vs. an unblocked pink-noise
 %     detection experiment's hit rate, correct-rejection rate and d' per
 %     edge-power bin, with bootstrapped d' error bars.
 %
-%     analyze_shuffled_expt
+%     analyze_shuffled_exp
 %
 % Script, no arguments. "Blocked" trials are grouped into ten edge-power
 % bins per session (the standard pink-noise design); "unblocked" trials
@@ -19,7 +19,7 @@
 %     (n_boot = 100 resamples) standard-deviation error bars, blocked vs.
 %     unblocked. Nothing is saved to disk.
 %
-% See also general.analyze_search_expts, general.analyze_shape_expts.
+% See also general.analyze_search_exps, general.analyze_shape_exps.
 
 load('exp_files/pink_noise/exp_settings.mat', 'ExpSettings')
 

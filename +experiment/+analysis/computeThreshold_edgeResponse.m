@@ -1,19 +1,20 @@
 function [edge_threshold, exponent, sigma, threshold_sd, slope_sd, bias_sd, ...
-    sessions_completed, target_means, p_correct_boot_sds, x_pmf, y_pmf] = computeThreshold(...
+    sessions_completed, target_means, p_correct_boot_sds, x_pmf, y_pmf] = computeThreshold_edgeResponse(...
     expTypeStr, subjectStr, bPlot, bBootstrap)
-%COMPUTETHRESHOLD  Fit the edge-response detection threshold for a subject, or the optimal observer.
+%COMPUTETHRESHOLD_EDGERESPONSE  Fit the edge-response detection threshold for a subject, or the optimal observer.
 %
 %   [edge_threshold, exponent, sigma, threshold_sd, slope_sd, bias_sd, ...
 %       sessions_completed, target_means, p_correct_boot_sds, x_pmf, y_pmf] = ...
-%       experiment.analysis.COMPUTETHRESHOLD(expTypeStr, subjectStr, bPlot, bBootstrap)
+%       experiment.analysis.COMPUTETHRESHOLD_EDGERESPONSE(expTypeStr, subjectStr, bPlot, bBootstrap)
 %
 % Fits experiment.analysis.computeNegLogLikelihood_edgeResponse's
 % [edge_threshold, exponent, sigma] to a subject's pooled contour-group data
 % via fminsearch, or to the optimal-observer likelihood when subjectStr is
 % 'optimal'.
 %
-% This file is named computeThreshold_edgeResponse.m but the function
-% inside is named computeThreshold (B3.9, pre-existing, not fixed here).
+% The function line was renamed from computeThreshold to match the
+% filename in tranche 0.1.1 (resolves B3.9); dispatch was always on the
+% filename, so no call site changes.
 %
 % The %% Bootstrap section (bBootstrap branch) references target_means,
 % target_sds, exp_values, and threshold, none of which this function ever

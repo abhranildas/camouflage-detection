@@ -1,10 +1,10 @@
-% COMPUTE_EDGE_PROPS_EXP_RAW  Edge features of every stimulus of an
+% COMPUTE_EDGE_PROPS_EXP_RESCALED  Edge features of every stimulus of an
 %   experiment, using non-PCA gradient bins re-spaced to be equispaced at
 %   each scale, combined across scales into one decision variable.
 %
 %   Script, not a function — run it cell by cell. Sibling of
-%   general.compute_edge_props_exp, general.compute_edge_props_exp_eq,
-%   general.compute_edge_props_exp_full and general.compute_edge_props_exp_pca
+%   general.compute_edge_props_exp_pca_all, general.compute_edge_props_exp_eq,
+%   general.compute_edge_props_exp_eq_sum and general.compute_edge_props_exp_pca
 %   (near-identical copies; clean and triage together, per the plan). Unlike
 %   its siblings, the "make bins equispaced at each scale" step (dead/
 %   commented in the others) is live here, applied to the plain
@@ -44,7 +44,7 @@
 %   input_array_names and from the 'grad_m_' prefixes below, so renaming them
 %   would break the script silently; and h is tested with exist('h', 'var').
 %
-%   See also lib.EDGE_PROPS_STIM, general.COMPUTE_EDGE_PROPS_EXP.
+%   See also lib.EDGE_PROPS_STIM, general.COMPUTE_EDGE_PROPS_EXP_PCA_ALL.
 
 %% Compute edge contour properties of the stimuli of each experiment
 % exp_paths={'natural/moth','natural/rock','natural/camo_large','natural/spots','natural/leaf','natural/leather','natural/camo','pink_noise',...

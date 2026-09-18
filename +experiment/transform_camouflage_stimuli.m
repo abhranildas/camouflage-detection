@@ -52,7 +52,7 @@ function [stimuli, seeds, edgePowers, pClipped, bTargetPresent] = ...
         for iBlock = 1:nBlocks
             for iTrial = 1:nTrials
                 stimulus = stimuli(:, :, iTrial, iBlock, iSession);
-                pClipped(iTrial, iBlock, iSession) = lib.compute_pClipped(stimulus);
+                pClipped(iTrial, iBlock, iSession) = lib.compute_p_clipped(stimulus);
             end
         end
     end

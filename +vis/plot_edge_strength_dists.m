@@ -1,9 +1,9 @@
-% edge_strength_dists  Plot blank-vs-target-present edge-energy
+% plot_edge_strength_dists  Plot blank-vs-target-present edge-energy
 %     distributions (magnitude, direction, and combined), pairwise
 %     scatterplots between the three measures, a rotating 3D scatter GIF,
 %     and an overlaid magnitude histogram.
 %
-%     edge_strength_dists
+%     plot_edge_strength_dists
 %
 % Script, no arguments. Loads `seed_energy`, an N x 7 array whose columns
 % 2-4 are blank-stimulus edge energy (magnitude, direction,

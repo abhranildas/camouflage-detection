@@ -1,20 +1,20 @@
-function patch_coords_rc = samplePatchCoordinates(image_size, patch_size, patch_spacing, n_patches)
-% SAMPLEPATCHCOORDINATES  Returns spaced coordinates across an image.
-%   patch_coords_rc = lib.samplePatchCoordinates(image_size, patch_size, patch_spacing, n_patches)
+function patch_coords_rc = sample_patch_coordinates(image_size, patch_size, patch_spacing, n_patches)
+% SAMPLE_PATCH_COORDINATES  Returns spaced coordinates across an image.
+%   patch_coords_rc = lib.sample_patch_coordinates(image_size, patch_size, patch_spacing, n_patches)
 %
 %   Example
 %     Return all coordinates with 128 spacing between them
-%       patch_coords_rc = lib.samplePatchCoordinates(size(I), size(P), 128);
+%       patch_coords_rc = lib.sample_patch_coordinates(size(I), size(P), 128);
 %
 %     Return 10 coordinates sampled from all patches with 128 pixel spacing
-%       patch_coords_rc = lib.samplePatchCoordinates(size(I), size(P), 128, 10);
+%       patch_coords_rc = lib.sample_patch_coordinates(size(I), size(P), 128, 10);
 %
 %   Output
 %     patch_coords_rc - row and column indices corresponding to patch location.
 %
 %   Johannes Burge
 %
-%   See also lib.CROPIMAGE, lib.LOADPATCHATINDEX.
+%   See also lib.CROP_IMAGE, lib.LOAD_PATCH_AT_INDEX.
 
     % 1/2 patch width zone in which images are not selected
     row_coord_limits = [1+round(patch_size(1)/2) image_size(1)-ceil(3*patch_size(1)/2)+1];

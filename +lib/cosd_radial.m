@@ -1,6 +1,6 @@
-function cos_grid = cosdRadial(x_deg, y_deg, freq_cyc_deg, amplitude, dc_offset, bPlot)
-% COSDRADIAL  Radially symmetric cosine with a specified frequency.
-%   cos_grid = lib.cosdRadial(x_deg, y_deg, freq_cyc_deg, amplitude, dc_offset, bPlot)
+function cos_grid = cosd_radial(x_deg, y_deg, freq_cyc_deg, amplitude, dc_offset, bPlot)
+% COSD_RADIAL  Radially symmetric cosine with a specified frequency.
+%   cos_grid = lib.cosd_radial(x_deg, y_deg, freq_cyc_deg, amplitude, dc_offset, bPlot)
 %
 %   Radially symmetric cosine grating evaluated at locations x_deg, y_deg.
 %
@@ -17,7 +17,7 @@ function cos_grid = cosdRadial(x_deg, y_deg, freq_cyc_deg, amplitude, dc_offset,
 %
 %   Johannes Burge
 %
-%   See also lib.COSWINDOW2.
+%   See also lib.COS_WINDOW_2D.
 
     if ~exist('bPlot')
         bPlot = 0;

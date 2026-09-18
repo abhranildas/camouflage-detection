@@ -1,6 +1,6 @@
-function target_index = getTargetIndexFromString(Settings, target_type_str)
-% GETTARGETINDEXFROMSTRING  Returns the target key index given a target string.
-%   target_index = lib.getTargetIndexFromString(Settings, target_type_str)
+function target_index = target_index_from_string(Settings, target_type_str)
+% TARGET_INDEX_FROM_STRING  Returns the target key index given a target string.
+%   target_index = lib.target_index_from_string(Settings, target_type_str)
 %
 %   Output
 %     target_index - index of target_type_str within Settings.targetKey, or

@@ -1,6 +1,6 @@
-function examplePatches(ImgStats, lIndex, targetKeyStr, bSave, filePathOut)
-% EXAMPLEPATCHES  Presents a grid of patches.
-%   examplePatches(ImgStats, lIndex, targetKeyStr, bSave, filePathOut)
+function show_example_patches(ImgStats, lIndex, targetKeyStr, bSave, filePathOut)
+% SHOW_EXAMPLE_PATCHES  Presents a grid of patches.
+%   show_example_patches(ImgStats, lIndex, targetKeyStr, bSave, filePathOut)
 %
 %   Description: View a grid of patches. Can be used to view images from
 %   bins to provide a quick sanity check on the image processing routine.
@@ -14,7 +14,7 @@ function examplePatches(ImgStats, lIndex, targetKeyStr, bSave, filePathOut)
 %   (its parameters are ImgStats, lIndex, targetKeyStr, bSave,
 %   filePathOut). Calling with bSave true errors with "Undefined
 %   function or variable 'L'". Apparently copy-pasted from
-%   vis.presentpatches, which does take L/targetNr. Left as found.
+%   vis.show_patch_grid, which does take L/targetNr. Left as found.
 
 envelope = ImgStats.Settings.envelope;
 targetSizePix = ImgStats.Settings.targetSizePix;
@@ -24,7 +24,7 @@ imgFilePath = ImgStats.Settings.imgFilePath;
 
 bitsIn = 14;
 
-targetIndex = lib.getTargetIndexFromString(ImgStats.Settings, targetKeyStr);
+targetIndex = lib.target_index_from_string(ImgStats.Settings, targetKeyStr);
 
 numBins = size(ImgStats.Settings.binCenters.L, 2);
 
@@ -48,11 +48,11 @@ for iCon = 1:numBins
 
             load([imgFilePath, '/' ImgStats.imgDir(imageIndex).name]);
 
-            % B2.15: lib.cropImage's guard variable is misspelled
+            % B2.15: lib.crop_image's guard variable is misspelled
             % ('indColorChannel'), so indColorChannels below is always
             % overridden to every channel regardless of the `1` passed
             % here. Left as found (Stage 1 is behaviour-preserving).
-            imgPatch = double(lib.cropImage(I_PPM, ImgStats.sampleCoords(patchIndex, :), ...
+            imgPatch = double(lib.crop_image(I_PPM, ImgStats.sampleCoords(patchIndex, :), ...
                 targetSizePix, 1, 1));
             imgPatch = (imgPatch - patchMeanPix).*envelope + patchMeanPix;
             colormap(gray(2^bitsIn)); image(imgPatch)

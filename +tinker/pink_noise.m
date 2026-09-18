@@ -66,7 +66,7 @@ img_f_2=abs(img_f).^2;
 figure; surf(abs(fftshift(img_f_2)));
 
 
-[Zr, R] = lib.radialavg(img_corr,100);
+[Zr, R] = lib.radial_avg(img_corr,100);
 figure;
 plot(log(R),log(Zr))
 
@@ -83,7 +83,7 @@ n_ensemble=1e2;
 % ensemble sampling
 pink_noise_1d=zeros(n_ensemble,N);
 for n=1:n_ensemble
-    r_num=tinker.pink_noise_1D(N,klist);
+    r_num=tinker.pink_noise_line(N,klist);
     pink_noise_1d(n,:)=r_num;
 end
 
@@ -309,7 +309,7 @@ end
 figure;
 surf(autocorr_theo,'edgecolor','none');
 
-autocorr=lib.radialavg(autocorr,N/2+1);
+autocorr=lib.radial_avg(autocorr,N/2+1);
 autocorrs(n,:)=autocorr(2:end)/autocorr(2);
 
 d=0:N/2-1;

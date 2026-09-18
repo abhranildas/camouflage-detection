@@ -1,9 +1,9 @@
-% COMPUTE_EDGE_PROPS_EXP  Edge features of every stimulus of an experiment,
+% COMPUTE_EDGE_PROPS_EXP_PCA_ALL  Edge features of every stimulus of an experiment,
 %   combined across scales into one decision variable.
 %
 %   Script, not a function — run it cell by cell. Sibling of
 %   general.compute_edge_props_exp_pca, general.compute_edge_props_exp_eq,
-%   general.compute_edge_props_exp_full and general.compute_edge_props_exp_raw
+%   general.compute_edge_props_exp_eq_sum and general.compute_edge_props_exp_rescaled
 %   (near-identical copies; clean and triage together, per the plan).
 %
 %   For each experiment in exp_paths it calls lib.edge_props_stim on every
@@ -28,8 +28,8 @@
 %     dimensionless) and grad_m_comb, grad_o_comb, grad_p_comb (30 x 10 x 4,
 %     the across-scale combined decision variables, dimensionless).
 %
-%   Unlike general.compute_edge_props_exp_pca, general.compute_edge_props_exp_full
-%   and general.compute_edge_props_exp_raw, the ndgrid below builds the level
+%   Unlike general.compute_edge_props_exp_pca, general.compute_edge_props_exp_eq_sum
+%   and general.compute_edge_props_exp_rescaled, the ndgrid below builds the level
 %   index forward (1:10), so this file does not carry B1.2's reversed-level
 %   defect — recorded, not re-filed.
 %

@@ -18,7 +18,7 @@
 % is not in the call's argument list at all. Left as found; renaming
 % `lum`/`cont` only followed 0.1.6's precedent for these two unused locals.
 %
-% See also general.compute_avg_acc_for_texture, general.analyze_shape_expts.
+% See also general.compute_avg_acc_for_texture, general.analyze_shape_exps.
 
 %% check images from texture list
 

@@ -26,7 +26,7 @@ StatsOut.Smag = zeros(nSamples, 1);
 
 %% Compute Similarity at each location in sampleCoords.
 for sItr = 1:nSamples
-    imgSmall       = lib.cropImage(imIn, sampleCoords(sItr,:), targetSizePix, [], 1);
+    imgSmall       = lib.crop_image(imIn, sampleCoords(sItr,:), targetSizePix, [], 1);
     imgSmall       = imgSmall.*iWin;
     meanImg        = mean(imgSmall(iWin));
     imgSmall(iWin) = imgSmall(iWin) - meanImg;

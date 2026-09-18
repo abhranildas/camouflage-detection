@@ -25,7 +25,7 @@ Yes/no detection. Stimuli are presented in blocks of increasing edge power: 30 t
 | Paper § | Manipulation | Code family | `exp_files/` |
 |---|---|---|---|
 | 3.1 | pink noise, blocked by edge power | base | `pink_noise/` |
-| 3.2 | same stimuli, shuffled (tests criterion vs. sensitivity) | `+general/shuffle_unshuffle_expt.m` | `pink_noise/shuffled/` |
+| 3.2 | same stimuli, shuffled (tests criterion vs. sensitivity) | `+general/shuffle_unshuffle_exp.m` | `pink_noise/shuffled/` |
 | 3.3 | size, duration, eccentricity, luminance, contrast | base, re-run per condition | `pink_noise/eccentricity/`, `recast/` |
 | 3.4 | hidden edge (boundary strip occluded) | base | — |
 | 3.5 | whitened stimuli | base | — |
@@ -81,7 +81,7 @@ Subject data is written to `exp_files/<exp_type>/subject_out/<subject>.mat`.
 camouflage_detection/
 ├── setup.m, config.m       path bootstrap + central config
 ├── edge_power_demo.m       the one clean, working demo — start here
-├── test.m, test_Erlang.m   scratchpads
+├── scratch.m, test_erlang.m  scratchpads
 ├── +lib/        (56 fns)   camouflage-domain helpers: stimulus, masks, edge measures, filters
 ├── +experiment/ (56 files) PTB experiment: setup → run → analyse
 │   ├── +main/              runtime (interval functions, EyeLink, search paradigm)

@@ -1,7 +1,7 @@
-% analyze_search_expts  Score detection/search-experiment hit and false-alarm
+% analyze_search_exps  Score detection/search-experiment hit and false-alarm
 %     rates and plot per-location d' for a spot-search experiment.
 %
-%     analyze_search_expts
+%     analyze_search_exps
 %
 % Script, no arguments; each %% cell is meant to be run on its own, against
 % whatever `Stimulus`/`SubjectExpFile` struct is currently in the workspace
@@ -34,7 +34,7 @@
 %     file is written. Cells 1 and 3 write `SubjectExpFile.hitRate`/
 %     `.dPrime` (see the cell-3 note above about the shared field names).
 %
-% See also general.analyze_shape_expts, general.analyze_shuffled_expt.
+% See also general.analyze_shape_exps, general.analyze_shuffled_exp.
 
 %% process detection experiment responses
 SubjectExpFile.tLocation = logical(Stimulus.tLocation);

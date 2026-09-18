@@ -25,8 +25,8 @@ if(strcmp(typeStr,'fovea'))
 	dogParams.pixperdeg    = 120;
 	dogParams.envelope     = 'coswin';
 
-	[gabor, envelope] = lib.gabor2D(gaborParams, 0);
-	[dog, ~] =  lib.differenceOfGaussians2D(dogParams, 0);
+	[gabor, envelope] = lib.gabor_2d(gaborParams, 0);
+	[dog, ~] =  lib.difference_of_gaussians_2d(dogParams, 0);
 
 	gabor = gabor./max(gabor(:));
 	dog = dog./max(dog(:));
@@ -72,20 +72,20 @@ elseif(strcmp(typeStr, 'periphery'))
     stimulusParams.contrast     = 1;
 
     stimulusParams.type     = 'vertical';   
-	[vertical, envelope]    = lib.haar2D(stimulusParams);
+	[vertical, envelope]    = lib.haar_2d(stimulusParams);
  
     stimulusParams.type     = 'horizontal';
-    [horizontal, envelope]  = lib.haar2D(stimulusParams);
+    [horizontal, envelope]  = lib.haar_2d(stimulusParams);
     
     stimulusParams.type     = 'bowtie';
-    [bowtiehaar, envelope]  = lib.haar2D(stimulusParams);
+    [bowtiehaar, envelope]  = lib.haar_2d(stimulusParams);
     
     stimulusParams.type     = 'bowtie';
-    [bowtiehaar, envelope]  = lib.haar2D(stimulusParams);
+    [bowtiehaar, envelope]  = lib.haar_2d(stimulusParams);
     
     stimulusParams.type     = 'spot';
     tWin                    = envelope;
-    spot                    = lib.spot2D(stimulusParams);
+    spot                    = lib.spot_2d(stimulusParams);
 	
     vertical    = vertical./max(vertical(:));
     horizontal  = horizontal./max(horizontal(:));
@@ -133,20 +133,20 @@ elseif(strcmp(typeStr, 'periphery_model'))
     stimulusParams.contrast     = 1;
 
     stimulusParams.type     = 'vertical';   
-	[vertical, envelope]    = lib.haar2D(stimulusParams);
+	[vertical, envelope]    = lib.haar_2d(stimulusParams);
  
     stimulusParams.type     = 'horizontal';
-    [horizontal, envelope]  = lib.haar2D(stimulusParams);
+    [horizontal, envelope]  = lib.haar_2d(stimulusParams);
     
     stimulusParams.type     = 'bowtie';
-    [bowtiehaar, envelope]  = lib.haar2D(stimulusParams);
+    [bowtiehaar, envelope]  = lib.haar_2d(stimulusParams);
     
     stimulusParams.type     = 'bowtie';
-    [bowtiehaar, envelope]  = lib.haar2D(stimulusParams);
+    [bowtiehaar, envelope]  = lib.haar_2d(stimulusParams);
     
     stimulusParams.type     = 'spot';
     tWin                    = envelope;
-    spot                    = lib.spot2D(stimulusParams);
+    spot                    = lib.spot_2d(stimulusParams);
 	
     vertical    = vertical./max(vertical(:));
     horizontal  = horizontal./max(horizontal(:));

@@ -81,7 +81,7 @@ function [stimuli, seeds, edgePowers, pClipped] = ...
                 stimuli(:, :, iTrial, iLevel, iSession) = stim;
                 edge_vector = lib.edge_vector(stim, target_radius, n_edge, kernel_sigma);
                 edgePowers(iTrial, iLevel, iSession) = lib.edge_measures(edge_vector);
-                pClipped(iTrial, iLevel, iSession) = lib.compute_pClipped(stim(mask_strip));
+                pClipped(iTrial, iLevel, iSession) = lib.compute_p_clipped(stim(mask_strip));
             end
         end
     end

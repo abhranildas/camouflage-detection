@@ -1,11 +1,11 @@
-function [radial_average, bin_radii] = radialavg(matrix, n_bins, x_offset, y_offset)
-% RADIALAVG  Radially average a 2D square matrix into n_bins bins.
-%   [radial_average, bin_radii] = lib.radialavg(matrix, n_bins, x_offset, y_offset)
+function [radial_average, bin_radii] = radial_avg(matrix, n_bins, x_offset, y_offset)
+% RADIAL_AVG  Radially average a 2D square matrix into n_bins bins.
+%   [radial_average, bin_radii] = lib.radial_avg(matrix, n_bins, x_offset, y_offset)
 %
 %   Computes the average along the radius of a unit circle inscribed in the
 %   square matrix. The average is computed in n_bins bins. The radial average
 %   is computed 1/2 bin beyond the unit circle, but all values beyond that
-%   (i.e. corners of the matrix) are excluded from the calculation. RADIALAVG
+%   (i.e. corners of the matrix) are excluded from the calculation. RADIAL_AVG
 %   will fail if NaN values are in the data; they are not excluded from the
 %   calculation. If offset values x_offset, y_offset are used, the origin
 %   (0,0) of the unit circle about which the average is computed is offset
@@ -21,7 +21,7 @@ function [radial_average, bin_radii] = radialavg(matrix, n_bins, x_offset, y_off
 %     Y = Y - y_offset;
 %     matrix = 1 - sqrt(X.^2 + Y.^2);
 %     n_bins = (N-1)/2 + 1;
-%     [radial_average, bin_radii] = lib.radialavg(matrix, n_bins, x_offset, y_offset);
+%     [radial_average, bin_radii] = lib.radial_avg(matrix, n_bins, x_offset, y_offset);
 %     figure; plot(bin_radii, radial_average, '.-');
 %
 %   Output

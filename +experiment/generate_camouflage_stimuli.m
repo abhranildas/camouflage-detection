@@ -49,7 +49,7 @@ function [stimuli, seeds, edgePowers, pClipped] = generate_camouflage_stimuli(te
 %   a leftover from when the seed was drawn there.
 %
 %   See also experiment.SESSIONSETTINGS, experiment.GENERATETARGETPRESENTMATRIX,
-%   lib.STIMULUS, lib.COMPUTE_PCLIPPED.
+%   lib.STIMULUS, lib.COMPUTE_P_CLIPPED.
 
     load(['vislab-common/data/edge_powers/', exp_type, '.mat'], 'edge_powers')
     [~, ~, ~, mask_strip] = lib.target_mask('bg_size', bg_size, 'target_radius', target_radius);
@@ -99,7 +99,7 @@ function [stimuli, seeds, edgePowers, pClipped] = generate_camouflage_stimuli(te
                 end
                 seeds(iTrial, iLevel, iSession) = seed;
                 stimuli(:, :, iTrial, iLevel, iSession) = stim;
-                pClipped(iTrial, iLevel, iSession) = lib.compute_pClipped(stim(mask_strip));
+                pClipped(iTrial, iLevel, iSession) = lib.compute_p_clipped(stim(mask_strip));
             end
         end
         %else

@@ -22,7 +22,7 @@ envelope = Settings.envelope;
 nTargets = size(Settings.targets,2);
 pixelMax = Settings.pixelMax;
 
-sampleCoords    = lib.samplePatchCoordinates(imgSizePix, [surroundSizePix surroundSizePix], spacingPix);
+sampleCoords    = lib.sample_patch_coordinates(imgSizePix, [surroundSizePix surroundSizePix], spacingPix);
 
 D = dir([filePathStr '/*.mat']);
 

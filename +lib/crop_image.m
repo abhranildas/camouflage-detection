@@ -1,7 +1,7 @@
-function [patch, patch_coords_rc] = cropImage(source_image, patch_coords_rc, ...
+function [patch, patch_coords_rc] = crop_image(source_image, patch_coords_rc, ...
     patch_size, indColorChannels, bCenter)
-% CROPIMAGE  Crops a patch from an image based on input coordinates in row-column form.
-%   [patch, patch_coords_rc] = lib.cropImage(source_image, patch_coords_rc, ...
+% CROP_IMAGE  Crops a patch from an image based on input coordinates in row-column form.
+%   [patch, patch_coords_rc] = lib.crop_image(source_image, patch_coords_rc, ...
 %       patch_size, indColorChannels, bCenter)
 %
 %   Output
@@ -15,7 +15,7 @@ function [patch, patch_coords_rc] = cropImage(source_image, patch_coords_rc, ...
 %
 %   Steve Sebastian, Johannes Burge
 %
-%   See also lib.LOADPATCHATINDEX, lib.SAMPLEPATCHCOORDINATES.
+%   See also lib.LOAD_PATCH_AT_INDEX, lib.SAMPLE_PATCH_COORDINATES.
 
     if length(patch_size) == 1
         patch_size = [patch_size patch_size];

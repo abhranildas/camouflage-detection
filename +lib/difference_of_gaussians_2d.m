@@ -1,6 +1,6 @@
-function [dog, envelope] = differenceOfGaussians2D(Parameters, bPlot)
-% DIFFERENCEOFGAUSSIANS2D  Create a difference-of-Gaussians patch.
-%   [dog, envelope] = lib.differenceOfGaussians2D(Parameters, bPlot)
+function [dog, envelope] = difference_of_gaussians_2d(Parameters, bPlot)
+% DIFFERENCE_OF_GAUSSIANS_2D  Create a difference-of-Gaussians patch.
+%   [dog, envelope] = lib.difference_of_gaussians_2d(Parameters, bPlot)
 %
 %   Parameters is a struct with the following fields:
 %       Parameters.stdCenter  (scalar or [X,Y])
@@ -16,7 +16,7 @@ function [dog, envelope] = differenceOfGaussians2D(Parameters, bPlot)
 %                normalised to unit sum).
 %     envelope - envelope of the D.O.G. (the surround, after normalising).
 %
-%   See also lib.GABOR2D.
+%   See also lib.GABOR_2D.
 %
 %   v1.0, 1/5/2016, Jared Abrams, Steve Sebastian <sebastian@utexas.edu>
 
@@ -59,7 +59,7 @@ function [dog, envelope] = differenceOfGaussians2D(Parameters, bPlot)
         case 'gau'
             center = exp(-radius_sq/(2*gabor_sd^2));
         case 'coswin'
-            center = lib.cosWindow2(numel(x), 1, 0);
+            center = lib.cos_window_2d(numel(x), 1, 0);
         otherwise
             center = ones(size(radius_sq));
     end
@@ -78,7 +78,7 @@ function [dog, envelope] = differenceOfGaussians2D(Parameters, bPlot)
         case 'gau'
             surround = exp(-radius_sq/(2*gabor_sd^2));
         case 'coswin'
-            surround = lib.cosWindow2(numel(x), 1, 0);
+            surround = lib.cos_window_2d(numel(x), 1, 0);
         otherwise
             surround = ones(size(radius_sq));
     end
@@ -86,7 +86,7 @@ function [dog, envelope] = differenceOfGaussians2D(Parameters, bPlot)
     surround = surround./(sum(surround(:)));
     center = center./(sum(center(:)));
 
-    center = lib.embedImageinCenter(zeros(size(surround)), center, 1);
+    center = lib.embed_image_in_center(zeros(size(surround)), center, 1);
     dog = center - surround;
     envelope = surround;
 

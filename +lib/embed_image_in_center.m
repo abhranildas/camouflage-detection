@@ -1,7 +1,7 @@
-function [output_image, percent_clipped] = embedImageinCenter(source_image, target, ...
+function [output_image, percent_clipped] = embed_image_in_center(source_image, target, ...
     bAdditive, n_bits, offset_px, bClip, target_window)
-% EMBEDIMAGEINCENTER  Embeds a target in the center of the input image.
-%   [output_image, percent_clipped] = lib.embedImageinCenter(source_image, target, ...
+% EMBED_IMAGE_IN_CENTER  Embeds a target in the center of the input image.
+%   [output_image, percent_clipped] = lib.embed_image_in_center(source_image, target, ...
 %       bAdditive, n_bits, offset_px, bClip, target_window)
 %
 %   Output
@@ -11,7 +11,7 @@ function [output_image, percent_clipped] = embedImageinCenter(source_image, targ
 %
 %   v1.0, 1/5/2016, Steve Sebastian <sebastian@utexas.edu>
 %
-%   See also lib.DIFFERENCEOFGAUSSIANS2D.
+%   See also lib.DIFFERENCE_OF_GAUSSIANS_2D.
 
     %% Set defaults
     if (~exist('bAdditive', 'var'))

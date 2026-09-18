@@ -21,13 +21,13 @@
 % Edge-property extraction (near-identical siblings; see docs/repo-cleanup.md
 % section 4.1.3 for the shared eval()-driven naming and bare-load frozen
 % names they carry)
-%   general.compute_edge_props_exp      - forward level order, PCA bins
-%   general.compute_edge_props_exp_eq   - forward level order, plain bins
-%   general.compute_edge_props_exp_full - reversed level order (B1.2), plain
+%   general.compute_edge_props_exp_pca_all  - forward level order, PCA bins
+%   general.compute_edge_props_exp_eq       - forward level order, plain bins
+%   general.compute_edge_props_exp_eq_sum   - reversed level order (B1.2), plain
 %     bins, cross-scale sum instead of classify_normals
-%   general.compute_edge_props_exp_raw  - reversed level order (B1.2), plain
+%   general.compute_edge_props_exp_rescaled - reversed level order (B1.2), plain
 %     bins re-spaced equispaced per scale
-%   general.compute_edge_props_pink_noise - per-pixel edge-property pooling
+%   general.compute_edge_props_pink_noise   - per-pixel edge-property pooling
 %     for pink-noise stimuli (not per-experiment)
 %
 % Edge-power sampling and fitting
@@ -39,9 +39,9 @@
 %   general.fit_hyperexp_dist               - two-rate hyperexponential fit
 %
 % Analysis and plotting
-%   general.analyze_search_expts            - detection/search hit rate and d'
-%   general.analyze_shape_expts             - accuracy vs. boundary shape exponent
-%   general.analyze_shuffled_expt           - blocked vs. unblocked pink-noise design
+%   general.analyze_search_exps             - detection/search hit rate and d'
+%   general.analyze_shape_exps              - accuracy vs. boundary shape exponent
+%   general.analyze_shuffled_exp            - blocked vs. unblocked pink-noise design
 %   general.compute_avg_acc_for_texture     - pooled accuracy from psychometric fits
 %   general.compute_edge_group_measures     - contour-group edge measures (B1.5)
 %   general.compute_noise_colour            - 1/f^alpha spectral exponent and
@@ -52,19 +52,19 @@
 %     target vs. blank vs. texture
 %   general.plot_shape_exponent_exps        - unfinished stub (loads data,
 %     computes nothing)
-%   general.shuffle_unshuffle_expt          - shuffle/unshuffle trial order
+%   general.shuffle_unshuffle_exp           - shuffle/unshuffle trial order
 %   general.compare_edge_energy_defs        - compares edge-energy definitions
 %     (calls a function, analysis.compute_dPrime_pCorrect, that does not
 %     exist anywhere in this repo; errors if run)
 %   general.check_camo_texture              - display stimuli for each texture
 %     in texture_list
-%   general.cam_ability_vs_samples          - sample-size convergence of edge
+%   general.camo_ability_vs_samples         - sample-size convergence of edge
 %     energy statistics
 %   general.flip_hard_easy                  - reverse an experiment's level order
 %   general.video_demo                      - rank random target placements by
 %     edge energy (lib.stimulus calls are broken here; positional arguments
 %     against a name-value-only signature, errors if run)
-%   general.RandBoundary                    - synthesise a random 1/f^p
+%   general.rand_boundary                   - synthesise a random 1/f^p
 %     boundary shape (unrelated demo, not part of the model chain)
 %
 % Out of scope (pre-existing, user-renamed `_`-prefixed deprecated

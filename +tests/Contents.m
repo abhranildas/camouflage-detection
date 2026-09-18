@@ -7,11 +7,11 @@
 % Call functions/scripts as tests.<name>. Requires the repo root on the
 % MATLAB path (see setup.m).
 %
-%   tests.block_jumping     - script; checks whether recomputed edge
+%   tests.block_jumping   - script; checks whether recomputed edge
 %     energies still respect the original per-block level ordering (BUG:
 %     the recompute call passes lib.stimulus positional arguments against
 %     a name-value-only signature, errors if run, new/B2)
-%   tests.gaborSimilarity   - plots gabor-pair similarity vs. a swept
+%   tests.gabor_similarity   - plots gabor-pair similarity vs. a swept
 %     property (phase, orientation, frequency, amplitude) (BUG: calls
 %     stats.computeSceneSimilarityAmplitude, which does not exist under
 %     that name — the backing file is `_`-prefixed — errors if run,

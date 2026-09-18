@@ -1,6 +1,6 @@
-function presentpatches(ImgStats, L, targetNr, bSave, outPath)
-% PRESENTPATCHES  Presents a grid of patches.
-%   presentpatches(ImgStats, L, targetNr, bSave, outPath)
+function show_patch_grid(ImgStats, L, targetNr, bSave, outPath)
+% SHOW_PATCH_GRID  Presents a grid of patches.
+%   show_patch_grid(ImgStats, L, targetNr, bSave, outPath)
 %
 %   Description: View a grid of patches. Can be used to view images from
 %   bins to provide a quick sanity check on the image processing routine.
@@ -27,11 +27,11 @@ for iCon = 1:10
             I_PPM = load([ImgStats.Settings.imgFilePath, '/' ImgStats.imgDir(imgNr).name]);
             I = I_PPM.I_PPM;
 
-            % B2.15: lib.cropImage's guard variable is misspelled
+            % B2.15: lib.crop_image's guard variable is misspelled
             % ('indColorChannel'), so indColorChannels below is always
             % overridden to every channel regardless of the `1` passed
             % here. Left as found (Stage 1 is behaviour-preserving).
-            cropped = lib.cropImage(I, ImgStats.sampleCoords(patchNr, :), ...
+            cropped = lib.crop_image(I, ImgStats.sampleCoords(patchNr, :), ...
                 targetSizePix, 1, 1).*envelope;
 
             cropped = experiment.gammaCorrect(cropped, 2, 14, 14);

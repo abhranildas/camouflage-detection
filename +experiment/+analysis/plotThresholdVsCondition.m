@@ -1,4 +1,4 @@
-%PLOTTHRESHOLDVSCONDITION_MINE  Plot detection threshold vs. condition, with error bars.
+%PLOTTHRESHOLDVSCONDITION  Plot detection threshold vs. condition, with error bars.
 %
 % Ad-hoc script, not a function: plots a pre-existing workspace variable
 % dur (columns: condition, threshold, threshold error) as an error-bar plot.

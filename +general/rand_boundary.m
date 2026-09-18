@@ -1,6 +1,6 @@
-% RandBoundary  Draw a random object with a 1/f^power boundary spectrum.
+% rand_boundary  Draw a random object with a 1/f^power boundary spectrum.
 %
-%     RandBoundary
+%     rand_boundary
 %
 % Script, no arguments. Synthesises a closed boundary whose radius, as a
 % function of angle, has a 1/f^power amplitude spectrum, then rasterises
@@ -17,7 +17,7 @@
 %         modulation, fixed at 16 pixels regardless of spectral_exponent.
 %     spectral_exponent - the boundary's 1/f^spectral_exponent falloff.
 %
-% See also general.RandBoundary.
+% See also general.rand_boundary.
 
 close all;
 image_size = 513;

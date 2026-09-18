@@ -78,7 +78,7 @@ function [stimuli, seeds, edgePowers, pClipped] = ...
                         'kernel_size', [1 3]);
                     %                 edge=lib.edge_vector(stim,target_radius,n_edge,kernel_sd);
                     edgePowers(iTrial, iLevel, iSession) = target_edge_power;
-                    pClipped(iTrial, iLevel, iSession) = lib.compute_pClipped(stim(mask_strip));
+                    pClipped(iTrial, iLevel, iSession) = lib.compute_p_clipped(stim(mask_strip));
                 else % if this is a blank stimulus
                     [stim, seed] = lib.stimulus('texture', texture, 'bg_size', bg_size, ...
                         'ml_b', luminance, 'cont_b', contrast);

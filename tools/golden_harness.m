@@ -13,7 +13,7 @@ function golden = golden_harness(mode, golden_file)
 %     tranche 1  lib.stimulus, lib.edge, lib.edge_vector_ideal,
 %                lib.edge_measures_ideal, lib.steerable_grad,
 %                lib.steerable_filter, lib.local_sd, lib.target_mask,
-%                lib.compute_pClipped
+%                lib.compute_p_clipped
 %     tranche 3  lib.create_pink_noise_square, lib.whiten, lib.autocorr,
 %                lib.csf_fitted
 %     tranche 5  experiment.analysis.psychometricFun,
@@ -61,7 +61,7 @@ golden.csf_fitted = chk(lib.csf_fitted(linspace(0.5, 30, 20)));
 % Synthetic clipped input, so this entry point is pinned at a non-zero value.
 % On a real stimulus it returns 0, which would make the fingerprint degenerate.
 % The >1% branch warns; that warning in the harness log is expected.
-golden.compute_pClipped_clipped = chk(lib.compute_pClipped([-0.5, 0.2, 1.5, 0.7]));
+golden.compute_pClipped_clipped = chk(lib.compute_p_clipped([-0.5, 0.2, 1.5, 0.7]));
 
 % -------------------------------------------------------------------------
 % Statistics and Machine Learning Toolbox (normrnd, knnsearch, normcdf,
@@ -121,7 +121,7 @@ if has_stats && has_ipt
     golden.edge_measures_ideal_ps = chk(power_spec);
     golden.edge_measures_ideal_phase = chk(phase_spec);
 
-    golden.compute_pClipped = chk(lib.compute_pClipped(stim));
+    golden.compute_pClipped = chk(lib.compute_p_clipped(stim));
 
     % --- 2-D autocorrelation. parfor over a sliced output; span kept small
     %     so the harness stays quick. ---

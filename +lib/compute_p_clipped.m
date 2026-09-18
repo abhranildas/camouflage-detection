@@ -1,6 +1,6 @@
-function pClipped = compute_pClipped(stim)
-% COMPUTE_PCLIPPED  Fraction of an image's pixels that fall outside [0, 1].
-%   pClipped = lib.compute_pClipped(stim)
+function pClipped = compute_p_clipped(stim)
+% COMPUTE_P_CLIPPED  Fraction of an image's pixels that fall outside [0, 1].
+%   pClipped = lib.compute_p_clipped(stim)
 %
 %   Counts elements that a display would clip, i.e. that lie below 0 or above
 %   1 once luminance is expressed as a fraction of the monitor maximum.

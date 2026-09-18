@@ -3,8 +3,8 @@
 %   into one decision variable.
 %
 %   Script, not a function — run it cell by cell. Sibling of
-%   general.compute_edge_props_exp, general.compute_edge_props_exp_pca,
-%   general.compute_edge_props_exp_full and general.compute_edge_props_exp_raw
+%   general.compute_edge_props_exp_pca_all, general.compute_edge_props_exp_pca,
+%   general.compute_edge_props_exp_eq_sum and general.compute_edge_props_exp_rescaled
 %   (near-identical copies; clean and triage together, per the plan). Unlike
 %   the _pca variant, this one calls lib.edge_props_stim with the plain
 %   (non-rotated) grad_m_bins/grad_o_bins/grad_p_bins, and only over
@@ -31,7 +31,7 @@
 %     dimensionless) and grad_m_comb, grad_o_comb, grad_p_comb (30 x 10 x 4,
 %     the across-scale combined decision variables, dimensionless).
 %
-%   Like general.compute_edge_props_exp (and unlike general.compute_edge_props_exp_pca/
+%   Like general.compute_edge_props_exp_pca_all (and unlike general.compute_edge_props_exp_pca/
 %   _full/_raw), the ndgrid below builds the level index forward (1:10), so
 %   this file does not carry B1.2's reversed-level defect.
 %
@@ -42,7 +42,7 @@
 %   input_array_names and from the 'grad_m_' prefixes below, so renaming them
 %   would break the script silently; and h is tested with exist('h', 'var').
 %
-%   See also lib.EDGE_PROPS_STIM, general.COMPUTE_EDGE_PROPS_EXP.
+%   See also lib.EDGE_PROPS_STIM, general.COMPUTE_EDGE_PROPS_EXP_PCA_ALL.
 
 %% Compute edge contour properties of the stimuli of each experiment
 % exp_paths={'natural/moth','natural/rock','natural/camo_large','natural/spots','natural/leaf','natural/leather','natural/camo','pink_noise',...

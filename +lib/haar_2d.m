@@ -1,6 +1,6 @@
-function [haar, envelope] = haar2D(Parameters)
-% HAAR2D  Create a Haar-like edge patch with the given parameters.
-%   [haar, envelope] = lib.haar2D(Parameters)
+function [haar, envelope] = haar_2d(Parameters)
+% HAAR_2D  Create a Haar-like edge patch with the given parameters.
+%   [haar, envelope] = lib.haar_2d(Parameters)
 %
 %   Parameters is a struct with the following fields:
 %       Parameters.pixperdeg
@@ -18,7 +18,7 @@ function [haar, envelope] = haar2D(Parameters)
 %
 %   October 2, 2015, R. Calen Walshe <calen.walshe@utexas.edu>
 %
-%   See also lib.GABOR2D, lib.DIFFERENCEOFGAUSSIANS2D, lib.SPOT2D.
+%   See also lib.GABOR_2D, lib.DIFFERENCE_OF_GAUSSIANS_2D, lib.SPOT_2D.
 
     %% Check input
     if (nargin < 1)

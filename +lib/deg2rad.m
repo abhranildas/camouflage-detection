@@ -9,7 +9,7 @@ function rad = deg2rad(deg)
 %   qualified (lib.deg2rad), so the shadow is harmless but worth knowing
 %   about before "simplifying" a call site to the bare name.
 %
-%   See also DEG2RAD, lib.GABOR2D.
+%   See also DEG2RAD, lib.GABOR_2D.
 
     rad = deg./180.*pi;
 end

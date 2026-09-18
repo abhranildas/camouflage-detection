@@ -10,7 +10,7 @@ function filter_kernel = laplacian_of_gaussian_filter(sigma, n_sigma)
 %     filter_kernel - width x width square kernel, where
 %                     width = 2*ceil(sigma*n_sigma) + 1 pixels.
 %
-%   See also lib.DIFF_OF_GAUSSIANS_FILTER, FSPECIAL.
+%   See also lib.DIFFERENCE_OF_GAUSSIANS_FILTER, FSPECIAL.
 
     filter_radius = sigma*n_sigma;
     filter_width = 2*ceil(filter_radius) + 1;

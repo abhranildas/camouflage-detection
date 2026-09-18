@@ -7,25 +7,25 @@
 % MATLAB path (see setup.m). Several files here are scripts, not
 % functions — run cell by cell, not called with arguments.
 %
-% Patch viewers (camelCase, R. C. Walshe's convention; known callers of
-% B2.15, lib.cropImage's always-overridden indColorChannels)
-%   vis.examplePatches  - grid of patches from one luminance bin (BUG: the
+% Patch viewers (R. C. Walshe's, renamed to snake_case in tranche 0.1.1;
+% known callers of B2.15, lib.crop_image's always-overridden indColorChannels)
+%   vis.show_example_patches     - grid of patches from one luminance bin (BUG: the
 %     bSave branch references undefined variables L/targetNr, new/B2)
-%   vis.presentpatches  - grid of patches from one luminance/contrast/
+%   vis.show_patch_grid          - grid of patches from one luminance/contrast/
 %     similarity bin
-%   vis.viewpatches     - step through patches in a bin one at a time
+%   vis.show_patches_one_by_one  - step through patches in a bin one at a time
 %
 % Edge-energy distributions and histograms
-%   vis.edge_strength_dists   - blank-vs-target edge-energy distributions,
+%   vis.plot_edge_strength_dists - blank-vs-target edge-energy distributions,
 %     pairwise scatterplots, and a rotating 3D scatter GIF
-%   vis.plot_edge_energy_hists - overlaid blank/target edge-energy
+%   vis.plot_edge_energy_hists   - overlaid blank/target edge-energy
 %     histograms
 %
 % Psychometric plots (BUG: both call analysis.computeThresholdInBin, which
 % does not exist anywhere in this repo; both error if run, new/B2)
-%   vis.psychometrics_vs_angle - psychometric functions and thresholds vs.
+%   vis.plot_psychometrics_vs_angle    - psychometric functions and thresholds vs.
 %     visual angle (viewing distance)
-%   vis.psychometrics_vs_dur   - psychometric functions and thresholds vs.
+%   vis.plot_psychometrics_vs_duration - psychometric functions and thresholds vs.
 %     stimulus duration
 %
 % Display

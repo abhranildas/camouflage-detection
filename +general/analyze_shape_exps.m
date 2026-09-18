@@ -1,7 +1,7 @@
-% analyze_shape_expts  Plot accuracy vs. target boundary shape exponent,
+% analyze_shape_exps  Plot accuracy vs. target boundary shape exponent,
 %     for five near-1 exponents plus a circular-target baseline.
 %
-%     analyze_shape_expts
+%     analyze_shape_exps
 %
 % Script, no arguments. Loads one subject's `SubjectExpFile` for the
 % circular-target condition and for each of five `shape_exponent`

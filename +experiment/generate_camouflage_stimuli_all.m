@@ -75,7 +75,7 @@ function [stimuli, textures, seeds, bTargetPresent, pClipped] = ...
             end
             seeds(iTrial, iTex) = seed;
             stimuli_flat(:, :, iTrial, iTex) = stim;
-            pClipped(iTrial, iTex) = lib.compute_pClipped(stim(mask_strip));
+            pClipped(iTrial, iTex) = lib.compute_p_clipped(stim(mask_strip));
         end
     end
 

@@ -1,7 +1,7 @@
-% psychometrics_vs_angle  Plot psychometric functions and fitted thresholds
+% plot_psychometrics_vs_angle  Plot psychometric functions and fitted thresholds
 %     across viewing distance (visual angle per pixel).
 %
-%     psychometrics_vs_angle
+%     plot_psychometrics_vs_angle
 %
 % Script, no arguments. For each pixels-per-degree value in `ppd_values`,
 % loads the matching '1fnoise' experiment (named by luminance/contrast, and

@@ -1,4 +1,4 @@
-function [f_z,z]=pink_noise_1D_dist(log_kmin,log_kmax,d_logk)
+function [f_z,z]=pink_noise_line_dist(log_kmin,log_kmax,d_logk)
 z1_range=1/(10^log_kmin);
 dz=z1_range/100;
 z1=-z1_range:dz:z1_range;

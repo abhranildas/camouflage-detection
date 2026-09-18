@@ -1,6 +1,6 @@
-function viewpatches(ImgStats, L, C, S, targetNr, bText)
-% VIEWPATCHES  Step through patches in a bin.
-%   viewpatches(ImgStats, L, C, S, targetNr, bText)
+function show_patches_one_by_one(ImgStats, L, C, S, targetNr, bText)
+% SHOW_PATCHES_ONE_BY_ONE  Step through patches in a bin.
+%   show_patches_one_by_one(ImgStats, L, C, S, targetNr, bText)
 %
 %   Description: Step through one image at a time.
 %
@@ -36,13 +36,13 @@ for i_patch = 1:length(patchNr)
     I_PPM = load([ImgStats.Settings.imgFilePath, '\' ImgStats.imgDir(imgNr(i_patch)).name]);
     I = I_PPM.I_PPM;
 
-    % B2.15: lib.cropImage's guard variable is misspelled
+    % B2.15: lib.crop_image's guard variable is misspelled
     % ('indColorChannel'), so indColorChannels below is always overridden
     % to every channel regardless of the `1` passed here. Left as found
     % (Stage 1 is behaviour-preserving).
-    % cropped = lib.cropImage(I, ImgStats.sampleCoords(patchNr(i_patch), :), ...
+    % cropped = lib.crop_image(I, ImgStats.sampleCoords(patchNr(i_patch), :), ...
     %     targetSize(1), 1, 1).*envelope;
-    cropped = lib.cropImage(I, ImgStats.sampleCoords(patchNr(i_patch), :), 513, 1, 1);
+    cropped = lib.crop_image(I, ImgStats.sampleCoords(patchNr(i_patch), :), 513, 1, 1);
 
     colormap(gray(2^14)); imagesc(cropped);
 

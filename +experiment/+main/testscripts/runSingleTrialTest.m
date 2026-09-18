@@ -1,6 +1,6 @@
 % RUNSINGLETRIALTEST  Ad-hoc scratch script for testing single-trial Psychtoolbox display setup.
 %   Not a function; run as a script. Opens a Psychtoolbox window, builds an
-%   experimentStruct (see experiment.main.testscripts.gettestexperimentstruct)
+%   experimentStruct (see experiment.main.testscripts.getTestExperimentStruct)
 %   and a two-frame random-noise-disc stimulusArray, then stops -- it never
 %   calls a trial-runner. See this tranche's findings log: line 18 references
 %   an undefined variable w (the window handle is opened into `window` on the

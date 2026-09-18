@@ -1,6 +1,6 @@
-function position_px = monitorDegreesToPixels(position_deg, monitor_size, ppd)
-% MONITORDEGREESTOPIXELS  Convert a position in degrees to pixels.
-%   position_px = lib.monitorDegreesToPixels(position_deg, monitor_size, ppd)
+function position_px = monitor_deg_to_pix(position_deg, monitor_size, ppd)
+% MONITOR_DEG_TO_PIX  Convert a position in degrees to pixels.
+%   position_px = lib.monitor_deg_to_pix(position_deg, monitor_size, ppd)
 %
 %   The center of the monitor is at (0, 0).
 %

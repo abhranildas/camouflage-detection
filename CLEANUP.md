@@ -27,7 +27,7 @@ longer depends on the lab-root `+lib`. What was done this pass:
   `correlations_across_same`, `create_porsim_square`, `integer_partition`) were **not**
   copied. **Nothing was deleted from root `+lib`** — it stays intact for texture-segmentation.
 - **`otf_filter` → repointed to `vislab.lib.otf_filter`** at all camo call sites
-  (`test.m`, `+general/compute_edge_props_pink_noise.m`,
+  (`scratch.m`, `+general/compute_edge_props_pink_noise.m`,
   `+general/compute_nat_img_eff_coding_bins.m`) and inside the copied
   `+lib/edge_props_stim.m`. Verified numerically equivalent to root's copy for camo's
   usage (grayscale, and per-channel for the texture case); vislib's version additionally
@@ -80,7 +80,7 @@ either, so they were already broken before the extraction — the local `+lib` d
   read by `experiment.setUpExperiment`). Keep one canonical location to avoid drift.
 
 ## 8. Optics constant
-- Some legacy scripts pass wavelength **555 nm** (`test.m`: `vislab.lib.otf_filter(stim,ppd,4,555)`); the
+- Some legacy scripts pass wavelength **555 nm** (`scratch.m`: `vislab.lib.otf_filter(stim,ppd,4,555)`); the
   other repos and `config.m` use 550. **User's own call** (camo is the user's repo — not a Geisler question).
 
 ## 9. Experiment harness → `vislab/+psychframework` (separate pass, needs PTB testing)

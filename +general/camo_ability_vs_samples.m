@@ -1,7 +1,7 @@
-% cam_ability_vs_samples  Plot how a sample's max/mean/min edge energy
+% camo_ability_vs_samples  Plot how a sample's max/mean/min edge energy
 %     converges to the population value as sample size grows.
 %
-%     cam_ability_vs_samples
+%     camo_ability_vs_samples
 %
 % Script, no arguments. For each of a log-spaced sweep of sample sizes,
 % draws `n_trials` random samples of that size (without replacement, from

@@ -1,7 +1,7 @@
-% psychometrics_vs_dur  Plot psychometric functions and fitted thresholds
+% plot_psychometrics_vs_duration  Plot psychometric functions and fitted thresholds
 %     across stimulus duration.
 %
-%     psychometrics_vs_dur
+%     plot_psychometrics_vs_duration
 %
 % Script, no arguments. For each duration (ms) in `dur_values`, loads the
 % matching '1fnoise' experiment (named by luminance/contrast, and by

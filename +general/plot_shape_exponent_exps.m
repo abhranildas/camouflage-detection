@@ -11,7 +11,7 @@
 %     per subject per condition.
 % Output: none — nothing is computed, plotted, or saved.
 %
-% See also general.analyze_shape_expts.
+% See also general.analyze_shape_exps.
 
 exp_list = dir(['exp_files/shape_exponent/']);
 exp_list = {exp_list(3:end).name};

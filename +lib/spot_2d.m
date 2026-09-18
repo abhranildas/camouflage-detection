@@ -1,6 +1,6 @@
-function spot = spot2D(stimulusParams)
-% SPOT2D  Create a pedestal (annular) spot stimulus.
-%   spot = lib.spot2D(stimulusParams)
+function spot = spot_2d(stimulusParams)
+% SPOT_2D  Create a pedestal (annular) spot stimulus.
+%   spot = lib.spot_2d(stimulusParams)
 %                                    ------
 %                                   |  __  |
 %                                   | |  | |
@@ -14,7 +14,7 @@ function spot = spot2D(stimulusParams)
 %
 %   R. Calen Walshe 02/12/2016 (calen.walshe@utexas.edu)
 %
-%   See also lib.GABOR2D, lib.HAAR2D, lib.DIFFERENCEOFGAUSSIANS2D.
+%   See also lib.GABOR_2D, lib.HAAR_2D, lib.DIFFERENCE_OF_GAUSSIANS_2D.
 
     if nargin < 1
         stimulusParams.pixperdeg = 60;

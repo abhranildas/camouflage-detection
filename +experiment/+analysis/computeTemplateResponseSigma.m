@@ -18,7 +18,7 @@ function [templateSigma, smallSample] = computeTemplateResponseSigma(ImgStats, .
 % Inputs
 %   ImgStats        image-statistics struct, as built by the (out-of-scope,
 %                   excluded) +stats/ package
-%   targetTypeStr   target identifier, passed to lib.getTargetIndexFromString
+%   targetTypeStr   target identifier, passed to lib.target_index_from_string
 %   bScale          true to divide each target's response sd by its own
 %                   energy sum(target(:).^2)
 %
@@ -28,9 +28,9 @@ function [templateSigma, smallSample] = computeTemplateResponseSigma(ImgStats, .
 %   smallSample     1 where the corresponding bin has fewer than 300
 %                   patches, same size as templateSigma
 %
-%   See also LIB.GETTARGETINDEXFROMSTRING, EXPERIMENT.ANALYSIS.COMPUTETHRESHOLDSVSSTATISTIC.
+%   See also LIB.TARGET_INDEX_FROM_STRING, EXPERIMENT.ANALYSIS.COMPUTETHRESHOLDSVSSTATISTIC.
 
-targetIndex = lib.getTargetIndexFromString(ImgStats.Settings, targetTypeStr);
+targetIndex = lib.target_index_from_string(ImgStats.Settings, targetTypeStr);
 
 nTargets = size(targetIndex, 2);
 

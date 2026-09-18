@@ -1,10 +1,10 @@
-% COMPUTE_EDGE_PROPS_EXP_FULL  Edge features of every stimulus of an
+% COMPUTE_EDGE_PROPS_EXP_EQ_SUM  Edge features of every stimulus of an
 %   experiment, combined across scales by a plain sum rather than a per-level
 %   classify_normals fit.
 %
 %   Script, not a function — run it cell by cell. Sibling of
-%   general.compute_edge_props_exp, general.compute_edge_props_exp_eq,
-%   general.compute_edge_props_exp_pca and general.compute_edge_props_exp_raw
+%   general.compute_edge_props_exp_pca_all, general.compute_edge_props_exp_eq,
+%   general.compute_edge_props_exp_pca and general.compute_edge_props_exp_rescaled
 %   (near-identical copies; clean and triage together, per the plan).
 %
 %   For each experiment in exp_paths it calls lib.edge_props_stim on every
@@ -43,7 +43,7 @@
 %   input_array_names and from the 'grad_m_' prefixes below, so renaming them
 %   would break the script silently; and h is tested with exist('h', 'var').
 %
-%   See also lib.EDGE_PROPS_STIM, general.COMPUTE_EDGE_PROPS_EXP.
+%   See also lib.EDGE_PROPS_STIM, general.COMPUTE_EDGE_PROPS_EXP_PCA_ALL.
 
 %% Compute edge contour properties of the stimuli of each experiment
 % exp_paths={'natural/moth','natural/rock','natural/camo_large','natural/spots','natural/leaf','natural/leather','natural/camo','pink_noise',...

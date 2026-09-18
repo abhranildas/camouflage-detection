@@ -6,7 +6,7 @@ function setup()
 %   Adds to the path:
 %     * this repo (its +lib, +experiment, +general, +stats, +tests, +tinker, +vis
 %       packages and root helper scripts). +lib holds the camouflage-domain helpers
-%       (lib.stimulus, lib.target_mask, lib.edge_measures*, lib.gabor2D, ...),
+%       (lib.stimulus, lib.target_mask, lib.edge_measures*, lib.gabor_2d, ...),
 %       extracted from the old shared lab-root +lib so this repo is self-contained
 %       (mirrors texture-segmentation's own +lib).
 %     * vislab (the shared lab library) -- the +vislab package inside the sibling

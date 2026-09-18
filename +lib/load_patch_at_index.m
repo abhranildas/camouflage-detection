@@ -1,7 +1,7 @@
-function [surround_patch, patch, patch_windowed] = loadPatchAtIndex(ImgStats, patchIndex, ...
+function [surround_patch, patch, patch_windowed] = load_patch_at_index(ImgStats, patchIndex, ...
     filePath, bDisp, envelope)
-% LOADPATCHATINDEX  Returns a surround and target patch at a sampled index.
-%   [surround_patch, patch, patch_windowed] = lib.loadPatchAtIndex(ImgStats, patchIndex, ...
+% LOAD_PATCH_AT_INDEX  Returns a surround and target patch at a sampled index.
+%   [surround_patch, patch, patch_windowed] = lib.load_patch_at_index(ImgStats, patchIndex, ...
 %       filePath, bDisp, envelope)
 %
 %   Output
@@ -12,7 +12,7 @@ function [surround_patch, patch, patch_windowed] = loadPatchAtIndex(ImgStats, pa
 %
 %   v1.0, 1/15/2016, Steve Sebastian <sebastian@utexas.edu>
 %
-%   See also lib.CROPIMAGE, lib.SAMPLEPATCHCOORDINATES.
+%   See also lib.CROP_IMAGE, lib.SAMPLE_PATCH_COORDINATES.
 
     %% Set parameters
 
@@ -41,12 +41,12 @@ function [surround_patch, patch, patch_windowed] = loadPatchAtIndex(ImgStats, pa
     load([filePath '/' image_name]);
 
     % crop out the surround patch
-    surround_patch = lib.cropImage(I_PPM, ImgStats.sampleCoords(coord_index, :), ...
+    surround_patch = lib.crop_image(I_PPM, ImgStats.sampleCoords(coord_index, :), ...
         surround_size_px, [], 1);
 
     % crop out the patch
     center_coord = ceil(surround_size_px/2);
-    patch = lib.cropImage(surround_patch, [center_coord, center_coord], target_size_px, [], 1);
+    patch = lib.crop_image(surround_patch, [center_coord, center_coord], target_size_px, [], 1);
 
     if (~isempty(envelope))
         patch = double(patch);

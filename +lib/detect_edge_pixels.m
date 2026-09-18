@@ -28,7 +28,7 @@ function edge_pixels = detect_edge_pixels(stim, varargin)
     parser = inputParser;
     parser.KeepUnmatched = true;
     addRequired(parser, 'stim', @isnumeric);
-    % edge_detection_filter=lib.diff_of_gaussians_filter(2,4,2);
+    % edge_detection_filter=lib.difference_of_gaussians_filter(2,4,2);
     edge_detection_filter = lib.laplacian_of_gaussian_filter(2, 3);
     addParameter(parser, 'edge_detection_filter', edge_detection_filter, @isnumeric);
     addParameter(parser, 'thresh', 4, @isscalar);

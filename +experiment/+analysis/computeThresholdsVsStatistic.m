@@ -49,7 +49,7 @@ if(strcmp(statTypeStr, 'contrast'))
     backgroundValues = ImgStats.Settings.binCenters.C(binIndexLevels(:, 2));
     xAxisLabel = 'Background Contrast';
 elseif(strcmp(statTypeStr, 'similarity'))
-    targetIndex = lib.getTargetIndexFromString(ImgStats.Settings, targetTypeStr);
+    targetIndex = lib.target_index_from_string(ImgStats.Settings, targetTypeStr);
     backgroundValues = ImgStats.Settings.binCenters.Sa(binIndexLevels(:, 3), targetIndex)';
     xAxisLabel = 'Background Similarity';
 end

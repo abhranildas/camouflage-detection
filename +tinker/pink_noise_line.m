@@ -1,4 +1,4 @@
-function y=pink_noise_1D(len,klist)
+function y=pink_noise_line(len,klist)
 x=0:len-1;
 y=zeros(1,len);
 for k=klist

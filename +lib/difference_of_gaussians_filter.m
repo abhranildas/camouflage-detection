@@ -1,6 +1,6 @@
-function filter_kernel = diff_of_gaussians_filter(sigma_center, sigma_surround, n_sigma)
-% DIFF_OF_GAUSSIANS_FILTER  Center-surround difference-of-Gaussians filter.
-%   filter_kernel = lib.diff_of_gaussians_filter(sigma_center, sigma_surround, n_sigma)
+function filter_kernel = difference_of_gaussians_filter(sigma_center, sigma_surround, n_sigma)
+% DIFFERENCE_OF_GAUSSIANS_FILTER  Center-surround difference-of-Gaussians filter.
+%   filter_kernel = lib.difference_of_gaussians_filter(sigma_center, sigma_surround, n_sigma)
 %
 %   Inputs
 %     sigma_center   - Gaussian sd of the center kernel, in pixels.

@@ -1,6 +1,6 @@
-function [gabor, envelope, sinusoid] = gabor2D(Parameters, bPlot)
-% GABOR2D  Create a Gabor patch with the given parameters.
-%   [gabor, envelope, sinusoid] = lib.gabor2D(Parameters, bPlot)
+function [gabor, envelope, sinusoid] = gabor_2d(Parameters, bPlot)
+% GABOR_2D  Create a Gabor patch with the given parameters.
+%   [gabor, envelope, sinusoid] = lib.gabor_2d(Parameters, bPlot)
 %
 %   Parameters is a struct with the following fields:
 %       Parameters.std        (scalar or [X,Y])
@@ -21,7 +21,7 @@ function [gabor, envelope, sinusoid] = gabor2D(Parameters, bPlot)
 %     envelope - envelope of the Gabor.
 %     sinusoid - sinusoid of the Gabor.
 %
-%   See also lib.DIFFERENCEOFGAUSSIANS2D.
+%   See also lib.DIFFERENCE_OF_GAUSSIANS_2D.
 %
 %   v2.0, July 2, 2015, Yoon Bai, Steve Sebastian, and Spencer Chen <spencer.chen@utexas.edu>
 
@@ -90,7 +90,7 @@ function [gabor, envelope, sinusoid] = gabor2D(Parameters, bPlot)
         case 'gau'
             envelope = exp(-radius_sq/(2*gabor_sd^2));
         case 'coswin'
-            envelope = lib.cosWindow2(numel(x), 1, 0);
+            envelope = lib.cos_window_2d(numel(x), 1, 0);
         otherwise
             envelope = ones(size(radius_sq));
     end

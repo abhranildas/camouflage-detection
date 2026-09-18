@@ -1,11 +1,11 @@
-function experimentStruct = gettestexperimentstruct(BlockStimuli)
+function experimentStruct = getTestExperimentStruct(BlockStimuli)
 % GETTESTEXPERIMENTSTRUCT  Build a minimal experimentStruct for ad-hoc Psychtoolbox testing.
-%   experimentStruct = experiment.main.testscripts.gettestexperimentstruct(BlockStimuli)
+%   experimentStruct = experiment.main.testscripts.getTestExperimentStruct(BlockStimuli)
 %
 %   Packs one block's worth of stimulus positions and correctness labels,
 %   plus hardcoded display parameters, into the struct shape the old
 %   (retired) single-trial test harness expects. Used only by
-%   experiment.main.testscripts.runsingletrialTest.
+%   experiment.main.testscripts.runSingleTrialTest.
 %
 %   Inputs
 %     BlockStimuli - struct with fields .stimPosPix (trials x levels x 2) and

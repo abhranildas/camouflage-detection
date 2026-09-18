@@ -1,8 +1,8 @@
-% shuffle_unshuffle_expt  Shuffle a pink-noise experiment's trial order
+% shuffle_unshuffle_exp  Shuffle a pink-noise experiment's trial order
 %     into an unblocked session, and unshuffle a subject's unblocked
 %     results back into blocked order.
 %
-%     shuffle_unshuffle_expt
+%     shuffle_unshuffle_exp
 %
 % Script, not a function — run it cell by cell, and expects `ExpSettings`/
 % `SubjectExpFile`/`SubjectExpFile_unblocked` in the workspace as each
@@ -21,7 +21,7 @@
 %     Nothing is saved to disk (the save is a comment, a note to the
 %     user).
 %
-% See also general.analyze_shuffled_expt.
+% See also general.analyze_shuffled_exp.
 
 %% shuffle pink noise experiment
 idx = randperm(numel(ExpSettings.stimuliSeed));

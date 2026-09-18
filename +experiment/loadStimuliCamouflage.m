@@ -66,8 +66,8 @@ function SessionSettings = loadStimuliCamouflage(ExpSettings)
     stimPosDeg = ExpSettings.stimPosDeg(:, :, currentSession, :);
     fixPosDeg = ExpSettings.fixPosDeg(:, :, currentSession, :);
 
-    stimPosPix = lib.monitorDegreesToPixels(stimPosDeg, monitorSizePix, pixelsPerDeg);
-    fixPosPix = lib.monitorDegreesToPixels(fixPosDeg, monitorSizePix, pixelsPerDeg);
+    stimPosPix = lib.monitor_deg_to_pix(stimPosDeg, monitorSizePix, pixelsPerDeg);
+    fixPosPix = lib.monitor_deg_to_pix(fixPosDeg, monitorSizePix, pixelsPerDeg);
 
     responseIntervalS = ExpSettings.responseIntervalMs/1000;
     stimulusIntervalS = ExpSettings.stimulusIntervalMs/1000;

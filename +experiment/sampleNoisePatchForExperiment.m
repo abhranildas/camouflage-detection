@@ -44,7 +44,7 @@ function [stimuli, patchIndex] = sampleNoisePatchForExperiment(ImgStats, targetK
         sampleMethod = 'uniform';
     end
 
-    targetKeyIndex = lib.getTargetIndexFromString(ImgStats.Settings, targetKeyStr);
+    targetKeyIndex = lib.target_index_from_string(ImgStats.Settings, targetKeyStr);
     nPatches = nBlocks*nLevels*nTrials;
     maskContrast = binContrast(binIndex(2));
 

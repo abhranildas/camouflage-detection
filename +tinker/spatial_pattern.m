@@ -1,5 +1,5 @@
-function x = spatialPattern(DIM,BETA)
-% function x = spatialPattern(DIM, BETA),
+function x = spatial_pattern(DIM,BETA)
+% function x = spatial_pattern(DIM, BETA),
 %
 % This function generates 1/f spatial noise, with a normal error 
 % distribution (the grid must be at least 10x10 for the errors to be normal). 

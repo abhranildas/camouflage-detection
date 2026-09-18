@@ -1,12 +1,12 @@
-function gaborSimilarity(testTypeStr, valueRange)
-% GABORSIMILARITY  Test script that plots the change in similarity over a
+function gabor_similarity(testTypeStr, valueRange)
+% GABOR_SIMILARITY  Test script that plots the change in similarity over a
 %     change in a property of the gabor.
-%   tests.gaborSimilarity(testTypeStr, valueRange)
+%   tests.gabor_similarity(testTypeStr, valueRange)
 %
 %   Test types:
 %     phase, orientation, frequency, amplitude
 %   Example:
-%     tests.gaborSimilarity('orientation', -90:90)
+%     tests.gabor_similarity('orientation', -90:90)
 %
 %   Output:
 %     none; plots similarity vs. the tested property.
@@ -23,7 +23,7 @@ gaborParams.pixperdeg = 120;
 gaborParams.odd_even = 'odd';
 gaborParams.envelope = 'coswin';
 
-[gabor, envelope] = lib.gabor2D(gaborParams, 0);
+[gabor, envelope] = lib.gabor_2d(gaborParams, 0);
 
 % Iterate over values and compute similarity
 simArray = zeros(size(valueRange));
@@ -39,7 +39,7 @@ for iVal = 1:length(valueRange)
         ampScale = valueRange(iVal);
     end
 
-    thisGabor = ampScale.*lib.gabor2D(gaborParams, 0);
+    thisGabor = ampScale.*lib.gabor_2d(gaborParams, 0);
     % BUG (new, B2-level): stats.computeSceneSimilarityAmplitude does not
     % exist — the file backing it, +stats/_computeSceneSimilarityAmplitude.m,
     % is `_`-prefixed and therefore not reachable under this name. Errors

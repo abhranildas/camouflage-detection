@@ -59,7 +59,7 @@ function [stimuli, patchIndex] = samplePatchesForExperiment(ImgStats, targetKeyS
 
     filePathIn = ImgStats.Settings.imgFilePathExperiment;
 
-    targetKeyIndex = lib.getTargetIndexFromString(ImgStats.Settings, targetKeyStr);
+    targetKeyIndex = lib.target_index_from_string(ImgStats.Settings, targetKeyStr);
     nPatches = nBlocks*nLevels*nTrials;
 
     if(strcmp(simTypeStr, 'amplitude'))
@@ -104,7 +104,7 @@ function [stimuli, patchIndex] = samplePatchesForExperiment(ImgStats, targetKeyS
         for iLevel = 1:nLevels
             for iBlock = 1:nBlocks
                 stimuli(:, :, iTrial, iLevel, iBlock) = ...
-                    lib.loadPatchAtIndex(ImgStats, patchIndex(iTrial, iLevel, iBlock), ...
+                    lib.load_patch_at_index(ImgStats, patchIndex(iTrial, iLevel, iBlock), ...
                     filePathIn, 0, 0);
             end
         end

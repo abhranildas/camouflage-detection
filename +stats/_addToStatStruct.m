@@ -25,7 +25,7 @@ filePathStr = ImgStats.Settings.imgFilePath;
 
 envelope = ImgStats.Settings.envelope;
 
-sampleCoords    = lib.samplePatchCoordinates(imgSizePix, [surroundSizePix surroundSizePix], spacingPix);
+sampleCoords    = lib.sample_patch_coordinates(imgSizePix, [surroundSizePix surroundSizePix], spacingPix);
 
 D = dir([filePathStr '/*.mat']);
 
