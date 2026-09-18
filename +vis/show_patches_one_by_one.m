@@ -12,13 +12,7 @@ if nargin == 1
     S = 1;
     targetNr = 1;
     bText = 1;
-    bSave = 0;
-    imgDir = ImgStats.Settings.imgFilePath;
 end
-
-target = ImgStats.Settings.targets(:, :, targetNr);
-envelope = ImgStats.Settings.envelope;
-targetSize = size(target);
 
 patchList = ImgStats.patchIndex{targetNr, 1}(L, C, S);
 try

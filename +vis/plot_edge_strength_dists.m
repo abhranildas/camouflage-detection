@@ -130,7 +130,7 @@ frame = getframe(gcf);
 [gif_frames, color_map] = rgb2ind(frame.cdata, 256, 'nodither');
 i_frame = 1;
 for az = 0:.5:10
-    az
+    az;  % suppressed: undocumented debug leftover, not an intentional progress print
     view([az, 30])
     frame = getframe(gcf);
     gif_frames(:, :, 1, i_frame) = rgb2ind(frame.cdata, color_map, 'nodither');

@@ -28,6 +28,7 @@ luminance = .5; contrast = .15;
 figure(1); hold on
 blue = [0 0 255]/255; red = [255 0 0]/255;
 ppd_values = [60 80 100 120];
+thresholds = nan(1, numel(ppd_values));  % preallocated: size known, filled in order below
 for i_ppd = 1:numel(ppd_values)
     ppd = ppd_values(i_ppd);
     if ppd == 60

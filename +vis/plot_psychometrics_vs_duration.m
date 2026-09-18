@@ -29,6 +29,7 @@ luminance = .5; contrast = .15;
 figure(1); hold on
 blue = [0 0 255]/255; red = [255 0 0]/255;
 dur_values = [50 100 200 400 800];
+thresholds = nan(1, numel(dur_values));  % preallocated: size known, filled in order below
 for i_dur = 1:numel(dur_values)
     dur = dur_values(i_dur);
     if dur == 200

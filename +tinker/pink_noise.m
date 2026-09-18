@@ -65,7 +65,7 @@ imagesc(pink_noise_image); colormap gray; axis image;
 
 subplot(1, 2, 2);
 for freq_u = 1:bg_size
-    freq_u
+    freq_u  % deliberate: progress display alongside the live drawnow plot below
     imagesc(pink_noise_image_manual); colormap gray; axis image; drawnow
     for freq_v = 1:bg_size
         cos_amp = real(white_noise_fft(freq_u, freq_v));
@@ -178,7 +178,7 @@ angle_step = .1; % spacing of component wave orientations
 % ensemble sampling
 pink_noise_ensemble_2d = zeros(n_samples, n_samples, n_ensemble);
 for i_ensemble = 1:n_ensemble
-    i_ensemble
+    i_ensemble  % deliberate: progress display through the ensemble loop
     pink_noise_ensemble_2d(:, :, i_ensemble) = ...
         tinker.pink_noise_square_manual(n_samples, k_list, angle_step);
 end
@@ -202,7 +202,7 @@ lags = 0:n_samples-2;
 autocorrelations = zeros(numel(lags), numel(lags), n_ensemble);
 figure; hold on
 for i_ensemble = 1:n_ensemble
-    i_ensemble
+    i_ensemble  % deliberate: progress display through the ensemble loop
     for lag_x = lags
         for shift_y = lags
             corr_region_1 = pink_noise_ensemble_2d(1:end-lag_x, 1:end-shift_y, i_ensemble);
@@ -333,7 +333,7 @@ surf(mean_autocorr, 'edgecolor', 'none');
 autocorr_theoretical = nan(size(x_values));
 for row = 1:size(autocorr_theoretical, 1)
     for col = 1:size(autocorr_theoretical, 2)
-        [row, col]
+        [row, col]  % deliberate: progress display through this slow double loop
         autocorr_theoretical(row, col) = sum(sum(cos(freq_u*x_values(row, col) + ...
             freq_v*y_values(row, col))./(freq_u.^2+freq_v.^2)));
     end
@@ -397,4 +397,4 @@ hold off
 histogram(real(white_noise_raw_fft))
 hold on
 histogram(imag(white_noise_raw_fft))
-[var(real(white_noise_raw_fft(:))) var(imag(white_noise_raw_fft(:)))]
+[var(real(white_noise_raw_fft(:))) var(imag(white_noise_raw_fft(:)))]  % deliberate print

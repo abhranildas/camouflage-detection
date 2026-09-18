@@ -57,7 +57,7 @@ texture_params.type = 'pink_noise';
 % run as written. Left as found.
 for i_trial = 1:size(seeds, 1)
     for i_block = 1:size(seeds, 2)
-        [i_trial i_block]
+        [i_trial i_block]  % deliberate: interactive progress display, not suppressed
         seed = seeds(i_trial, i_block);
         stim_target = lib.stimulus(texture_params, seed, bg_size, target_radius, 'center', ...
             0, luminance, contrast, 'match', 'match');

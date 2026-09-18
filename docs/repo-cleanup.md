@@ -37,13 +37,13 @@
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h3 style="display:inline; margin:0; font-size:1.05em">🚧 0.2 · Stage 2 · Tidying</h3></summary>
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">✅ 0.2 · Stage 2 · Tidying</h3></summary>
 
 <div style="margin-left:1.5em">
 
 **Description.** Adding a suppressing `;`, preallocation, `find`→logical indexing, deleting a provably unused assignment. Checked by a whitelisted-pattern diff **plus** a runtime golden-output match. A closed list of four: anything bigger is a Speed item (0.5).
 
-**Status.** Every tranche below except `+vis/`/`+tests/`/root now has at least one golden-checked entry point; what remains pattern-check-only is the measured set of files with no callable, side-effect-free entry point at all (see 2 and the 0.2.0 log entry).
+**Status.** All five tranches done. Every tranche has at least one golden-checked entry point except `+vis/`/`+tests/`/root, whose only golden-checked entry points live in `+tinker/`'s 5 functions — the rest of those four is pattern-check-only, the measured set of files with no callable, side-effect-free entry point at all (see 2 and the 0.2.0 log entry).
 
 **To-do.**
 
@@ -52,7 +52,7 @@
 - [x] **0.2.2.** `+experiment/+analysis/` (tranche 0.1.6) — golden-checked for 5 of its 12 files, pattern-only for the other 7 (all `.mat`-loading, plotting, or scripts).
 - [x] **0.2.3.** `+experiment/` and `+experiment/+main/` (tranches 0.1.5, 0.1.7) — golden-checked for `gamma_correct` and `generate_target_present_matrix`, pattern-check only for the rest.
 - [x] **0.2.4.** `+general/` (tranches 0.1.8, 0.1.9) — golden-checked for `compute_nll_edge_model`, its only function; the other 30 files are scripts, pattern-check only.
-- [ ] **0.2.5.** `+vis/`, `+tests/`, `+tinker/`, root — golden-checked for `+tinker/`'s 5 functions; the rest pattern-check only.
+- [x] **0.2.5.** `+vis/`, `+tests/`, `+tinker/`, root — golden-checked for `+tinker/`'s 5 functions; the rest pattern-check only.
 
 </div>
 
@@ -198,6 +198,7 @@
 - [ ] 🟡 **O3.4.** `+lib/gauss_llr.m:19` — `det(cov_b)/det(cov_a)`, a ratio of determinants rather than a solve, so `inv`/`\` substitution doesn't directly apply; flagged for a numerics look, not a confirmed win. Unprofiled.
 - [ ] 🟡 **O3.5.** Storage vs. seed trade for stimulus caching (paired with S1.1 in Structure — this is the same finding wearing its Speed hat): regenerating from seeds instead of storing ~100GB needs a caching strategy for the expensive Portilla-Simoncelli path (~25 iterations/texture); pink noise regeneration is cheap. Unprofiled — no timing on PS synthesis cost exists yet.
 - [ ] 🟡 **O3.6.** Two `checkcode` AGROW hits in `+lib/` examined for tranche 0.2.1's Stage-2 preallocation pattern and declined as unsafe to fix mechanically: `find_spot_centers.m:25` (`centers(end+1, :)`) grows both within a loop and across the function's own recursive calls to itself, so the final size isn't known until the recursion actually runs; `trace_contours.m:66` (`contours{end+1, 1}`) grows once per contour found by a data-dependent `while` loop over a link map built from the input image, so the contour count isn't known until the trace completes. Neither has a size obtainable from an RNG-free pre-pass without duplicating the traversal itself, so Stage 2's "size it from a pre-pass, then fill by index" recipe doesn't apply without restructuring the algorithm — a Structure-sized change, not a Tidying one. Unprofiled.
+- [ ] 🟡 **O3.7.** `+tinker/whitening_tinker.m:219` — `checkcode` flags `mismatch_template_image` as a broadcast variable inside a `parfor` (unnecessary per-worker communication overhead). Found during tranche 0.2.5's pattern check; not one of Stage 2's four whitelisted patterns, so recorded here rather than touched. Unprofiled — the enclosing cell also depends on `lib.mismatch_template`/`lib.whiten_pink_noise_square`, so this loop's own cost hasn't been isolated from the rest of the cell.
 
 </div>
 
@@ -1209,6 +1210,35 @@ ALL_OK: 1
 **Bugs found: none new** — a documented negative. Every candidate that looked bug-shaped on first read (the `var_exp` name collision, the `plot_shape_exponent_exps.m` stub, `shuffle_unshuffle_exp.m`'s loop counter) turned out to already be covered by this file's own header note or by an existing id (B2.21). No optimization was made; the growth sites found under pattern 3 extend O3.2's existing scope rather than needing a new id. No structural opportunity was acted on.
 
 **Baseline used for verification.** HEAD, working tree clean under `+general/` at this step's start (confirmed by `git status` — other files elsewhere in the repo were dirty from a concurrent, unrelated tranche and were neither read for this decision nor included in this tranche's commit). `check_stage1` with an empty rename map correctly returns `true` for all 32 files (a real, expected result — this tranche made no AST-visible change anywhere in scope).
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.2.5 — <code>+vis/</code>, <code>+tests/</code>, <code>+tinker/</code>, root (tranches 0.1.10–0.1.12)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+MATLAB R2024b Update 6. Baseline: HEAD for all 28 in-scope files (`+vis/` 8, `+tests/` 2, `+tinker/` 13, root 5) — working tree was clean under all four at this step's start; other files dirty elsewhere in the repo belonged to the four sibling 0.2.x tranches running concurrently and were neither read nor touched here. Scanned via `checkcode(-id)` over the full 28-file set plus a repo-wide `grep` for `find(` and `end+1`/`{end+1}` across the same set, then each hit read in context.
+
+**Pattern 1 — missing suppressing semicolons: 9 candidate sites found, all judged deliberate, none suppressed except one.** `+vis/plot_edge_strength_dists.m:133` (`az`, inside the GIF-frame loop) is the one exception: unlike every other hit below, it is not documented anywhere as intentional and reads as leftover debug noise from building the rotating-scatter GIF, so it now carries a suppressing `;` and an inline comment. Every other site is a progress echo or a final-result display, each now carrying an inline `% deliberate: ...` comment (comments are invisible to `canon`, so `check_stage1` with an empty rename map still returns `true` for these files): `+tests/block_jumping.m:60` (`[i_trial i_block]`, progress through the nested trial/block loop — the file's other unsuppressed line, `:91`, is already documented in its own header as "prints the fraction... out of block order," so left alone); `+tinker/pink_noise.m:68,181,205,336` (loop-progress echoes — `freq_u`/`i_ensemble`/`i_ensemble`/`[row, col]` — three paired with a live `drawnow` or `surf` plot) and `:400` (a final real-vs-imaginary variance comparison, printed at the end of a cell, the point of that cell); `+tinker/pink_noise_stimuli_autocorrelations.m:79` (`seed`, same progress-echo shape, inside the cell **B3.21** already records as referencing undefined variables — left alone, matching the sibling files' treatment of code that's moot until that bug is fixed); `+tinker/whitening_tinker.m:165` (a final `[sum(curve) sum(curve.^2)]` result display). `scratch.m:122-123`'s unsuppressed 3-output assignment was already flagged by `checkcode` (`ASGLU` ×2) but is already covered by its own preceding comment ("No semicolon: this cell exists to print...") from tranche 0.1.12 — read, confirmed still accurate, left untouched.
+
+**Pattern 2 — `find(...)` that could be logical indexing: none found.** One `find` call in the whole 28-file scope, `scratch.m:127` (`hit_idx = find(ExpSettings.bTargetPresent & SubjectExpFile.response)`) — excluded by the rule's own carve-out: `hit_idx` is passed to `ind2sub` (needs actual indices, not a logical mask) and `length(hit_idx)` is used as a scalar bound in three places below it (`:129,132,141`).
+
+**Pattern 3 — unpreallocated growth: 2 hits, both fixed.** `+vis/plot_psychometrics_vs_angle.m:40` and `+vis/plot_psychometrics_vs_duration.m:41` each grow `thresholds(i_ppd)`/`thresholds(i_dur)` by loop-counter index inside a `for` whose bound (`numel(ppd_values)`/`numel(dur_values)`) is a literal known before the loop starts — no RNG draw is involved in that size, and the loop fills every index in order, so each now carries a `nan(1, numel(...))` preallocation line immediately before the loop, verified safe by reading (both files already error on their first `analysis.computeThresholdInBin` call per the files' own documented B2-level bug, so no golden entry point exists to replay against; `checkcode`'s `SAGROW` warning on both lines is gone after the edit). No `end+1`/`{end+1}` growth anywhere in the 28-file scope (`grep` returned zero hits after excluding the pattern-2 `find`).
+
+**Pattern 4 — unused assignments `checkcode` flags: 4 real hits in one file, deleted; 2 more considered and left alone.** `+vis/show_patches_one_by_one.m` had `bSave`/`imgDir` (set in its `nargin==1` defaulting block but not among the function's actual parameters, and never read anywhere in the file) and `target`/`envelope`/`targetSize` (computed from real inputs but, after the file's one live use of `targetSize` was replaced by a hardcoded `513` at some earlier point, never read again either — `target` cascaded into the same category once `envelope`/`targetSize` were removed and `checkcode` re-run confirmed it). All five deleted; `checkcode` on the result is clean. Two further `NASGU` hits were considered and explicitly **not** deleted, both in `+tinker/` cell-scripts: `whitening_tinker.m:46` (`x_whitened`, unused within its own cell but reassigned and plotted in a later cell — read the whole file before ruling this out, since deleting it would also have cascaded into `x_pink_noise`/`x_white_noise` upstream) and `pink_noise_stimuli_autocorrelations.m:80` (`corr_this_seed`, assigned then overwritten without being read — but this sits inside the same already-broken cell **B3.21** records, where `nansum(terms(20:end))` uses a `terms` that is itself undefined; this looks like it should have fed the `nansum` call rather than a genuine tidy-up target, so it is left as further detail on B3.21 rather than either deleted or filed as a new bug). Both exploratory `+tinker/` cells follow the same "kept for interactive inspection, not for later code" reasoning that pattern 1 already applies to missing semicolons in this package — `checkcode`'s static unused-variable analysis can't see that reasoning, so it flags cases the skill's own conservative-`+tinker/` guidance is written for.
+
+**Golden-harness replay: matched, all 57 fields**, including the five `+tinker/` entry points this tranche is golden-checked against (`tinker.pink_noise_dist` — both its 1-D and 2-D fields — `tinker.pink_noise_line_dist`, `tinker.pink_noise_line`, `tinker.pink_noise_square_manual`, `tinker.spatial_pattern`); none of the five needed a pattern-1/2/3/4 edit, so the match confirms no other tranche's concurrent work touched them either. Verbatim: `golden_harness: replay matched all 57 fields`.
+
+**`check_stage1`, empty rename map, all 6 edited files:** `+tests/block_jumping.m` and `+tinker/pink_noise.m` both `true` (comment-only edits, invisible to `canon`); the other four correctly return `false`, each confirmed by inspecting `canon`'s printed diff to be exactly the one whitelisted edit described above and nothing else — `+vis/plot_edge_strength_dists.m` (one `;` inserted), `+vis/plot_psychometrics_vs_angle.m` and `_duration.m` (one preallocation line inserted each), `+vis/show_patches_one_by_one.m` (five unused-assignment lines removed). The other 22 in-scope files were not edited at all, so their pattern-check result is a documented negative rather than a `check_stage1` run.
+
+**Bugs found: none new.** `pink_noise_stimuli_autocorrelations.m:80-81`'s `corr_this_seed`/`terms` shape is additional detail on the already-recorded **B3.21**, not a new id — `terms` was already listed there as one of the four undefined names in this cell.
+
+**Optimizations: one found, filed as O3.7, not made.** `+tinker/whitening_tinker.m:219` — `checkcode`'s `PFBNS` (broadcast-variable) warning on `mismatch_template_image` inside a `parfor`. Not one of Stage 2's four whitelisted patterns.
+
+**Structural opportunities: none found.** **Commented-out code: none newly triaged** — this tranche edited files 0.1.10–0.1.12 already fully triaged (3.1.4); no file here was read for the first time.
 
 </div>
 
