@@ -28,7 +28,7 @@ contrast = 0.15;
 target_radius = 64;
 
 for i_tex = 1:length(texture_list)
-    i_tex
+    i_tex  % deliberate: progress display
     texture = texture_list(i_tex);
     stim = lib.stimulus('texture', texture, 'ml_b', 0.5, 'cont_b', 0.15, ...
         'ml_t', 0.5, 'cont_t', 0.15, 'target_radius', target_radius);

@@ -29,7 +29,7 @@ edge_density_b = nan(n_samples, 1);
 edge_density_t = nan(n_samples, 1);
 
 for seed = 1:n_samples
-    seed
+    seed  % deliberate: progress display, read again below
     [stim_t, stim_b] = lib.stimulus('seed', seed, 'texture', texture, 'ml_b', luminance, ...
         'cont_b', contrast, 'target_radius', target_radius);
 

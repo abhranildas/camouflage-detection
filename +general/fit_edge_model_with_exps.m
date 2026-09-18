@@ -277,14 +277,14 @@ end
 % percent variance of mean subject accuracies explained
 mean_subj_acc = cell2mat(cellfun(@(x) mean(normcdf(x/2)), d_primes(:, 2), 'un', 0));
 model_acc = normcdf(vertcat(d_primes{:, 2})/2);
-var_exp = 1 - rms(mean_subj_acc - model_acc, 'all')^2/var(mean_subj_acc(:))
+var_exp = 1 - rms(mean_subj_acc - model_acc, 'all')^2/var(mean_subj_acc(:))  % deliberate: printed for interactive inspection; overwritten below by a second, differently-defined var_exp — same variable name, two diagnostics, left as found
 % var_exp=1-sqerr/numel(vertcat(dprimes{:,2}))
 
 % percent variance of dprimes explained across all subjects
 % (this is what the efficiency scalar was optimizing for)
 d_primes_subj = vertcat(d_primes{:, 1});
 d_primes_subj(isinf(d_primes_subj)) = nan;
-var_exp = 1 - squared_error/(var(d_primes_subj, 0, 'all', 'omitnan')*numel(~isnan(d_primes_subj)))
+var_exp = 1 - squared_error/(var(d_primes_subj, 0, 'all', 'omitnan')*numel(~isnan(d_primes_subj)))  % deliberate: printed for interactive inspection
 
 %% scatter plot of model vs subject d' (to see how proportional they are)
 figure
@@ -333,7 +333,7 @@ overall_boundary = results.samp_opt_bd;
 % now use this overall boundary to classify target vs blank for each texture
 
 for i_texture = 1:n_textures
-    this_texture = texture_list(i_texture)
+    this_texture = texture_list(i_texture)  % deliberate: progress display, read again below
     texture_select = arrayfun(@(x) isequal(x, this_texture), ExpSettings.textures);
     error_rates_subj(i_texture) = mean(~SubjectExpFile.correct(texture_select));
 
@@ -372,7 +372,7 @@ contrast = 0.15;
 target_radius = 64;
 
 for i_texture_display = 1:length(texture_list)
-    i_texture_display
+    i_texture_display  % deliberate: progress display
     texture = texture_list(i_texture_display);
     stim = lib.stimulus('texture', texture, 'ml_b', 0.5, 'cont_b', 0.15, ...
         'ml_t', 0.5, 'cont_t', 0.15, 'target_radius', target_radius);

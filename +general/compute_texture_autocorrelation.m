@@ -60,5 +60,5 @@ for i_texture = 2:length(texture_names)
 
     % avg. correlation length
     corr_length = regionprops(autocorr>=exp(-1), 'Perimeter').Perimeter/(2*pi);
-    corr_lengths = [corr_lengths; corr_length]
+    corr_lengths = [corr_lengths; corr_length]  % deliberate: printed for interactive inspection
 end

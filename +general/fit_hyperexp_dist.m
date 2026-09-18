@@ -23,9 +23,9 @@ mean_x = mean(x); var_x = var(x);
 % are made from the mean and sd, see journal notes:
 initial_lambda = 2./(mean_x+sqrt(2*var_x-mean_x^2)*[1 -1]);
 % force the lambda_2 to be larger:
-initial_lambda(2) = max(initial_lambda(2), initial_lambda(1)+eps)
+initial_lambda(2) = max(initial_lambda(2), initial_lambda(1)+eps)  % deliberate: printed for interactive inspection
 
-lambda = fmincon(@(lambda) lib.hyperexp_nll(x, lambda), initial_lambda, A, b)
+lambda = fmincon(@(lambda) lib.hyperexp_nll(x, lambda), initial_lambda, A, b)  % deliberate: the script's documented output
 
 figure; hold on
 histogram(x, 'normalization', 'pdf', 'edgecolor', 'none');

@@ -43,7 +43,7 @@ for i_subj = 1:length(subj_list)
     histogram('BinEdges', target_edge_power_bins, 'BinCounts', target_edge_power_counts, ...
         'facecolor', 'r', 'facealpha', 0.3, 'edgecolor', 'none')
 
-    [~, subj_name] = fileparts(subj_list(i_subj).name)
+    [~, subj_name] = fileparts(subj_list(i_subj).name)  % deliberate: progress display, read again below
     % compute pmf parameters
     [threshold, slope, bias] = experiment.analysis.compute_threshold_edge_power(exp_name, ...
         subj_name, 1, 0);

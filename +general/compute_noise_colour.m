@@ -96,7 +96,7 @@ for i_samp = 1:n_angles
 end
 alpha = max(abs(alpha_ang));
 
-alphas = [alphas; alpha]
+alphas = [alphas; alpha]  % deliberate: printed for interactive inspection
 
 %% estimate correlation length
 
@@ -151,4 +151,4 @@ title(alpha)
 % end
 % alpha=max(abs(alpha_ang));
 
-alphas = [alphas; alpha]
+alphas = [alphas; alpha]  % deliberate: printed for interactive inspection

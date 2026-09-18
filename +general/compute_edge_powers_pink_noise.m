@@ -59,7 +59,7 @@ texture.type = 'pink_noise';
 
 tic
 for seed = 1:1e3
-    seed
+    seed  % deliberate: progress display, read again below
     [stim_t, stim_b] = lib.stimulus('seed', seed, 'texture', texture, 'ml_b', 0.5, ...
         'cont_b', 0.15, 'target_radius', target_radius);
     edge_power_b = lib.edge_measures_ideal(lib.edge_vector_ideal(stim_b));

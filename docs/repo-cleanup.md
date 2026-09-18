@@ -51,7 +51,7 @@
 - [ ] **0.2.1.** `+lib/` (tranches 0.1.2–0.1.4) — golden-checked, 13 entry points.
 - [ ] **0.2.2.** `+experiment/+analysis/` (tranche 0.1.6) — golden-checked for 5 of its 12 files, pattern-only for the other 7 (all `.mat`-loading, plotting, or scripts).
 - [x] **0.2.3.** `+experiment/` and `+experiment/+main/` (tranches 0.1.5, 0.1.7) — golden-checked for `gamma_correct` and `generate_target_present_matrix`, pattern-check only for the rest.
-- [ ] **0.2.4.** `+general/` (tranches 0.1.8, 0.1.9) — golden-checked for `compute_nll_edge_model`, its only function; the other 30 files are scripts, pattern-check only.
+- [x] **0.2.4.** `+general/` (tranches 0.1.8, 0.1.9) — golden-checked for `compute_nll_edge_model`, its only function; the other 30 files are scripts, pattern-check only.
 - [ ] **0.2.5.** `+vis/`, `+tests/`, `+tinker/`, root — golden-checked for `+tinker/`'s 5 functions; the rest pattern-check only.
 
 </div>
@@ -909,7 +909,7 @@ All five passed first try. `assert_rename_bijection` passed for each per-file ma
 
 <div style="margin-left:1.5em">
 
-Harness extension (0.2.0) done; tranche 0.2.3 done. Coverage now 26 entry points / 57 fields, with the pattern-check-only residue enumerated per file below.
+Harness extension (0.2.0) done; tranches 0.2.3, 0.2.4 done. Coverage now 26 entry points / 57 fields, with the pattern-check-only residue enumerated per file below.
 
 **Per-tranche work log.**
 
@@ -1047,6 +1047,78 @@ None of these lines involve `save`/`load` string literals, function/file names, 
 **Bug found: B3.25** (new, 🟡 — `check_fixation_cross.m`'s dummy-mode branch has no observable effect; see 0.4). Not fixed, per Stage 2 rules. No optimization or structural opportunity was acted on.
 
 **Baseline used for verification.** HEAD, working tree clean at this step's start (confirmed by `git status`). `check_stage1` with an empty rename map correctly returns `false` for the 3 edited files (a real AST change, expected — Stage 2 diffs are not empty); the diff for each was read line by line and confirmed to contain only the patterns above, with nothing else changed.
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.2.4 — <code>+general/</code> (tranches 0.1.8, 0.1.9)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+MATLAB R2024b Update 6. Baseline: HEAD, working tree clean under `+general/` at this step's start (unrelated in-progress edits elsewhere in the repo, under other 0.2.x tranches, were left untouched and excluded from this tranche's `git add`). Scope: all 32 in-scope `+general/` files (`git ls-files '+general/*.m' | grep -v '/_'`) — `Contents.m`, the 30 scripts, and `compute_nll_edge_model`, the package's only function (per 0.2.0's log entry).
+
+**Pattern 1 — missing suppressing semicolons: 19 candidate sites found across 12 files, all judged deliberate, none fixed.** This scope is almost entirely scripts meant to be run cell-by-cell rather than end-to-end, and every hit is one of two idioms already seen elsewhere in this repo (e.g. B2.21's own header, `set_up_experiment_search.m:103` in 0.2.3): a loop-progress echo (the loop index or the current item, unsuppressed, read again later in the same iteration or not at all) or a final/intermediate diagnostic value left unsuppressed for the person running the script to inspect. Each site now carries an inline `% deliberate: ...` comment so a later pass doesn't "fix" it. Comments are invisible to `canon`, so this produces no AST change (`check_stage1` with an empty rename map returns `true` for all 32 files, confirmed below).
+
+- Progress echoes (loop index/current item, read again inside the same iteration): `camo_ability_vs_samples.m:25` (`sample_size`), `check_camo_texture.m:31` (`i_tex`), `compute_avg_acc_for_texture.m:46` (`subj_name`), `compute_edge_powers_pink_noise.m:62` (`seed`), `compute_edge_props_pink_noise.m:32` (`seed`), `compute_edge_props_exp_eq.m:68`, `compute_edge_props_exp_eq_sum.m:70`, `compute_edge_props_exp_pca.m:77`, `compute_edge_props_exp_pca_all.m:68`, `compute_edge_props_exp_rescaled.m:80` (all `exp_path`, identical shape across these 5 sibling files), `fit_edge_model_with_exps.m:336` (`this_texture`), `fit_edge_model_with_exps.m:375` (`i_texture_display`).
+- Diagnostic/result displays (printed for interactive inspection, not read again, or read again only as an accumulator): `compute_noise_colour.m:99,154` (`alphas = [alphas; alpha]`, two cells of the same script), `compute_texture_autocorrelation.m:63` (`corr_lengths = [corr_lengths; corr_length]`), `fit_hyperexp_dist.m:26` (`initial_lambda(2)`, a sanity check before the fit), `fit_hyperexp_dist.m:28` (`lambda` — the script's documented output, "left in the workspace" per its own header), `compute_edge_props_exp_eq.m:149`, `compute_edge_props_exp_eq_sum.m:154`, `compute_edge_props_exp_pca.m:161`, `compute_edge_props_exp_pca_all.m:150`, `compute_edge_props_exp_rescaled.m:164` (all `feature_name = field_names{3}`, same 5-sibling family), `fit_edge_model_with_exps.m:280,287` (two differently-defined `var_exp` diagnostics sharing one variable name — the first is overwritten by the second before ever being read back, but both are printed to the console for the user, so neither is "unused" in the sense this pattern targets; noted as a naming collision, not fixed, since renaming one is a Stage 3 call).
+
+**Three additional candidates considered and explicitly left untouched, distinct from the above:**
+
+- `plot_shape_exponent_exps.m:20` (`correct = nan()`) — the file's own header already documents this script as an unfinished stub ("never reads `correct`"); this print is part of that already-recorded state, not a fresh finding, so left exactly as found.
+- `shuffle_unshuffle_exp.m:42` (`i_stim = i_stim+1`) — this is **B2.21** itself (the missing semicolon is what makes the mis-incremented loop counter visible on the console); suppressing it would hide the bug's symptom without fixing it, so left alone pending Stage 4.
+- Four bare unsuppressed prints inside `parfor` bodies — `video_demo.m:36,43` (`i_sample`, `stim_energy(i_sample,:)`), `compute_edge_powers_camo.m:64` (`seed`), `compute_edge_powers_camo_large.m:67` (`seed`), `compute_edge_group_measures.m:56` (`[i_session i_level i_trial]`) — `checkcode` itself does not flag any of these (confirmed: it flags the ordinary broadcast-variable warning inside the same `compute_edge_group_measures.m` `parfor` at `:51`, so it is reading inside the loop body, just not for this message), consistent with per-worker console output being unreliable/order-dependent under a real parallel pool. `video_demo.m`'s two sites are additionally unreachable today (the script errors on its first `lib.stimulus` call per **B2.20**). Left alone rather than guessed at.
+
+**Pattern 2 — `find(...)` that could be logical indexing: none found.** One `find` call in scope, `compute_nat_img_eff_coding_bins.m:429`, `bin_idx = find(Na>cdf_array(i_cdf), 1)` — excluded by the rule's own carve-out: `bin_idx` indexes two other arrays (`ea`, `Na`) on the next two lines, not a logical-indexing target.
+
+**Pattern 3 — unpreallocated growth (`x(end+1)`/`x{end+1}`): none found.** `grep -nE '\(end\s*\+\s*1\)|\{end\s*\+\s*1\}'` across all 32 files, zero hits. `checkcode`'s `AGROW`/`SAGROW` warnings (variable changes size every iteration) fired in 8 files — `compute_edge_powers_pink_noise.m:67`, `compute_edge_props_exp_pca.m:63,65,67`, `compute_edge_props_exp_rescaled.m:66,68,70`, `compute_edge_props_pink_noise.m:48,63`, `compute_nat_img_eff_coding_bins.m:270,272,274,277,279,281`, `compute_texture_autocorrelation.m:63`, `plot_contour_props.m:227,228,230,231` — but every one is indexed assignment (`arr(i, :) = ...`) or concatenation (`x = [x; ...]`) without preallocation, not the `end+1` syntax this pattern targets. These are the same shape as the already-recorded **O3.2** (unpreallocated growth by concatenation, `+general/compute_edge_powers_camo.m:39`/`compute_noise_colour.m:99,154` among its cited examples); the new locations found here extend O3.2's already-acknowledged "~40 instances across ~20 files" rough count rather than needing a new id, so none was filed.
+
+**Pattern 4 — unused assignments `checkcode` flags: 1 hit, considered, left alone.** `fit_edge_model_with_exps.m:280` (`NASGU`, "Value assigned to variable might be unused") — this is the same `var_exp`-name-collision site discussed under pattern 1: the value is not dead, it is printed to the console (a real use, just one `checkcode`'s static analysis can't see), and it is overwritten by a second, unrelated diagnostic of the same name three lines below. Not a provably-unused assignment safe to delete; left as found.
+
+**Golden-harness replay: matched, all 57 fields**, including `compute_nll_edge_model`/`_pc`/`_d`/`_resp`/`_optimal`/`_out_of_range` — `compute_nll_edge_model` needed no pattern-1/2/3/4 edit itself (already clean; none of the 14 edited files is the golden-covered one). Verbatim: `golden_harness: replay matched all 57 fields`.
+
+**`check_stage1`, empty rename map, all 32 in-scope files: all `true`.** Every edit this tranche made was a comment-only annotation (no semicolon added, no line deleted, no logical-indexing rewrite, no preallocation) — comments are stripped by `canon`, so the canonical AST is unchanged and the check correctly reports no diff, unlike 0.2.3 (which did make real AST edits and correctly saw `false`). Verbatim (32 lines, `ALL_OK: 1`):
+
+```
++general/Contents.m: 1
++general/analyze_search_exps.m: 1
++general/analyze_shape_exps.m: 1
++general/analyze_shuffled_exp.m: 1
++general/camo_ability_vs_samples.m: 1
++general/check_camo_texture.m: 1
++general/compare_edge_energy_defs.m: 1
++general/compute_avg_acc_for_texture.m: 1
++general/compute_edge_group_measures.m: 1
++general/compute_edge_powers_camo.m: 1
++general/compute_edge_powers_camo_large.m: 1
++general/compute_edge_powers_pink_noise.m: 1
++general/compute_edge_props_exp_eq.m: 1
++general/compute_edge_props_exp_eq_sum.m: 1
++general/compute_edge_props_exp_pca.m: 1
++general/compute_edge_props_exp_pca_all.m: 1
++general/compute_edge_props_exp_rescaled.m: 1
++general/compute_edge_props_pink_noise.m: 1
++general/compute_nat_img_eff_coding_bins.m: 1
++general/compute_nll_edge_model.m: 1
++general/compute_noise_colour.m: 1
++general/compute_texture_autocorrelation.m: 1
++general/fit_csf.m: 1
++general/fit_edge_model_with_exps.m: 1
++general/fit_hyperexp_dist.m: 1
++general/flip_hard_easy.m: 1
++general/pick_edge_power_bins.m: 1
++general/plot_contour_props.m: 1
++general/plot_shape_exponent_exps.m: 1
++general/rand_boundary.m: 1
++general/shuffle_unshuffle_exp.m: 1
++general/video_demo.m: 1
+ALL_OK: 1
+```
+
+**Bugs found: none new** — a documented negative. Every candidate that looked bug-shaped on first read (the `var_exp` name collision, the `plot_shape_exponent_exps.m` stub, `shuffle_unshuffle_exp.m`'s loop counter) turned out to already be covered by this file's own header note or by an existing id (B2.21). No optimization was made; the growth sites found under pattern 3 extend O3.2's existing scope rather than needing a new id. No structural opportunity was acted on.
+
+**Baseline used for verification.** HEAD, working tree clean under `+general/` at this step's start (confirmed by `git status` — other files elsewhere in the repo were dirty from a concurrent, unrelated tranche and were neither read for this decision nor included in this tranche's commit). `check_stage1` with an empty rename map correctly returns `true` for all 32 files (a real, expected result — this tranche made no AST-visible change anywhere in scope).
 
 </div>
 

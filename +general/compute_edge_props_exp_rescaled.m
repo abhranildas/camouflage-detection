@@ -77,7 +77,7 @@ nLevels = 10;
 
 for i_exp = 1:length(exp_paths)
     tic
-    exp_path = exp_paths{i_exp}
+    exp_path = exp_paths{i_exp}  % deliberate: progress display, read again below
     load(['exp_files/' exp_path '/exp_settings.mat']);
 
     edge_props = struct;
@@ -161,7 +161,7 @@ end
 colors = colororder;
 field_names = fieldnames(edge_props_all_contours_b);
 
-feature_name = field_names{3}
+feature_name = field_names{3}  % deliberate: printed for interactive inspection, read again below
 figure; hold on
 % xlim([0 4])
 set(gca, 'yscale', 'log')
