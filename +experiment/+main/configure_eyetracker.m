@@ -19,7 +19,7 @@ function el = configure_eyetracker(SessionSettings)
 %
 %   See also experiment.main.RUN_CAMOUFLAGE_EXPERIMENT.
 
-    [status, dummy] = EyelinkInit();
+    [~, dummy] = EyelinkInit();
     el = EyelinkInitDefaults(SessionSettings.window);
     el.backgroundcolour = SessionSettings.bgPixValGamma;
 

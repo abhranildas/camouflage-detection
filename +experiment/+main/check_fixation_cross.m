@@ -66,7 +66,7 @@ function check_fixation_cross(SessionSettings, fix_pos_pix)
                     t0 = GetSecs();
                 end
 
-                [key_is_down, secs, key_code] = KbCheck;
+                [~, ~, key_code] = KbCheck;
                 if key_code(KbName('c'))
                     Eyelink('Command', 'set_idle_mode');
                     Eyelink('Command', 'clear_screen 0');
@@ -85,7 +85,7 @@ function check_fixation_cross(SessionSettings, fix_pos_pix)
                     Screen('DrawTexture', SessionSettings.window, target_texture, [], ...
                         target_destination);
                     Screen('Flip', SessionSettings.window, 0, 1);
-                    t0 = GetSecs()
+                    t0 = GetSecs();
                     WaitSecs(0.1);
                 end
                 WaitSecs(.001);

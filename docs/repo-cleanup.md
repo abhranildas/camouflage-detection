@@ -50,7 +50,7 @@
 - [x] **0.2.0.** Extend the golden harness to cover every tranche not yet in its 16-entry-point/32-field coverage — now 26 entry points / 57 fields.
 - [ ] **0.2.1.** `+lib/` (tranches 0.1.2–0.1.4) — golden-checked, 13 entry points.
 - [ ] **0.2.2.** `+experiment/+analysis/` (tranche 0.1.6) — golden-checked for 5 of its 12 files, pattern-only for the other 7 (all `.mat`-loading, plotting, or scripts).
-- [ ] **0.2.3.** `+experiment/` and `+experiment/+main/` (tranches 0.1.5, 0.1.7) — golden-checked for `gamma_correct` and `generate_target_present_matrix`, pattern-check only for the rest.
+- [x] **0.2.3.** `+experiment/` and `+experiment/+main/` (tranches 0.1.5, 0.1.7) — golden-checked for `gamma_correct` and `generate_target_present_matrix`, pattern-check only for the rest.
 - [ ] **0.2.4.** `+general/` (tranches 0.1.8, 0.1.9) — golden-checked for `compute_nll_edge_model`, its only function; the other 30 files are scripts, pattern-check only.
 - [ ] **0.2.5.** `+vis/`, `+tests/`, `+tinker/`, root — golden-checked for `+tinker/`'s 5 functions; the rest pattern-check only.
 
@@ -104,7 +104,7 @@
 
 **Description.** Bugs found anywhere during Stage 1/2/3, fixed here after Structure. **Rating:** 🔴 severity 1, silently wrong results on a run path · 🟠 severity 2, reachable but not silent · 🟡 severity 3, latent. Id `B<severity>.<n>`, never renumbered. **User launches each fix manually — never auto-dispatched.**
 
-**Status.** 61 of the 62 recorded bugs are unfixed; B3.9 closed as a side effect of tranche 0.1.1's filename/`function`-line rule. Highest ids: B1.11, B2.27, B3.24.
+**Status.** 62 of the 63 recorded bugs are unfixed; B3.9 closed as a side effect of tranche 0.1.1's filename/`function`-line rule. Highest ids: B1.11, B2.27, B3.25.
 
 **To-do.**
 
@@ -171,6 +171,7 @@
 - [ ] 🟡 **B3.23.** `scratch.m` cells 4–8 read `ExpSettings`, `SubjectExpFile`, `stims_all`, `stims_miss` and `bdry_strip`, none of which this file creates, loads or saves — same shape as B3.21, and the reason those five names were deliberately left unrenamed in tranche 0.1.12. Within that, one concrete size bug: `scratch.m:141` preallocates `nan(256, 256, length(hit_idx))` but `:143` loops over `size(stims_miss, 3)`, two unrelated counts, so the classification image at `:147` averages trailing NaN pages (or the array grows) whenever they disagree.
 
 - [ ] 🟡 **B3.24.** `lib.embed_image_in_center` errors on its own default path. `bAdditive` defaults to 0 (`:17-19`), and the `else` branch that default selects reads `target_window` at `:74`, which the defaults block at `:33-35` never assigns — its whole body is a commented-out warning. So any call with fewer than 7 arguments that does not opt into the additive branch dies with "Not enough input arguments", including the two-argument call the function's own header advertises. Latent rather than reachable: the one live caller, `+lib/difference_of_gaussians_2d.m:89`, passes `bAdditive = 1` and takes the other branch. Found by S3.5's minimal-argument call sweep, which now carries the call as an expected failure citing this id.
+- [ ] 🟡 **B3.25.** `check_fixation_cross.m:24-28` — the dummy-mode branch (`SessionSettings.el.dummyconnected`) reads the mouse position and builds `evt`/`event_type` locals, but neither is read again on that path — the branch has no observable effect beyond consuming `GetMouse`'s return. Unclear whether this is an incomplete implementation (the polling/fixation-check loop below is written only for the real-EyeLink `else` branch) or a deliberate no-op for dummy mode. Latent: only reachable when `dummyconnected` is true, and doesn't error either way. Found while checking tranche 0.2.3's `checkcode`-flagged unused-assignment hits; left untouched rather than converted to `~` because the whole branch, not one local, looks like the real issue.
 
 **Recorded and disproved (not a bug):** unqualified `edge(...)` in `detect_edge_pixels.m:20`/`edge_measures.m:18` resolves correctly to Image Processing Toolbox `edge`, not `lib.edge`. Do not "fix."
 
@@ -908,7 +909,7 @@ All five passed first try. `assert_rename_bijection` passed for each per-file ma
 
 <div style="margin-left:1.5em">
 
-Harness extension (0.2.0) done; no tranche edits yet. Coverage now 26 entry points / 57 fields, with the pattern-check-only residue enumerated per file below.
+Harness extension (0.2.0) done; tranche 0.2.3 done. Coverage now 26 entry points / 57 fields, with the pattern-check-only residue enumerated per file below.
 
 **Per-tranche work log.**
 
@@ -969,6 +970,83 @@ golden_harness: replay matched all 57 fields
 **One pre-existing oddity, checked and cleared.** A capture run prints five bare `ans = <n>` lines. They are **not** from anything added here: the HEAD copy of the harness, run unchanged from a scratch directory, prints the same five, in a different order each time — they are the parallel-pool worker ids from `lib.autocorr`'s `parfor`. Noted, not fixed, not a new finding.
 
 **No bug, optimization, or structural item was found or acted on.** This step adds harness code and reads repo code; the three bugs it leans on (B2.9, B2.17, B3.4) were all already recorded.
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.2.3 — <code>+experiment/</code> and <code>+experiment/+main/</code> (tranches 0.1.5, 0.1.7)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+MATLAB R2024b Update 6. Baseline: clean HEAD, working tree clean at the start of this step. Scope: 26 files under `+experiment/` (root, incl. `Contents.m`) and 10 files under `+experiment/+main/` (incl. `Contents.m`), all snake_case per S2.19. `+experiment/+main/testscripts/` (`run_single_trial_test.m`, `test_experiment_struct.m`) is not assigned to any 0.2.x row — not addressable under any package-qualified name (3.1.3's step-S2.19 note) — but was included in this tranche's pattern sweep anyway, out of caution; `checkcode` found nothing in either file.
+
+**Pattern 1 — missing suppressing semicolons: 1 hit, fixed.** `+experiment/+main/check_fixation_cross.m:88`, `t0 = GetSecs()` inside the `'c'`-key recalibration branch — the same statement appears twice more in the file (`:32`, `:66`), both already suppressed with `;`. `t0` is read again on the next loop iteration (`:43`), so an unsuppressed `GetSecs()` here would print a bare timestamp to the console on every manual recalibration during a live session — not the kind of "deliberate interactive feedback" this scope is supposed to be conservative about, since its two sibling statements are suppressed and this one has no comment marking it as intentional. Fixed: added `;`. One additional candidate was found and **left alone as deliberate**: `+experiment/set_up_experiment_search.m:103`, `[i_session i_trial target_loc_index]` — already carries an inline comment, `% unsuppressed on purpose: progress report`, from an earlier tranche. Not touched.
+
+**Pattern 2 — `find(...)` that could be logical indexing: none found.** Six `find(...)` calls in scope, all excluded by the rule: `generate_camouflage_stimuli.m:72` (result fed to `randsample` as a population of indices, not a mask target); `load_current_session.m:49` (two-output `find` for row/col subscripts — no logical-indexing equivalent); `load_current_session.m:56,58-59` (index used to index two other arrays, `not_completed_bin`/`not_completed_session`); `load_current_session.m:66` (result stored as `SettingsOut.currentBin`, a bin-identifier label, not used for indexing); `sample_patches_for_experiment.m:78-79` (index used to index `patch_index_bin`, flagged by `checkcode` itself but excluded by this pattern's own carve-out for indexing a second array); `run_camouflage_experiment_search.m:29,81` (used as a `for`-loop's scalar start bound).
+
+**Pattern 3 — unpreallocated growth: none found.** No `x(end+1)`/`x{end+1}` anywhere in scope (`grep -n 'end+1\|end + 1'`, zero hits).
+
+**Pattern 4 — unused assignments `checkcode` flags: 4 sites fixed, several considered and left alone.** Full `checkcode` sweep of all 38 in-scope files (36 `+experiment/`/`+main/` files + 2 `testscripts/`), reproduced verbatim below. Fixed, all pure renames/deletions with no side effects lost:
+
+- `check_fixation_cross.m:69` — `[key_is_down, secs, key_code] = KbCheck;`, only `key_code` read → `[~, ~, key_code] = KbCheck;`.
+- `configure_eyetracker.m:22` — `[status, dummy] = EyelinkInit();`, only `dummy` read → `[~, dummy] = EyelinkInit();`.
+- `display_level_start.m:31-32` — `fix_pos_xy = fix_pos_pix_xy;` and `fixation_interval_s = SessionSettings.fixationIntervalS;`, neither read again anywhere in the file → both lines deleted.
+
+Considered and **left alone**, each for a specific reason:
+
+- `generate_camouflage_stimuli_all.m:3` (unused input argument) — deleting or `~`-ing a function argument is a signature change, Stage 3, not Stage 2.
+- `sample_noise_patch_for_experiment.m:2,45,48,49` (`sample_method` input, `target_key_index`, `n_patches`) — already documented as dead in this file's own header ("`n_patches` is likewise computed and never used"). `target_key_index`'s right-hand side, `lib.target_index_from_string(...)`, may have a validation side effect independent of its return value, and the function cannot currently run at all (`lib.pink_noise_2d` doesn't exist, B2.9) so there is no way to verify a deletion by running it. Left untouched; no verification path exists for this file.
+- `give_feedback.m:30-32` (`correct_tone`/`incorrect_tone`/`error_tone`) — these feed the commented-out `sound(...)` calls already triaged as **alternative** in T4.2 (3.1.4); deleting them now would pre-empt that Stage 3 conversion.
+- `check_fixation_cross.m:24,27,28` (`x`/`y`/`button` from `GetMouse`, `evt.genx`/`evt.geny`) — not a single dead local but a whole dummy-mode branch with no observable effect; recorded as **B3.25**, not fixed here.
+- `stimulus_interval.m:61` (`stimulus_onset_time`, overwritten at `:73` before being read) — already recorded as **B3.16**, the file's own header names this exact line pair as a known, deliberately-unfixed latent bug.
+
+Verbatim `checkcode` output that this section's reasoning is based on (38 files; only files with messages shown):
+
+```
+== generate_camouflage_stimuli.m ==
+  L91: The entire array or structure 'edge_powers' is a broadcast variable...
+== generate_camouflage_stimuli_all.m ==
+  L3: Input argument might be unused...
+== load_current_session.m ==
+  L41: To avoid conflicts with functions on the path, specify variables to load from file.
+  L44: Explicitly initialize this variable to avoid a potential uninitialized variable...
+  L75: To avoid conflicts with functions on the path, specify variables to load from file.
+== sample_noise_patch_for_experiment.m ==
+  L2, L45, L48, L49: Input argument / value assigned might be unused.
+== sample_patches_for_experiment.m ==
+  L79: For array or cell array, performance can be improved using logical indexing instead of 'find'.
+== save_current_level.m ==
+  L35: To avoid conflicts with functions on the path...
+  L44: Variable might be used before it is defined.
+== session_settings_all.m ==
+  L54: To avoid conflicts with functions on the path...
+== set_up_experiment.m / _diff_bg / _texture_exponent ==
+  Global variables are inefficient...
+== set_up_experiment_search.m ==
+  L103: Add a semicolon after the statement to hide the output (in a function). [deliberate, commented]
+== transform_camouflage_stimuli.m ==
+  L37: To avoid conflicts with functions on the path...
+== +main/check_fixation_cross.m ==
+  L24, L27, L28: unused/changed-but-unused (B3.25) — L69: fixed — L88: fixed (semicolon)
+== +main/configure_eyetracker.m ==
+  L22: fixed
+== +main/display_level_start.m ==
+  L31, L32: fixed
+== +main/give_feedback.m ==
+  L30-32: alternative, T4.2, left alone
+== +main/stimulus_interval.m ==
+  L61: B3.16, left alone
+```
+
+None of these lines involve `save`/`load` string literals, function/file names, config struct field paths, or anything else outside this tranche's Stage 2 mandate; every message not listed as "fixed"/"left alone" above (the `checkcode` conflicts-with-path-functions and global-variable warnings) falls outside the four whitelisted patterns and was not acted on.
+
+**Golden-harness replay: matched, all 57 fields**, including `gamma_correct` and `generate_target_present_matrix`/`generate_target_present_matrix_fixed` — both entry points needed no pattern-2/3/4 edit (already clean: semicolons present throughout, no `find`, no growth, no dead locals). Verbatim: `golden_harness: replay matched all 57 fields`.
+
+**Bug found: B3.25** (new, 🟡 — `check_fixation_cross.m`'s dummy-mode branch has no observable effect; see 0.4). Not fixed, per Stage 2 rules. No optimization or structural opportunity was acted on.
+
+**Baseline used for verification.** HEAD, working tree clean at this step's start (confirmed by `git status`). `check_stage1` with an empty rename map correctly returns `false` for the 3 edited files (a real AST change, expected — Stage 2 diffs are not empty); the diff for each was read line by line and confirmed to contain only the patterns above, with nothing else changed.
 
 </div>
 

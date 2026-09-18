@@ -28,8 +28,6 @@ function display_level_start(SessionSettings, block_number)
 
     %% Set up
     fix_target = SessionSettings.fixationTarget;
-    fix_pos_xy = fix_pos_pix_xy;
-    fixation_interval_s = SessionSettings.fixationIntervalS;
 
     fix_texture = Screen('Maketexture', SessionSettings.window, fix_target);
     fix_rect = SetRect(0, 0, size(fix_target, 2), size(fix_target, 1));
