@@ -48,7 +48,7 @@
 **To-do.**
 
 - [x] **0.2.0.** Extend the golden harness to cover every tranche not yet in its 16-entry-point/32-field coverage — now 26 entry points / 57 fields.
-- [ ] **0.2.1.** `+lib/` (tranches 0.1.2–0.1.4) — golden-checked, 13 entry points.
+- [x] **0.2.1.** `+lib/` (tranches 0.1.2–0.1.4) — golden-checked, 13 entry points.
 - [x] **0.2.2.** `+experiment/+analysis/` (tranche 0.1.6) — golden-checked for 5 of its 12 files, pattern-only for the other 7 (all `.mat`-loading, plotting, or scripts).
 - [x] **0.2.3.** `+experiment/` and `+experiment/+main/` (tranches 0.1.5, 0.1.7) — golden-checked for `gamma_correct` and `generate_target_present_matrix`, pattern-check only for the rest.
 - [x] **0.2.4.** `+general/` (tranches 0.1.8, 0.1.9) — golden-checked for `compute_nll_edge_model`, its only function; the other 30 files are scripts, pattern-check only.
@@ -197,6 +197,7 @@
 - [ ] 🟡 **O3.3.** 24 `parfor` loops repo-wide, spot-checked (not exhaustively) as writing to sliced/accumulator outputs, consistent with safe `parfor` use — none confirmed as a reduction-variable hazard beyond O2.1/O2.2 above. Full list in 2 (survey). Unprofiled — no per-loop timing exists to say which, if any, are worth parallelizing differently or at all.
 - [ ] 🟡 **O3.4.** `+lib/gauss_llr.m:19` — `det(cov_b)/det(cov_a)`, a ratio of determinants rather than a solve, so `inv`/`\` substitution doesn't directly apply; flagged for a numerics look, not a confirmed win. Unprofiled.
 - [ ] 🟡 **O3.5.** Storage vs. seed trade for stimulus caching (paired with S1.1 in Structure — this is the same finding wearing its Speed hat): regenerating from seeds instead of storing ~100GB needs a caching strategy for the expensive Portilla-Simoncelli path (~25 iterations/texture); pink noise regeneration is cheap. Unprofiled — no timing on PS synthesis cost exists yet.
+- [ ] 🟡 **O3.6.** Two `checkcode` AGROW hits in `+lib/` examined for tranche 0.2.1's Stage-2 preallocation pattern and declined as unsafe to fix mechanically: `find_spot_centers.m:25` (`centers(end+1, :)`) grows both within a loop and across the function's own recursive calls to itself, so the final size isn't known until the recursion actually runs; `trace_contours.m:66` (`contours{end+1, 1}`) grows once per contour found by a data-dependent `while` loop over a link map built from the input image, so the contour count isn't known until the trace completes. Neither has a size obtainable from an RNG-free pre-pass without duplicating the traversal itself, so Stage 2's "size it from a pre-pass, then fill by index" recipe doesn't apply without restructuring the algorithm — a Structure-sized change, not a Tidying one. Unprofiled.
 
 </div>
 
@@ -970,6 +971,43 @@ golden_harness: replay matched all 57 fields
 **One pre-existing oddity, checked and cleared.** A capture run prints five bare `ans = <n>` lines. They are **not** from anything added here: the HEAD copy of the harness, run unchanged from a scratch directory, prints the same five, in a different order each time — they are the parallel-pool worker ids from `lib.autocorr`'s `parfor`. Noted, not fixed, not a new finding.
 
 **No bug, optimization, or structural item was found or acted on.** This step adds harness code and reads repo code; the three bugs it leans on (B2.9, B2.17, B3.4) were all already recorded.
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.2.1 — <code>+lib/</code> (tranches 0.1.2–0.1.4, golden-checked, 13 entry points)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+MATLAB R2024b Update 6. Baseline: HEAD (clean at start; scope was the 53 `+lib/` files listed by `git ls-files '+lib/*.m'`, no `_`-prefixed files in this directory). `checkcode` run across all 53 files first, then each of the four whitelisted patterns checked by hand against the messages and a direct grep.
+
+**Pattern 1 (missing suppressing `;`): 1 hit, fixed.** `+lib/autocorr.m:26` — a bare `i_row_shift` inside the `parfor` loop, read again at `:28,32`, so not the "deliberate final print" case; added the semicolon. This is a golden-checked entry point (`lib.autocorr`). A second candidate, `+lib/edge_props_stim.m:122`'s bare `randi(10)`, was found and **declined**: it is B2.2's recorded debug scaffolding (RNG-advancing, slated for deletion by S1.13), so suppressing its display now would edit a line already earmarked for removal rather than tidy a real omission — left untouched.
+
+**Pattern 2 (`find` → logical indexing): none found.** Four `find(...)` call sites in scope (`edge.m:110`, `edge_vector_ideal.m:98`, `target_index_from_string.m:15`, and three single-match `find(..., 1)` calls in `trace_contours.m:44,46,57`). All four are excluded by the pattern's own carve-outs: the first two are two-output `[rows, cols] = find(mask)` forms whose numeric subscripts index a second array (`theta_field(edge_rows(i_row), edge_cols(i_row))`) and feed `knnsearch`; `target_index_from_string.m` returns its `find` result as the function's own scalar index output; the `trace_contours.m` calls all pass an explicit `1` (first-match), which needs a single index, not a mask.
+
+**Pattern 3 (unpreallocated growth): 2 `checkcode` AGROW hits, both examined and declined.** `find_spot_centers.m:25` (`centers(end+1, :)`) and `trace_contours.m:66` (`contours{end+1, 1}`). Neither fits the whitelist's fix recipe: `find_spot_centers` grows `centers` both within its loop and across its own recursive calls, so the eventual size depends on the recursion's own results; `trace_contours` grows `contours` once per contour found by a data-dependent `while` loop, so the count isn't known until the trace over the link map finishes. A "pre-pass with no RNG draws" would have to re-run the same traversal to count first — duplicating the algorithm, not tidying it. Filed as **O3.6** instead of fixed.
+
+**Pattern 4 (unused assignments `checkcode` flags): 3 hits fixed, 1 declined.** `+lib/edge_props_stim.m:114` (`mask_strip_xy = repmat(mask_strip, [1, 1, 2])`, NASGU) and `:143` (`grad_hist_thresh = parser.Results.grad_hist_thresh`, NASGU) — both confirmed by grep to have no other read in the file, deleted. `+lib/haar_2d.m:67` (`y_over_x = y_grid./x_grid`, NASGU) — deleted; this made the file's dead `%% Envelope` block's `[x_grid, y_grid] = meshgrid(x, y)` (flagged ASGLU, both outputs unused since `envelope = haar_grid` per the function's own header doc) provably dead too, so its 4 lines (the two `x`/`y` builds and the `meshgrid` call) were removed along with it; `checkcode('+lib/haar_2d.m')` is clean after. `+lib/stimulus.m:255` (`[mask_tight, mask_edge_tight, mask_normal_tight, mask_strip_tight] = lib.target_mask(...)`, ASGLU ×3) — the three unused outputs replaced with `~`, keeping `mask_tight`; this is a golden-checked entry point (`lib.stimulus`). **Declined:** `+lib/edge_props_stim.m:225-233`'s `stim_grads_pca` chain (NASGU at the final line) is the exact subject of the already-recorded **B3.15** ("computes PCA rotation and discards it") — its surrounding comment cites B3.15 by name. Deleting it now would erase the in-file pointer to an open bug under cover of a Tidying tranche, so it was left exactly as found.
+
+**Golden harness, verbatim (MATLAB R2024b Update 6):**
+```
+golden_harness: replay matched all 57 fields
+```
+No recapture — output unchanged, as expected for all four patterns above (semicolon/`~`/dead-line changes are display- or read-only, never load-bearing).
+
+**A stale attribution in the 0.2.0 log entry, corrected here rather than edited there.** That entry (above) attributes a capture run's five bare `ans = <n>` lines to "the parallel-pool worker ids from `lib.autocorr`'s `parfor`." Fixing pattern 1's `i_row_shift` hit makes those five lines disappear from a fresh capture-mode run (checked, not committed — capture wasn't re-run for real since nothing here needed a recapture) — they were this line's unsuppressed display all along, one per loop iteration on the 5-shift golden call, not worker-pool chatter. Left as a note here since 0.2.0's own entry is another tranche's record.
+
+**`check_stage1`-style diff check.** No rename map involved (Stage 2, not Stage 1); verified by hand instead that each file's diff is exactly one of the four patterns — a `;` insertion, an output arg replaced with `~`, or a whole-statement/whole-block deletion with no other line touched — via `git diff` on each of the four changed files (`autocorr.m`, `stimulus.m`, `edge_props_stim.m`, `haar_2d.m`). No other `+lib/` file was touched.
+
+**Verification split.** 13 files are golden-checked entry points (list in section 1); two of the four edited files (`autocorr.m`, `stimulus.m`) are on that list and are covered by the replay above. `edge_props_stim.m` and `haar_2d.m` are pattern-check only — confirmed via `checkcode` (both clean of the targeted messages after edit) and, for `haar_2d.m`, `tools/smoke_test.m`'s `lib.haar_2d()` default-argument call (unchanged code path — the deleted lines were unreachable from any output).
+
+**Bugs found: none new.** (The haar_2d `%% Envelope` dead block was checked against its own header doc — `envelope` is documented as `haar_grid`, so the dead lines are leftover scaffolding, not a functional bug, and were removed under pattern 4 rather than recorded.)
+
+**Optimization found: O3.6** (above), declined per Stage 2's closed list.
+
+**Working-directory note.** `docs/repo-cleanup.md` and several files outside `+lib/` (`+experiment/`, `+general/`, `+vis/`) were under concurrent edit by other tranches (0.2.2–0.2.4) while this tranche ran; this entry and the 0.2.1 checklist tick are the only edits made here, and no other tranche's in-progress changes were touched or reverted.
 
 </div>
 

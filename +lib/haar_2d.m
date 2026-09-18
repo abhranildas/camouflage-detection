@@ -64,7 +64,6 @@ function [haar, envelope] = haar_2d(Parameters)
                 repmat(Parameters.dc, 2*size_radius_px+1, 1), ...
                 repmat(-amplitude, 2*size_radius_px+1, size_radius_px)];   % vertical edge haar
         case ('bowtie')
-            y_over_x = y_grid./x_grid;
             angle_grid = atan2(y_grid, x_grid);
             angle_grid(isnan(angle_grid(:))) = 0;   % middle pixel is NaN. We want it to be 0.
 
@@ -82,9 +81,5 @@ function [haar, envelope] = haar_2d(Parameters)
     haar(haar == 0) = Parameters.dc;   % make the surround mean luminance.
 
     %% Envelope
-    x = (-size_radius_px*3:size_radius_px*3) / Parameters.pixperdeg;
-    y = (-size_radius_px*3:size_radius_px*3) / Parameters.pixperdeg;
-
-    [x_grid, y_grid] = meshgrid(x, y);
     envelope = haar_grid;
 end

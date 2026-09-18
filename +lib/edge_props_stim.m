@@ -111,7 +111,6 @@ function [grad_magnitude_llr_1, grad_magnitude_llr_2, grad_magnitude_llr_4, ...
     addParameter(parser, 'nbins_grad_or', 16, @isnumeric);
     addParameter(parser, 'edge_pixels', [], @(x) isa(x, 'single'));
     [~, ~, target_normal, mask_strip, ~, ~] = lib.target_mask();
-    mask_strip_xy = repmat(mask_strip, [1, 1, 2]);
     addParameter(parser, 'target_normal', target_normal, @isnumeric);
 
     parse(parser, stim_raw, varargin{:});
@@ -140,7 +139,6 @@ function [grad_magnitude_llr_1, grad_magnitude_llr_2, grad_magnitude_llr_4, ...
     end
     stim_size = size(stim, 1);
 
-    grad_hist_thresh = parser.Results.grad_hist_thresh;
     pca_coeffs = parser.Results.pca_coeffs;
     grad_magnitude_bins = parser.Results.grad_mag_bins;
     % grad_mag_bins(:,1)=grad_hist_thresh;

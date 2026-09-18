@@ -23,7 +23,7 @@ function stim_autocorr = autocorr(stim, span)
     n_shifts = length(shifts);
     stim_autocorr = nan(n_shifts);
     parfor i_row_shift = 1:n_shifts
-        i_row_shift
+        i_row_shift;
         for i_col_shift = 1:n_shifts
             stim_shifted = circshift(circshift(stim, -shifts(i_row_shift), 1), ...
                 -shifts(i_col_shift), 2);
