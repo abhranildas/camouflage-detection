@@ -158,12 +158,12 @@ for i_exp=1:length(exp_paths)
     % plot feature correlations
     figure(3); subplot(4,4,i_exp);
     imagesc(mean(feature_corrs_blank,3)); axis square
-    colorbarpzn(-1,1,'rev'); colorbar off
+    vislab.lib.colorbarpzn(-1,1,'rev'); colorbar off
     set(gca,'xtick',[],'ytick',[])
 
     figure(4); subplot(4,4,i_exp);
     imagesc(mean(feature_corrs_target,3)); axis square
-    colorbarpzn(-1,1,'rev'); colorbar off
+    vislab.lib.colorbarpzn(-1,1,'rev'); colorbar off
     set(gca,'xtick',[],'ytick',[])
 end
 

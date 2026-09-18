@@ -1,183 +1,211 @@
-# Repo-wide cleanup plan — camouflage_detection
+# Repo-wide cleanup plan
 
-Readability, then structural cleanup and optimization, then bug fixes.
-
-Read every in-scope `.m` file in the repo and clean it in place — better names, complete header docs, consistent conventions, reflowed long lines. The first phase of this operation is **behaviour-preserving**: no output changes, a constraint that is **mechanically checkable**, so the diff does not need to be trusted, only verified. Four stages of change, defined fully in section 3: Stage 1, Stage 2, Stage 3, Stage 4. Stages 1 and 2 are this behaviour-preserving readability pass; Stage 3 is the next step of the same overall operation — structural cleanups and optimizations, done once the readability pass is complete; Stage 4 is the bug fixes found along the way, done last.
-
-**Provenance.** This plan supersedes the former `CODEBASE.md`, whose survey, bug list, and readability blueprint were folded in here; the descriptive half of that document (what the project is, how it runs, the data model) moved to `README.md`. Findings carried over from it were recorded against `master` @ `ae20cf1` and carry their original verification markers — **[ran]** for a claim checked by executing MATLAB R2024b, **[read]** for a claim checked by reading a specific line. Every count in section 1 was re-measured for this plan against the tree as it stands, not carried over.
+✅ done · 🚧 in progress · ⬜ not started
 
 ---
 
-<details>
+<details open>
 <summary><h2 style="display:inline; margin:0; font-size:1.15em">0. Status</h2></summary>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h3 style="display:inline; margin:0; font-size:1.05em">0.1 Stage 1 — in progress (tooling done)</h3></summary>
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">🚧 0.1 · Stage 1 · Style</h3></summary>
 
 <div style="margin-left:1.5em">
 
-Comments, header docs, whitespace, reflow, file-local renames, and triaging any commented-out code found in each tranche's files (verdict only, nothing deleted). Checked by `isequal` on a canonical AST fingerprint — no execution needed.
+**Description.** Comments, header docs, whitespace, operator and bracket spacing, indentation, reflow, blank-line grouping, file-local renames, plus function and file renames repo-wide (step 2a), and triaging any commented-out code found in each tranche's files (verdict only, nothing deleted). Checked by `isequal` on a canonical AST fingerprint — no execution needed.
 
-- [x] **0.1.0.** Tooling: `canon`/`check_stage1`/`assert_rename_bijection`, golden-output harness, repo-wide rename map. → `matlab-cleanup-lead`
-- [x] **0.1.1.** `+lib/` edge & stimulus core — 14 files, 948 lines. **Sets the naming conventions for everything downstream.** → `matlab-cleanup-lead`
-- [x] **0.1.2.** `+lib/edge_props_stim.m` — 1 file, 535 lines. → `matlab-cleanup-lead`
-- [x] **0.1.3.** `+lib/` remainder — 41 files, 1484 lines. → `matlab-cleanup-mechanical` (`model: "sonnet"`)
-- [x] **0.1.4.** `+experiment/+main/` — 11 files, 714 lines. → `matlab-cleanup-mechanical` (`model: "sonnet"`)
-- [x] **0.1.5.** `+experiment/+analysis/` — 12 files, 787 lines. → `matlab-cleanup-mechanical` (`model: "sonnet"`)
-- [x] **0.1.6.** `+experiment/` top level, including the variant families — 26 files, 1390 lines. → `matlab-cleanup-lead`
-- [x] **0.1.7.** `+general/` live model chain — 4 files, 833 lines. → `matlab-cleanup-lead`
-- [x] **0.1.8.** `+general/` remainder — 27 files, 1641 lines. → `matlab-cleanup-mechanical` (`model: "sonnet"`)
-- [x] **0.1.9.** `+vis/` + `+tests/` — 10 files, 484 lines. → `matlab-cleanup-mechanical` (`model: "sonnet"`)
-- [ ] **0.1.10.** `+tinker/` — 13 files, 1040 lines. → `matlab-cleanup-mechanical` (`model: "sonnet"`)
-- [ ] **0.1.11.** Root files: `config.m`, `setup.m`, `edge_power_demo.m`, `test.m`, `test_Erlang.m` — 5 files, 356 lines. → `matlab-cleanup-lead`
+**Status.** Tranches 0.1.2–0.1.10 predate the mandatory-snake_case rule and the function/file-rename step, and 0.1.1 has not yet run (see S2.19 for the retrofit question this leaves open). `+stats/` (12 files) is entirely `_`-prefixed known-dead code, excluded from scope the same way it was in the original survey — no tranche assigned to it unless S3.6 revives it.
 
-Full detail, tranche sequencing, and per-tranche findings: section 4.1.
+**To-do.**
+
+- [x] **0.1.0.** Tooling: `canon`/`check_stage1`/`assert_rename_bijection`, golden-output harness — MATLAB R2024b Update 6.
+- [ ] **0.1.1.** Function and file renames, repo-wide — the map in section 3.1.1, verified over every file. **Not started.** → `matlab-cleanup-lead` (`model: "opus"`)
+- [x] **0.1.2.** `+lib/` edge & stimulus core — 14 files, 948 lines. **Sets in-file naming conventions for everything downstream.** *(predates snake_case mandate — see 3.1.3)*
+- [x] **0.1.3.** `+lib/edge_props_stim.m` — 1 file, 535 lines.
+- [x] **0.1.4.** `+lib/` remainder — 39 files cleaned of 41 listed, 1484 lines (`ptch_norm.m`/`watson_otf.m` excluded — S3.11's job).
+- [x] **0.1.5.** `+experiment/+main/` — 11 files, 714 lines. *(camelCase family, deliberately not converted, predates the snake_case mandate — see S2.19)*
+- [x] **0.1.6.** `+experiment/+analysis/` — 12 files, 787 lines. *(mixed camel/snake, deliberately preserved as found)*
+- [x] **0.1.7.** `+experiment/` top level, incl. variant families — 26 files, 1390 lines. *(mixed camel/snake, deliberately preserved as found)*
+- [x] **0.1.8.** `+general/` live model chain — 4 files, 833 lines (`compute_nat_img_eff_coding_bins.m`, `compute_edge_props_exp_pca.m`, `fit_edge_model_with_exps.m`, `compute_nll_edge_model.m`).
+- [x] **0.1.9.** `+general/` remainder — 27 files, 1641 lines.
+- [x] **0.1.10.** `+vis/` + `+tests/` — 10 files, 484 lines. *(per-file convention, genuinely mixed authorship)*
+- [ ] **0.1.11.** `+tinker/` — 13 files, 1040 lines. **Not started.** → `matlab-cleanup-mechanical` (`model: "sonnet"`)
+- [ ] **0.1.12.** Root files: `config.m`, `setup.m`, `edge_power_demo.m`, `test.m`, `test_Erlang.m` — 5 files, 356 lines. **Not started.** → `matlab-cleanup-lead` (`model: "opus"`)
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h3 style="display:inline; margin:0; font-size:1.05em">0.2 Stage 2 — not started</h3></summary>
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">⬜ 0.2 · Stage 2 · Tidying</h3></summary>
 
 <div style="margin-left:1.5em">
 
-Semicolon insertion, preallocation, `find`→logical indexing, deleting a provably unused assignment. Checked by a whitelisted-pattern diff **plus** a runtime golden-output match. Only the `+lib/` core chain and the three psychometric functions can be covered by a runtime harness at all — everything else is pattern-check only, for the reasons in section 2.
+**Description.** Adding a suppressing `;`, preallocation, `find`→logical indexing, deleting a provably unused assignment. Checked by a whitelisted-pattern diff **plus** a runtime golden-output match. A closed list of four: anything bigger is a Speed item (0.5).
 
-- [ ] **0.2.0.** Extend the golden harness to cover every entry point listed in section 2.
-- [ ] **0.2.1.** `+lib/` (tranches 0.1.1–0.1.3) — golden-checked.
-- [ ] **0.2.2.** `+experiment/+analysis/` (tranche 0.1.5) — golden-checked for the three psychometric functions, pattern-only for the rest.
-- [ ] **0.2.3.** `+experiment/` and `+experiment/+main/` (tranches 0.1.4, 0.1.6) — pattern-check only.
-- [ ] **0.2.4.** `+general/` (tranches 0.1.7–0.1.8) — pattern-check only.
-- [ ] **0.2.5.** `+vis/`, `+tests/`, `+tinker/`, root (tranches 0.1.9–0.1.11) — pattern-check only.
+**Status.** Not started. Only the `+lib/` core chain and the three psychometric functions in `+experiment/+analysis/` are covered by the golden harness (see 2) — everything else is pattern-check only.
 
-Coverage gaps found while extending the harness, and the fixes made, are detailed in section 4.2.
+**To-do.**
+
+- [ ] **0.2.0.** Extend the golden harness to cover every tranche not yet in its 16-entry-point/32-field coverage.
+- [ ] **0.2.1.** `+lib/` (tranches 0.1.2–0.1.4) — golden-checked.
+- [ ] **0.2.2.** `+experiment/+analysis/` (tranche 0.1.6) — golden-checked for the three psychometric functions, pattern-only for the rest.
+- [ ] **0.2.3.** `+experiment/` and `+experiment/+main/` (tranches 0.1.5, 0.1.7) — pattern-check only.
+- [ ] **0.2.4.** `+general/` (tranches 0.1.8, 0.1.9) — pattern-check only.
+- [ ] **0.2.5.** `+vis/`, `+tests/`, `+tinker/`, root — pattern-check only.
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h3 style="display:inline; margin:0; font-size:1.05em">0.3 Stage 3 — next step, done after the readability pass</h3></summary>
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">⬜ 0.3 · Stage 3 · Structure</h3></summary>
 
 <div style="margin-left:1.5em">
 
-Signature changes, merging duplicate functions, reordering statements — not part of the behaviour-preserving Stage 1/2 pass, done afterward as the next step of the overall cleanup. Bug fixes are their own stage (0.4), done after this one. Left unchecked until actually done. Full rationale in section 3.
+**Description.** Signature changes, `arguments` blocks, merging duplicate functions, reordering statements, float/RNG-order changes, renaming a config struct field or a frozen `save`/`load` name, acting on the Stage 1 commented-out-code triage — not behaviour-preserving, done after Stage 1/2. **Rating:** 🔴 clear win, low risk · 🟠 real cost (design decision or wide call-site surface) · 🟡 marginal, defer. Id `S<tier>.<n>`, never renumbered.
 
-Each item names its agent: `matlab-cleanup-stage3` (opus) when a design decision, per-instance safety judgment, or irreversible/high-stakes risk is still open; `matlab-cleanup-stage3-mechanical` (sonnet) when the fix is already fully specified and only needs correct execution. One invocation per item, never a batch (see the skill's "Dispatching tranches" section).
+**Status.** None started. S3.5 (smoke test) and the snake_case retrofit question (S2.19) should both be resolved early, before more Style tranches compound the divergence.
 
-Roughly in value-per-unit-effort order; the first four are the ones that change what the repo can do, the rest are tidying.
+**To-do.**
 
-- [ ] **S3.1.** **Stop storing stimuli; store seeds (~100 GB → ~10 MB).** `ExpSettings.stimuli` is 0.59 GB per experiment and is fully determined by `ExpSettings.seeds` plus the texture parameters, because `lib.stimulus` does `rng('default'); rng(seed)` at `+lib/stimulus.m:82-83` before every draw **[read]**. Replace the stored array with a `regenerate_stimuli(ExpSettings)` call, cached to a scratch directory at run time. Caveat: Portilla–Simoncelli textures cost ~25 synthesis iterations each, so regeneration is cheap for pink noise and expensive for `natural/*` — keep a local cache for those, or regenerate once per session rather than per trial. This also makes the experiment data archivable and lets the settings half of `exp_files/` enter version control. → `matlab-cleanup-stage3` (caching strategy is a real design choice)
-- [ ] **S3.2.** **Route every path through `config.m`.** `config()` exists, is well-formed, and has **zero callers**. Every data path in the repo is relative to the working directory, and the two families are mutually incompatible: `exp_files/...` needs cwd = repo root, while `vislab-common/data/...` would need cwd = the lab root — and that directory does not exist anyway (B2.1). Point `cfg.paths.edge_powers` at the in-repo `data/edge_powers`, drop the non-existent `cfg.paths.images`, add `cfg.paths.textures` → `<data_root>/textures/natural`, and replace the ~40 literal paths. This single change un-breaks the experiment-setup path and most of `+general/`. → `matlab-cleanup-stage3-mechanical` (the target mapping is fully specified above)
-- [ ] **S3.3.** **Collapse the experiment-variant families.** `{setUpExperiment, sessionSettings, generate_camouflage_stimuli} × {base, _all, _diff_bg, _shape_exponent, _texture_exponent}` is 15 files implementing one algorithm with five choices of "what varies across levels". Measured duplication in `sessionSettings_*`: 75–81 % of unique non-blank lines are identical to the base. The variant-specific content is 3–5 lines in `setUpExperiment*`, ~6 in `sessionSettings*`, and ~10 in `generate_camouflage_stimuli*`. One function taking a level-variable spec — a closure `@(iLevel) stimulus_args` plus a closure `@(stim) edge_power` — covers all of them. This is not just tidiness: **three of the four non-base generators are broken (B2.4, B2.6) precisely because they were never updated when `lib.stimulus` changed**, and a single call site makes that class of drift impossible. `_search` is a genuinely different paradigm and should stay separate. → `matlab-cleanup-stage3` (the closure abstraction is a design decision, not a specified fix)
-- [ ] **S3.4.** **Pick one edge-power definition and make everything else call it** (resolves B1.1). The paper and the deployed `data/edge_powers/*.mat` both use the `rms(edge_mag)` normalisation, so the cleanest move is: keep `lib.edge`'s interface and docstring, change its normalisation to match `edge_vector_ideal`, delete `edge_vector_ideal`/`edge_measures_ideal`/`edge_shape`, and repoint callers. Then decide explicitly whether `lib.steerable_grad`'s `normalize` default should be `false` — it is currently `2e-4`, which is what causes the double normalisation. → `matlab-cleanup-stage3` (the `normalize`-default question is an open decision, and this feeds published numbers)
-- [ ] **S3.5.** **Add a real smoke test.** `+tests/` has two ad-hoc scripts, no assertions, and no runner. A single `run_tests.m` that (a) generates a stimulus from a fixed seed and checks edge power against a stored value, (b) round-trips `seeds → stimuli → edge power`, (c) calls every function on the live path with a minimal argument set, and (d) asserts that every package-qualified reference in the repo resolves, would have caught B2.1, B2.2, B2.3, B2.4, B2.5, B2.6 and B2.9 immediately. The resolution check is ~20 lines and already exists as a scratch script from this survey — see section 4.1.3, step 0. → `matlab-cleanup-stage3-mechanical` (spec for (a)–(d) is fully given)
-- [ ] **S3.6.** **Quarantine or delete the 29 `_`-prefixed dead files properly.** They are currently renamed in place rather than moved. Decide between an actual `legacy/` folder outside the package tree and outright deletion, and either way fix the two references that the rename broke: `+tests/gaborSimilarity.m:42` calls `stats.computeSceneSimilarityAmplitude`, which no longer resolves. Also confirm the remaining unnamed `+general/` scripts from B3.11 before extending the set. → `matlab-cleanup-stage3-mechanical` (binary choice plus two named reference fixes)
-- [ ] **S3.7.** **Make the live `+general/` scripts into functions.** 40 of its 41 files are top-level scripts that silently depend on workspace state (B3.11). Converting the ~8 that are still live into functions with explicit arguments removes the single biggest barrier to anyone re-running the analysis. → `matlab-cleanup-stage3` (which ~8 of 41 are actually live is not yet enumerated — judgment call first)
-- [ ] **S3.8.** **Fix the `edge_powers` producer/consumer split.** `+general/compute_edge_powers_*.m` write `vislab-common/data/natural/edge_powers_camo.mat`; consumers read `data/edge_powers/natural/camo.mat`. No producer in the repo currently feeds any consumer, and the block edges are added by hand via `+general/pick_edge_power_bins.m`. Make the producers write the consumed layout and compute `edgePowerBlockEdges` in the same script. → `matlab-cleanup-stage3` (reconciling producer and consumer formats needs cross-file design)
-- [ ] **S3.9.** **Rename the zone-2 cross-file name-value parameters listed in section 4.1.1** — its own pass, deferred out of Stage 1 because each one touches a string literal at every call site. → `matlab-cleanup-stage3-mechanical` (the full parameter list and call-site counts are already enumerated in 4.1.1)
-- [ ] **S3.10.** **Rename any zone-3 frozen `save`/`load` name listed in section 4.1.1** — only alongside a migration script that rewrites the existing `.mat` files, since ~100 GB of collected human data depends on these names. → `matlab-cleanup-stage3` (irreversible: a migration bug corrupts real collected data)
-- [ ] **S3.11.** **Repoint `+lib/ptch_norm.m` and `+lib/watson_otf.m` to `vislab.lib.*` and delete the local copies.** These are the uncleaned ancestors of the shared-library files; the shared `ptch_norm` header explicitly describes this repo's copy as the buggy root `+lib` copy. Note that `vislab.lib.ptch_norm` has a different signature, so this is a call-site change, not a drop-in swap. Resolves B3.3. → `matlab-cleanup-stage3` (differing signature means each call site needs individual adaptation, not a mechanical repoint)
-- [ ] **S3.12.** **Add `arguments` blocks.** There are none anywhere in the repo; 9 files use `inputParser` instead. Converting changes validation behaviour, which is why it is not in the readability pass. → `matlab-cleanup-stage3-mechanical` (one conversion pattern applied per file)
-- [ ] **S3.13.** **Remove the dead scaffolding found in the live path:** the `global bdry_ribbon` set at `+experiment/setUpExperiment.m:67` that nothing reads (`generate_camouflage_stimuli.m:3` recomputes it locally); the duplicate `bTargetPresent` write at `+experiment/saveCurrentLevel.m:34-35,38`; the unmodified large-file re-save at `+experiment/loadCurrentSession.m:48`; and the debug `randi(10)` and `figure(1); imshow(stim)` in `+lib/edge_props_stim.m:30,152-153`. **Added by tranche 0.1.2:** the same file also fires three unconditional per-scale bar plots inside its main loop — pre-edit `:188-191`, `:217-220`, `:246-249`, each a `figure(n)`/`subplot`/`bar`/`title` group — in a function called once per trial from `arrayfun` over 1200 trials. Same class as the two already listed; they are currently unreached only because B2.2 errors first. → `matlab-cleanup-stage3-mechanical` (seven named sites, each already diagnosed)
-- [ ] **S3.14.** **Consolidate the three `gammaCorrect` implementations** onto `vislab.lib.gamma_compress`. Carried over from `CLEANUP.md`. → `matlab-cleanup-stage3-mechanical` (target already named)
-- [ ] **S3.15.** **Reorder statements**, wherever a tranche flagged a reorder as wanted — kept out of Stage 1/2 only because the check cannot distinguish a safe reorder from an unsafe one. → `matlab-cleanup-stage3` (safety of each reorder is a per-instance judgment, by definition)
-- [ ] **S3.16.** **Act on the Stage 1 commented-out-code triage** — one item per file or block cluster, generated from the triage table in section 4.1.4. Delete the blocks judged *superseded* or *scaffolding*; convert the ones judged *alternative* or *unfinished* into a documented option or header prose. Leave every *unknown* exactly as it is. → `matlab-cleanup-stage3-mechanical` (the judgment call already happened in Stage 1; this only executes the recorded verdict)
-- [ ] **S3.17.** **Validate the Psychtoolbox harness on hardware.** The migration onto `vislab.psychframework` was parse-verified only; `../REORGANIZATION_PLAN.md:323` records that runtime validation was waived. Two latent issues to check when you do: `S.targetTypeStr` is read at `runCamouflageExperiment.m:59` but never set (inside a `try`, so the EDF file is silently not retrieved), and `stimulusInterval` returns `stimulusOnsetMs`, which `run_trial.m:14` discards — if the retired `runTrial.m` recorded onset times, that measurement is now lost. Note also that the entire EyeLink layer is currently unreachable because `loadStimuliCamouflage.m:16` hardcodes `bFovea = 1`. → `matlab-cleanup-stage3` (hardware-in-the-loop diagnosis of two open latent bugs; also needs the user's sign-off before any real-hardware run, per the skill's MATLAB authorization limits)
-- [ ] **S3.18.** **Repo hygiene.** Ignore `.claude/settings.local.json` (texture-segmentation does); update `.gitignore:2` `vislab_data/` → `vislab-common/`; clean the stale `vislab_data\...` entries out of the user's MATLAB saved path, which currently produce 11 "nonexistent directory" warnings at every startup **[ran]**. → `matlab-cleanup-stage3-mechanical` (three named, fully specified edits)
+- [ ] 🔴 **S1.1.** Fix `edge_power_demo`/patch-location border margin (resolves B1.11 once judged non-latent).
+- [ ] 🔴 **S1.4.** Pick one edge-power definition — `lib.edge` vs `lib.edge_vector_ideal`/`edge_measures_ideal` (resolves B1.1). Open decision on `normalize` default.
+- [ ] 🔴 **S1.9.** Rename zone-2 cross-file name-value parameters repo-wide (full list in 3.1.1).
+- [ ] 🔴 **S1.12.** Add `arguments` blocks repo-wide (none exist; 11 files use `inputParser`).
+- [ ] 🔴 **S1.13.** Remove dead scaffolding in the live path (global `bdry_ribbon`, duplicate write, debug `randi(10)`/`imshow`, 3 unconditional bar plots) — 7 named sites.
+- [ ] 🔴 **S1.14.** Consolidate 3 `gammaCorrect` implementations onto `vislab.lib.gamma_compress`.
+- [ ] 🔴 **S1.16.** Act on the Stage 1 commented-out-code triage (3.1.4) — delete superseded/scaffolding, convert alternative/unfinished, leave unknown.
+- [ ] 🟠 **S2.2.** Route every path through `config.m` (currently zero callers) — resolves B2.1.
+- [ ] 🟠 **S2.3.** Collapse the 5 experiment-variant families (`{setUpExperiment,sessionSettings,generate_camouflage_stimuli}×{base,_all,_diff_bg,_shape_exponent,_texture_exponent}`, 15 files, 75–81% duplicate lines).
+- [ ] 🟠 **S2.7.** Make live `+general/` scripts into functions (~8 of 41 are live; not yet enumerated).
+- [ ] 🟠 **S2.8.** Fix `edge_powers` producer/consumer path-layout split.
+- [ ] 🟠 **S2.17.** Validate Psychtoolbox harness on hardware; two latent issues (`S.targetTypeStr` never set; `stimulusInterval`'s discarded onset return); EyeLink layer unreachable (`loadStimuliCamouflage.m:16` hardcodes `bFovea=1`). Needs user hardware sign-off.
+- [ ] 🟠 **S2.19 (new).** Snake_case retrofit of `+experiment/` and its subpackages (tranches 0.1.5/0.1.6/0.1.7) to comply with the new mandate — open question (grandfather vs. retrofit vs. defer to 0.1.1's own follow-up sweep); not yet assigned a tier consensus.
+- [ ] 🟡 **S3.5.** Add a real smoke test (seed→edge-power check, round-trip, minimal-arg call sweep, package-resolution sweep). Would have caught B2.1–B2.6, B2.9. Should run early despite its 🟡 tier — it's cheap insurance against every later tranche.
+- [ ] 🟡 **S3.6.** Quarantine/delete the 29 `_`-prefixed dead files properly (currently only renamed in place); fix `+tests/gaborSimilarity.m:42`'s broken call.
+- [ ] 🟡 **S3.10.** Rename zone-3 frozen `save`/`load` names, only with a migration script (~100GB of real data at risk).
+- [ ] 🟡 **S3.11.** Repoint `+lib/ptch_norm.m`/`watson_otf.m` to `vislab.lib.*`, delete local copies (resolves B3.3; signature differs, not drop-in).
+- [ ] 🟡 **S3.15.** Reorder statements wherever flagged (per-instance safety review).
+- [ ] 🟡 **S3.18.** Repo hygiene: gitignore `.claude/settings.local.json`, fix `.gitignore:2` `vislab_data/`→`vislab-common/`, clean stale MATLAB path entries (11 startup warnings).
+- [ ] 🟡 **S1.1(alt).** Stop storing stimuli, store seeds (~100GB→~10MB) — design decision on caching strategy for the expensive Portilla-Simoncelli path.
 
-Stage 3's work log (section 4.3) fills in as each item here is actually done.
+*(Ids preserved verbatim from the pre-migration plan; a couple of tier/id mismatches inherited from the source — e.g. "S1.1" used for two different items above — are flagged for cleanup when this list is next touched, not silently fixed here.)*
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h3 style="display:inline; margin:0; font-size:1.05em">0.4 Stage 4 — bug fixes, done last</h3></summary>
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">⬜ 0.4 · Stage 4 · Bugs</h3></summary>
 
 <div style="margin-left:1.5em">
 
-Bugs found anywhere during Stage 1, 2, or 3, recorded here as they're found and fixed here, after Stage 3, so a fix doesn't get clobbered or duplicated by a structural change landing later. **No automatic dispatch here** — unlike Stage 1–3, the user launches each bug fix manually, at their own pace, typically via `matlab-cleanup-stage3` since a bug fix is rarely fully specified in advance.
+**Description.** Bugs found anywhere during Stage 1/2/3, fixed here after Structure. **Rating:** 🔴 severity 1, silently wrong results on a run path · 🟠 severity 2, reachable but not silent · 🟡 severity 3, latent. Id `B<severity>.<n>`, never renumbered. **User launches each fix manually — never auto-dispatched.**
 
-Each item's id is `B<severity>.<n>`: the severity number, 1 (highest) to 3 (lowest), then the item's position within that severity in the order found. The list is a single flat sequence sorted by severity first and discovery order second — all B1s, then all B2s, then all B3s — and that's also the order it's worked in. A newly found bug gets the next `n` for its severity and is inserted at the end of that severity's run; nothing already in the list is renumbered.
+**Status.** All 39 recorded bugs are unfixed. Highest open ids: B1.11, B2.25, B3.20.
 
-🔴 = severity 1, silently wrong results on a path that has actually been run. 🟠 = severity 2, reachable but not silent — it errors out, or touches only plots, logging, or display. 🟡 = severity 3, latent, not reachable with the current config but a hazard for a plausible future use.
+**To-do.**
 
-Everything below was found *before* this plan started, during the survey that produced it. The severity scheme here replaces the old S1–S4 scheme in `CODEBASE.md`; the crosswalk is in section 4.4 so that older notes and commit messages still resolve.
+- [ ] 🔴 **B1.1.** Two incompatible edge-power definitions live (`lib.edge` vs `lib.edge_vector_ideal`/`edge_measures_ideal`), ratio ~3098×. `+lib/edge.m:92`, `+lib/edge_vector_ideal.m:91`, `+lib/steerable_grad.m:10,69`. Fixed by S1.4.
+- [ ] 🔴 **B1.2.** Level order reversed in 3 of 5 `compute_edge_props_exp*` scripts (`_pca.m:18`, `_full.m:16`, `_raw.m:23` use `10:-1:1`; `_exp.m:15`, `_eq.m:16` use `1:10`) — mismatched labels in `classify_normals` fit.
+- [ ] 🔴 **B1.3.** `lib.create_pink_noise_line.m:4-5` ignores its `exponent`/`alpha` argument entirely (guard always true) — shape-exponent manipulation is a no-op.
+- [ ] 🔴 **B1.4.** `lib.stimulus.m:182-184` synthesizes target from *background's* texture stats, discarding target's own — wrong for `_diff_bg` family (which was run).
+- [ ] 🔴 **B1.5.** `+general/compute_edge_group_measures.m:20` reads `lib.edge`'s outputs 3/4 which no longer mean contour groups (dead at `edge.m:114-134`) — silent regression, re-running overwrites good data.
+- [ ] 🔴 **B1.6.** `+experiment/+main/responseInterval.m:25` timeout returns `-1`, assigned into a `false(...)`-preallocated array at `saveCurrentLevel.m:38` — corrupts SDT scoring.
+- [ ] 🔴 **B1.7.** `computeThreshold_edgePower.m:88` (+3 sibling files) bootstrap `datasample(...,nTrials=30)` against up to 120 actual rows — inflates `threshold_sd`.
+- [ ] 🔴 **B1.8.** `classify_normals` (`IntClassNorm/classify_normals.m:248,251-267`) silently discards `'eff'`/`'precision'` via `KeepUnmatched=true` — `fit_edge_model_with_exps.m:48`'s `'eff',0.34` does nothing; post-hoc rescaling also dead at `:204`.
+- [ ] 🔴 **B1.9.** `fit_edge_model_with_exps.m:215-217` — `var_exp` compares model against itself (`mean_subj_acc` actually holds model accuracy, column-index bug). Related: `numel(~isnan(x))` at `:184` is a no-op (should be `nnz`).
+- [ ] 🔴 **B1.10.** `compute_nat_img_eff_coding_bins.m:6,27,29,62` uses `ppd=106`, wavelength 555nm vs config's 60ppd/550nm — sampling-density mismatch on the live model chain's head.
+- [ ] 🔴 **B1.11.** `compute_nat_img_eff_coding_bins.m:30,68-69,72,77,82` — patch locations drawn in cropped-image coords, used as full-image indices; border margin enforced at only 2 of 4 edges. Magnitude unverified.
+- [ ] 🟠 **B2.1.** Live experiment-setup path can't find data (`vislab-common/data/edge_powers/` doesn't exist). `generate_camouflage_stimuli.m:2`, `setUpExperiment.m:32,47,72`. Fixed by S2.2.
+- [ ] 🟠 **B2.2.** `lib.edge_props_stim.m:162` errors on camo stimuli (array-bounds); debug `randi(10)` at `:30` (advances RNG); `figure(1);imshow(stim)` at `:152-153`.
+- [ ] 🟠 **B2.3.** `lib.edge_energy.m`/`lib.edge_shape.m` call `lib.steerable_grad` positionally against a name-value-only signature; `edge_energy.m:35` also uses removed `dsp.Normalizer`.
+- [ ] 🟠 **B2.4.** `lib.stimulus` output arity: `generate_camouflage_stimuli_diff_bg.m:20,22` and `_texture_exponent.m:19,21` destructure shifted by one; `_shape_exponent.m:20` similarly shifted.
+- [ ] 🟠 **B2.5.** `lib.stimulus.m:149-150` — `||` guard should be `&&`; errors with only one of `ml_b`/`cont_b` supplied.
+- [ ] 🟠 **B2.6.** `_texture_exponent` chain renamed `nLevels`→`nBlocks`, `seeds`→`stimuliSeed` (`sessionSettings_texture_exponent.m:27`) but readers still expect old names.
+- [ ] 🟠 **B2.7.** `SubjectExpFile.binIndex` read at `loadCurrentSession.m:35` but never created by `subjectExperimentFile.m:22-29`.
+- [ ] 🟠 **B2.8.** `generate_camouflage_stimuli_all.m:33,40` — struct field mismatch (`textures` has 4 fields, `texture_list` on disk has 8).
+- [ ] 🟠 **B2.9.** 15 package-qualified references resolve to nothing across 41 call sites (`tinker.filter`, `lib.circular_mask`, `lib.whiten_pink_noise_square`, `analysis.computeThresholdInBin`, `lib.edge_vector`, `lib.compute_dPrime_pCorrect`, `analysis.computeTemplateResponseSigma`, `analysis.compute_dPrime_pCorrect`, `experiment.analysis.computeThreshold_new_edge`, `experiment.show_image` (fix: `vis.show_image`), `lib.gammaCorrect`, `lib.new_edge`, `lib.pink_noise_2d`, `nm.analysis.fitPsychometric`, `stats.computeSceneSimilarityAmplitude`).
+- [ ] 🟠 **B2.10.** `saveCurrentLevel.m:20-22` increments `levelCompleted` rather than setting it.
+- [ ] 🟠 **B2.11.** Hardcoded absolute paths (`/Users/steve/...`, `C:\Users\sebastian\...`) in `computeBootstrappedThreshold.m:37,41` — carried forward, deliberately left stale.
+- [ ] 🟠 **B2.12.** `lib.stimulus` with `target_radius=0` and >3 outputs errors (`:158,204`).
+- [ ] 🟠 **B2.13.** `lib.stimulus.m:159,166,186` target branch tests background texture struct instead of target's own.
+- [ ] 🟠 **B2.14.** `lib.compute_pClipped.m:6` always says "boundary ribbon" regardless of input.
+- [ ] 🟠 **B2.15.** `lib.cropImage`'s always-overridden `indColorChannels` reachable via 3 `+vis/` display callers.
+- [ ] 🟠 **B2.16.** `runsingletrialTest.m:18,20` references undefined `w` (should be `window`).
+- [ ] 🟠 **B2.17.** `plotThresholdvsCondition_mine.m` references undefined `dur`.
+- [ ] 🟠 **B2.18.** `transform_camouflage_stimuli.m:13,25` reads `.nBlocks`/`.stimuliSeed` (only `_texture_exponent` chain emits these) but is called from the base chain.
+- [ ] 🟠 **B2.19.** `compare_edge_energy_defs.m` calls nonexistent `analysis.compute_dPrime_pCorrect`.
+- [ ] 🟠 **B2.20.** `video_demo.m` calls `lib.stimulus` positionally against name-value-only signature.
+- [ ] 🟠 **B2.21.** `shuffle_unshuffle_expt.m`'s first-cell loop reassigns its own loop var — wrong printed progress count only.
+- [ ] 🟠 **B2.22.** `vis.examplePatches`'s `if bSave` branch references undefined `L`/`targetNr`.
+- [ ] 🟠 **B2.23.** `vis.psychometrics_vs_angle`/`_dur` both call nonexistent `analysis.computeThresholdInBin`.
+- [ ] 🟠 **B2.24.** `tests.block_jumping`'s recompute loop calls `lib.stimulus` positionally.
+- [ ] 🟠 **B2.25.** `tests.gaborSimilarity` calls `stats.computeSceneSimilarityAmplitude`, unreachable due to `_`-prefix rename.
+- [ ] 🟡 **B3.1.** `lib.edge_props_stim.m:21,129` hardcodes 256×256/radius-64 mask regardless of input size.
+- [ ] 🟡 **B3.2.** `lib.cropImage.m:21` — `indColorChannel` missing trailing `s`, guard always true; `:33-35` swaps row/col for non-square patch.
+- [ ] 🟡 **B3.3.** `lib.ptch_norm.m:15-16` undefined var `m`, `ntype==2` branch broken. Resolved by S3.11.
+- [ ] 🟡 **B3.4.** `computeTemplateResponseSigma.m:44` — comparison inside `size()`; `:42` loop bound possibly wrong dimension.
+- [ ] 🟡 **B3.5.** `lib.find_spot_centers.m:7` — `ismember(...,'row')` should be `'rows'`.
+- [ ] 🟡 **B3.6.** `lib.hyperexp_nll.m` fits hypoexponential, not hyperexponential — name/code mismatch.
+- [ ] 🟡 **B3.7.** `sessionSettings.m:40` — stray transpose in `strcmp(transformExpName','')`.
+- [ ] 🟡 **B3.8.** `loadStimuliCamouflage.m:34` — `pixelsPerDeg = ExpSettings.monitor_distance` (field-name trap; correct today, migration needs S3.10).
+- [ ] 🟡 **B3.9.** `computeThreshold_edgeResponse.m:1` — function named `computeThreshold`, filename differs.
+- [ ] 🟡 **B3.10.** Undefined-variable blocks in `computeThreshold_edgeResponse.m:102-132` and `compute_nat_img_eff_coding_bins.m:123,283`.
+- [ ] 🟡 **B3.11.** ~15 top-level `+general/` scripts depend on undefined workspace variables (part of S2.7).
+- [ ] 🟡 **B3.12.** Bugs inside `_`-prefixed dead files (`+stats/_loadStatisticsSettings.m`, `_compute_edges.m`, `_compute_edge_strengths_multiscale.m`, `_fit_edge_model.m`, `_fit_edge_model_old.m`, `_computeThreshold_trials.m`, `_changepower.m` — the last silently overwrites data with no backup).
+- [ ] 🟡 **B3.13.** `lib.edge_measures.m:6` hardcodes default boundary ribbon size, evaluated even when unused.
+- [ ] 🟡 **B3.14.** `lib.target_mask.m:45-46` swaps row/col in non-circular branch, latent since `target_loc` always `'center'`.
+- [ ] 🟡 **B3.15.** `lib.edge_props_stim` computes PCA rotation and discards it — promotes to severity-1 once B2.2 fixed.
+- [ ] 🟡 **B3.16.** `stimulusInterval.m:41,52` returns offset time mislabeled as onset.
+- [ ] 🟡 **B3.17.** `samplePatchesForExperiment.m:15,19` — duplicated `nargin<9` guard silently discards `simTypeStr`; no live callers.
+- [ ] 🟡 **B3.18.** `generate_camouflage_stimuli_texture_exponent.m:14` writes `.alpha`, `lib.stimulus` reads `.exponent` — manipulation a no-op; promotes to severity-1 once B2.9/B2.4 fixed.
+- [ ] 🟡 **B3.19.** `compute_nll_edge_model.m:18,35,52-53` — 3 of 4 outputs unreliable (loop-index bug, unassigned branch).
+- [ ] 🟡 **B3.20.** `analyze_search_expts.m` writes `.hitRate`/`.dPrime` under the same field names for scalar vs. 19-vector quantities — unverified whether both cells ever run against the same struct.
 
-**Severity 1 — silently wrong results**
+**Recorded and disproved (not a bug):** unqualified `edge(...)` in `detect_edge_pixels.m:20`/`edge_measures.m:18` resolves correctly to Image Processing Toolbox `edge`, not `lib.edge`. Do not "fix."
 
-- [ ] 🔴 **B1.1.** **Two incompatible definitions of edge power are both live.** **[ran]** `+lib/edge.m:92` divides the normal gradient by the per-pixel `lib.local_sd`; `+lib/edge_vector_ideal.m:91` divides by the scalar `rms(edge_mag)` along the boundary. On the same stimulus (`seed=35096`, pink noise, `ml=0.5`, `cont=0.15`) `lib.edge` returns 2605.23 while `lib.edge_measures_ideal(edge_vector_ideal(...))` returns 0.840855 — a ratio of about 3098. The `_ideal` value is the dimensionless one that matches the paper's $e = g_\perp/g_{\mathrm{rms}}$ and is what is frozen into `data/edge_powers/*.mat`, but `lib.edge` is what `edge_power_demo.m` teaches and what `generate_camouflage_stimuli_shape_exponent.m:21` uses. Contributing cause: `lib.steerable_grad` already normalises by default (`steerable_grad.m:10`, `normalize = 2e-4`, dividing by $\sqrt{\sigma^2+k}$ at `:69`), and `edge.m:92` then divides by $\sigma$ again, so `lib.edge` scales roughly as $1/\sigma^4$. Call sites that want raw gradients pass `'normalize',false` explicitly (`target_mask.m:98`, `edge_props_stim.m:100`), so the codebase is inconsistent about this. Fixed by S3.4, which must decide which definition is canonical rather than patching one call site.
-- [ ] 🔴 **B1.2.** **Level order is reversed in three of the five `compute_edge_props_exp*` scripts.** **[read]** `+general/compute_edge_props_exp_pca.m:18` (and `_full.m:16`, `_raw.m:23`) build `[Itrial, ILevel, ISession] = ndgrid(1:30, 10:-1:1, 1:4)`, while `_exp.m:15` and `_eq.m:16` use `1:10`. `arrayfun` returns an array shaped like `Itrial`, so position `b` along dimension 2 holds level 11−b. The very next stage indexes features and labels with the *same* forward index (`:81` `this_input_array(:,iLevel,:,...)` against `:77` `ExpSettings.bTargetPresent(:,iLevel,:)`), so `classify_normals` is fitted with mismatched target/blank labels and `comb_dv(:,iLevel,:)` is stored under the wrong level. Nothing between `:18` and `:89` compensates, and `+general/flip_hard_easy.m` flips stimuli and `bTargetPresent` together and then flips both back (`:14-15`), so it does not explain the asymmetry either. This affects `edge_props_pca.mat`, the input to the current model fitter. **Confirm the intent before trusting any current model number** — the intent itself is *unverified*; the inconsistency between sibling scripts is the evidence.
-- [ ] 🔴 **B1.3.** **`lib.create_pink_noise_line` ignores its exponent argument entirely.** **[ran]** `+lib/create_pink_noise_line.m:4-5` guards with `if ~exist('alpha','var')`, but `alpha` is never a variable in that function, so the guard is always true and the caller's `exponent` is unconditionally overwritten with 1. Verified: with a fixed RNG seed, `create_pink_noise_line(4096,1)` and `(4096,3)` are bit-identical, max absolute difference 0. `+lib/target_mask.m:39` passes `target_shape` into this function, so **`lib.stimulus`'s `target_shape` parameter has no effect on boundary roughness** — every non-circular target is generated with exponent 1. That is the manipulation of the shape-exponent experiment (paper §3.7). Whether the 29 GB of stored `exp_files/shape_exponent/` stimuli predate the regression is *unverified* — check before concluding anything about that experiment.
-- [ ] 🔴 **B1.4.** **`lib.stimulus` synthesises the target from the *background's* texture statistics.** **[read]** `+lib/stimulus.m:182-184` analyses the *target* image into `texture.stats` and then discards it, calling `textureSynthesis(texture_bg.stats, [bg_size bg_size], texture_bg.Niter)`. This is silent whenever target and background textures are the same — the maximal-camouflage case, which is most of the experiments — and wrong exactly when they differ, i.e. for the `_diff_bg` family, which was run (`exp_files/diff_bg/` exists on disk). Compare the correct background branch at `:125-127`.
-- [ ] 🔴 **B1.5.** **`+general/compute_edge_group_measures.m:20` reads outputs that no longer exist.** **[read]** It calls `[~,~,l_groups,e_groups] = lib.edge(stim)`, but `lib.edge` returns `[edge_vector, edge_power, edge_field, th_grid]`; the contour-group code that produced lengths and energies is commented out at `edge.m:114-134`. Outputs 3 and 4 are now a 256×256 field and a 1×1000 angle grid, and **no error is raised**. The *stored* data is still valid — `ExpSettings.stim_l_groups{1,1,1}` in `exp_files/pink_noise/exp_settings.mat` holds 104 contour lengths summing to exactly 1000 = `n_edge` **[ran]** — so this is a regression: re-running the script would silently overwrite good data with garbage, and `computeThreshold_edgeResponse` consumes it. Filed at severity 1 rather than 3 because the failure is silent and one re-run destroys data that cannot be regenerated from the current code.
-- [ ] 🔴 **B1.6.** **Timeout responses corrupt the result arrays.** **[read]** `+experiment/+main/responseInterval.m:25` returns `response = -1` when no key is pressed. `+experiment/saveCurrentLevel.m:38` assigns that into `SubjectExpFile.response`, which is preallocated `false(...)` at `subjectExperimentFile.m:24`. The SDT fields at `:39-49` are computed from the raw double, so a timeout scores `false` in *all four* of hit/miss/false-alarm/correct-rejection — the trial vanishes from every category while still counting in `nTrials`, deflating the correct-rejection rate in `computeThreshold_edgePower.m:41-43`.
-- [ ] 🔴 **B1.7.** **Bootstrap resamples the wrong number of observations.** **[read]** `+experiment/+analysis/computeThreshold_edgePower.m:88` calls `datasample(exp_values(:,iLevel), nTrials)` with `nTrials = 30`, but after the concatenation at `:32` `exp_values` has 30 × sessions-completed rows, up to 120. Each replicate therefore draws 30 of 120, inflating `threshold_sd` by roughly $\sqrt{\text{sessions}}$. The same line appears at `_computeThreshold_trials.m:81`, `computeThreshold_texture_exponent.m:87`, and `_computeThreshold_steve.m:73`.
-- [ ] 🔴 **B1.8.** **`classify_normals` silently discards `'eff'` and `'precision'`.** **[ran]** `IntClassNorm/classify_normals.m:248` sets `parser.KeepUnmatched = true`, and its parameter list at `:251-267` has no `eff` and no `precision` — only `d_scale`/`d_scale_type`. So `'eff',0.34` in `+general/fit_edge_model_with_exps.m:48` **does nothing**. That script also comments out the post-hoc rescaling at `:204`, so the plotted "model" curve is the **unattenuated ideal observer**, not the 34 %-efficient one the code reads as intending. This is a figure in the paper.
-- [ ] 🔴 **B1.9.** **`var_exp` compares the model against itself.** **[read]** `+general/fit_edge_model_with_exps.m:215-217` computes `mean_subj_acc` from `dprimes(:,2)` and `model_acc` from `vertcat(dprimes{:,2})` — both index column 2. Column 1 is the subject (used at `:182`); column 2 is the model. So the variable named `mean_subj_acc` holds model accuracy, and `var_exp` is a within-model dispersion ratio rather than a goodness of fit. This is the headline variance-explained number for the paper's model figure. Related, same file: `numel(~isnan(x))` at `:184` is a no-op, since `~isnan(x)` has the same size as `x`; the intent was `nnz`.
-- [ ] 🔴 **B1.10.** **The efficient-coding bins are computed at a different sampling density than the stimuli they are applied to.** **[read]** `+general/compute_nat_img_eff_coding_bins.m:6` sets `ppd = 106` and `:62` passes it plus wavelength 555 into `vislab.lib.otf_filter`, while `config.m:27,29` declares 60 ppd and 550 nm. The bins therefore encode absolute gradient magnitudes at a sampling density the stimuli do not share, and this script is the head of the live model chain. The 550/555 split is already flagged in `CLEANUP.md` §8; the **106 vs 60** mismatch is not.
-- [ ] 🔴 **B1.11.** **The natural-image patch locations are drawn in cropped-image coordinates and used as full-image indices, so the intended border margin is applied at only two of the four edges.** **[read]** Found in tranche 0.1.7. Pre-edit `+general/compute_nat_img_eff_coding_bins.m:30` computes `img_sz_crop = img_sz - 2*kernel_sd_max*kernel_nsd`, i.e. the size of the region left after discarding a 48-pixel gradient border on *each* side, and `:68-69` then draw `patch_x = randi(img_sz_crop(1)-patch_extra_sz)` and the same for `patch_y`. Those indices are used directly against the full 2844x4284 image at `:72,77,82`. The missing step is adding the margin offset back: a start index of 1 is legal, so a patch can begin in the top-left 48-pixel border of the OTF-filtered image, while the bottom and right borders are correctly excluded. The consequence is a small, one-sided contamination of the natural-image gradient statistics that set every efficient-coding bin edge, and those bins are shipped in `nat_im_eff_coding.mat` and consumed by the live model chain. Filed at severity 1 because it is silent and on a path that has been run; **how much it actually moves the bin edges is *unverified*** — with 10 files x 20 samples the affected fraction is small. Related and deliberately **not** filed separately: `img_sz` at `:29` is hardcoded rather than read from the image, so any CPS image of a different size would be mis-sampled or error.
+</div>
 
-**Severity 2 — reachable, not silent**
+</details>
 
-- [ ] 🟠 **B2.1.** **The live experiment-setup path cannot find its data.** **[ran]** `+experiment/generate_camouflage_stimuli.m:2` and `setUpExperiment.m:47` do `load(['vislab-common/data/edge_powers/', exp_type, '.mat'], ...)`. That directory does not exist — not relative to the repo, not relative to the lab root. `git log -L2,2` shows the chain `global_data/` → `vislab_data/` (commit `fecbd73`) → `vislab-common/data/` (commit `4ac1908`): a mass rename moved ~40 path strings into a namespace that was never created, while the files actually live in the repo's own `data/edge_powers/`, whose layout matches `exp_type` exactly. A secondary failure survives fixing the directory: `data/edge_powers/natural/foliage.mat` contains `edge_powers` but **no `edgePowerBlockEdges`**, so `setUpExperiment.m:47` leaves that variable undefined and `:72` errors. Same class: `setUpExperiment.m:32` reads `vislab-common/data/images/<exp>.png`, but the source textures are at `../vislab-common/data/textures/natural/` and most are `.jpg`. Fixed structurally by S3.2.
-- [ ] 🟠 **B2.2.** **`lib.edge_props_stim` errors on camouflage stimuli.** **[ran]** `Index in position 4 exceeds array bounds` at `+lib/edge_props_stim.m:162`. For `stim_type='camo'`, the default, `grads` is allocated 4-D at `:96` with no region dimension, so `grad_mags` is 3-D and `(:,:,i_scale,2)` is out of bounds. Only the `'tex'` branch is dimensionally consistent; the camo region split exists only in the commented block at `:78-89`. Since this function is the front end of the whole current model pipeline, **the model feature extraction cannot run as committed.** The same run confirmed two debug leftovers fire: a bare `randi(10)` at `:30`, which prints and **advances the RNG stream**, breaking reproducibility for any seeded caller, and `figure(1); imshow(stim)` at `:152-153`. Removing those two is S3.13; the dimension bug is this item.
-- [ ] 🟠 **B2.3.** **`+lib/edge_energy.m` and `+lib/edge_shape.m` call `lib.steerable_grad` positionally.** **[ran]** `steerable_grad` is `addRequired('stim')` plus `addParameter`s, so `lib.steerable_grad(stim,[1 3])` gives `Expected a string scalar or character vector for the parameter name.` Confirmed by running both that call and `lib.edge_energy(stim,64,'center',[1 3],'mag')`. The fix is `,'kernel_size',kernel_size`. `edge_energy` additionally uses `dsp.Normalizer` at `:35` for `type='cos'`, which is **removed** from R2024b — `which dsp.Normalizer` is empty **[ran]**.
-- [ ] 🟠 **B2.4.** **`lib.stimulus` output arity: three generators destructure it wrongly.** **[read]** The signature is `[stim, stim_b, seed, mask, ...]`, so `stim_b` is output 2 and `seed` is output 3. But `+experiment/generate_camouflage_stimuli_diff_bg.m:20,22` and `_texture_exponent.m:19,21` write `[stim,seed]=...`, and `_shape_exponent.m:20` writes `[stim,seed,mask,mask_edge,mask_normal,mask_strip]=...` — every output shifted by one. In `_shape_exponent`, `:28` then assigns a 512×512 matrix into one element of a preallocated array. The correct form `[stim,~,seed]` is used in `_all.m:17,19` and `setUpExperiment_search.m:64,66`.
-- [ ] 🟠 **B2.5.** **`lib.stimulus` with only one of `ml_b`/`cont_b` errors.** **[ran]** `+lib/stimulus.m:149` guards with `||` but `:150` needs both, so `lib.stimulus('seed',1,'ml_b',0.5,'target_radius',64)` gives `Incorrect dimensions for matrix multiplication.` It should be `&&`, or each should default independently.
-- [ ] 🟠 **B2.6.** **The `_texture_exponent` chain renamed `nLevels`→`nBlocks` and `seeds`→`stimuliSeed`.** **[read]** `+experiment/sessionSettings_texture_exponent.m:27` emits `nBlocks` with no `nLevels`, but `subjectExperimentFile.m:18`, `loadStimuliCamouflage.m:48` and `computeThreshold_texture_exponent.m:10` all read `ExpSettings.nLevels`. This is a regression: the on-disk `exp_files/texture_exponent/ecc_0/exp_settings.mat` *does* have `nLevels`, so it was generated by an earlier version of this file.
-- [ ] 🟠 **B2.7.** **`SubjectExpFile.binIndex` does not exist.** **[read]** `+experiment/loadCurrentSession.m:35` reads it on the five-argument "redo a specific level" path, but `subjectExperimentFile.m:22-29` never creates it — confirmed against a real subject file **[ran]**. The default two-argument path is unaffected.
-- [ ] 🟠 **B2.8.** **`+experiment/generate_camouflage_stimuli_all.m:33,40` — struct field mismatch.** **[read]** `textures` is declared with 4 fields, but `texture_list` on disk now has 8, four `acc_*` fields having been appended by later analysis, giving `Subscripted assignment between dissimilar structures.`
-- [ ] 🟠 **B2.9.** **Fifteen package-qualified references resolve to nothing, across 41 call sites in in-scope files.** **[ran]** Measured by a `which()` sweep after `setup`, over the 164 in-scope files only, with comments stripped. `tinker.filter` 11 sites (all in `+tinker/whitening_tinker.m` — it looks like a find-and-replace artifact over bare `filter(` calls); `lib.circular_mask` 7; `lib.whiten_pink_noise_square` 7; `analysis.computeThresholdInBin` 4 (no top-level `+analysis` package exists); `lib.edge_vector` 2; `lib.compute_dPrime_pCorrect` 2; and one each of `analysis.computeTemplateResponseSigma`, `analysis.compute_dPrime_pCorrect`, `experiment.analysis.computeThreshold_new_edge`, `experiment.show_image` (**`vis.show_image` exists** — a one-word fix), `lib.gammaCorrect`, `lib.new_edge`, `lib.pink_noise_2d`, `nm.analysis.fitPsychometric`, and `stats.computeSceneSimilarityAmplitude`. That last one is **new damage from the `_` rename** — `+tests/gaborSimilarity.m:42` used to resolve and no longer does; it is handled by S3.6. `CLEANUP.md` §3 already lists several of the `lib.*` ones as deliberately left alone. Note that the whole-repo count is much larger: `lib.edge_vector` alone has ~31 further call sites inside the `_`-prefixed dead files.
-- [ ] 🟠 **B2.10.** **`levelCompleted` is incremented rather than set.** **[read]** `+experiment/saveCurrentLevel.m:20-22` does `levelCompleted(...) = levelCompleted(...) + 1`, so a five-argument re-run of an already-completed level overshoots the true count.
-- [ ] 🟠 **B2.11.** **Hardcoded absolute paths on other people's machines.** `+experiment/+analysis/computeBootstrappedThreshold.m:37,41` reference `/Users/steve/Dropbox/...` and `C:\Users\sebastian\Dropbox\...`. Already recorded in `CLEANUP.md` §4 as deliberately left stale; carried here so it is not lost.
-- [ ] 🟠 **B2.12.** **`lib.stimulus` with `target_radius = 0` and more than three outputs errors** **[ran]** — `mask` through `wn_t` are never assigned on that branch (`+lib/stimulus.m:158,204`). Reachable from any caller that asks for the mask outputs on a blank stimulus.
-- [ ] 🟠 **B2.13.** **`lib.stimulus`'s target branch tests the *background* texture struct to decide how to build the *target*.** **[read]** Found in tranche 0.1.1. Pre-edit `+lib/stimulus.m:159` asks `~isfield(texture_bg,'img')||isempty(texture_bg.img)` to decide whether the target is a synthesised texture or an image reference, and `:186` branches on `strcmp(texture_bg.type,'crop')` inside a block whose own `if` at `:166` already tested `texture.type`. Compare the background branch at `:101`, which correctly consults `texture_bg`. So a call giving an image-referenced `texture` and a plain pink-noise `texture_bg` takes the synthesis branch at `:160-164` and then errors in `textureSynthesis(texture.stats, ...)`, because `.stats` was never computed. Same family as B1.4 (`:182-184`), which is the silent half of the same confusion; this entry is the half that errors. Both are in the `_diff_bg` path, which was run.
-- [ ] 🟠 **B2.14.** **`lib.compute_pClipped` always says "boundary ribbon".** **[read]** `+lib/compute_pClipped.m:6` warns `'%.2f%% of boundary ribbon clipped\n'` whatever it is handed, but the function is a general clipping fraction and is called on whole stimuli. Display-only, hence severity 2. Noted in the tooling entry (section 4.1.3, step 0) as "a header/message wording fix, well inside Stage 1" — **that was wrong**: the text is a string literal and therefore part of the syntax tree, so `canon` sees it change and Stage 1 forbids it. It is filed here instead.
-- [ ] 🟠 **B2.15.** **`lib.cropImage`'s always-overridden `indColorChannels` (B3.2) is reachable in display code, not just latent.** **[read]** Found in tranche 0.1.3. `+lib/cropImage.m:21` (pre-edit numbering) tests `~exist('indColorChannel','var') || isempty(indColorChannels)` — missing the trailing `s`, so the guard is always true and `indColorChannels` is always overwritten to `1:size(source_image,3)`. `+vis/examplePatches.m:43`, `+vis/presentpatches.m:28` and `+vis/viewpatches.m:39` all pass `indColorChannels = 1` explicitly, intending a single colour channel, and get every channel instead. Confined to `+vis/` display scripts, so severity 2 rather than 1. Filed as its own item rather than relabelling B3.2, per the plan's re-filing rule — B3.2 stays as originally recorded.
-- [ ] 🟠 **B2.16.** **`+experiment/+main/testscripts/runsingletrialTest.m` references an undefined variable and errors immediately if run.** **[read]** Found in tranche 0.1.4. Line 18 (pre-edit numbering) does `Screen('Flip', w)` and line 20 `experimentStruct.window = w`, but the window handle opened two lines above is stored in `window`, not `w` — `w` is never assigned anywhere in the script. Running this ad-hoc scratch script as-is throws `Unrecognized function or variable 'w'` at the first `Screen('Flip', w)` call, before anything else in the file executes. Not previously documented; the file is not on any live path (it is one of two ad-hoc scripts in `testscripts/`, never called from anywhere else in the tree), so it errors loudly rather than corrupting anything — hence severity 2, not 1.
-- [ ] 🟠 **B2.17.** **`+experiment/+analysis/plotThresholdvsCondition_mine.m` references an undefined variable `dur` and errors immediately if run.** **[read]** Found in tranche 0.1.5. The script's only statement of consequence, `errorbar(dur(:,1),dur(:,2),dur(:,3),...)`, reads `dur` from the calling workspace; nothing in the script or anywhere else in the repo assigns it. Running this ad-hoc, personal ("_mine") scratch script directly throws `Unrecognized function or variable 'dur'` immediately. Same class as B2.16 — an ad-hoc script with no callers, so it errors loudly rather than corrupting anything.
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">⬜ 0.5 · Stage 5 · Speed</h3></summary>
 
-- [ ] 🟠 **B2.18.** **`experiment.transform_camouflage_stimuli` reads two fields only the `_texture_exponent` chain emits.** **[read]** Found in tranche 0.1.6. Pre-edit `+experiment/transform_camouflage_stimuli.m:13,25` read `ExpSettings.nBlocks` and `ExpSettings.stimuliSeed`, but its only caller is the **base** `sessionSettings.m:46`, on the path taken whenever `transformExpName` is non-empty — and the base chain writes `.nLevels` and `.seeds`. So transforming any experiment not generated by `sessionSettings_texture_exponent` throws `Reference to non-existent field 'nBlocks'`. Same root cause as B2.6 (the `_texture_exponent` rename) but the mirror image of it: B2.6 lists readers of the *old* names that the new chain breaks, while this is a reader of the *new* names sitting in the old chain. Errors loudly, hence severity 2.
-- [ ] 🟠 **B2.19.** **`general.compare_edge_energy_defs` calls a function that does not exist anywhere in this repo.** **[read]** Found in tranche 0.1.8. `+general/compare_edge_energy_defs.m`'s only line of consequence calls `analysis.compute_dPrime_pCorrect(...)` (checked: no `+analysis/` package and no file of that name anywhere in the tree, under any package). Running this script errors immediately with `Undefined function or variable`. Reachable (it is a top-level script anyone can run), loud (errors, does not corrupt anything), hence severity 2.
-- [ ] 🟠 **B2.20.** **`general.video_demo` calls `lib.stimulus` with positional arguments against a name-value-only signature.** **[read]** Found in tranche 0.1.8. `+lib/stimulus.m` takes only name-value arguments via `inputParser` (see its own header). Both calls in `+general/video_demo.m` — `lib.stimulus(texture_params, seed, bg_size, target_radius, target_loc, target_or, ml, cont, ml, cont)` (using this tranche's renamed `luminance`/`contrast` for `ml`/`cont`) — pass everything positionally instead, so `inputParser` receives a struct where it expects a parameter-name string. Both calls error immediately if this script is run as written. Reachable, loud, hence severity 2.
-- [ ] 🟠 **B2.21.** **`general.shuffle_unshuffle_expt`'s first-cell loop reassigns its own loop variable, printing the wrong progress count.** **[read]** Found in tranche 0.1.8. `+general/shuffle_unshuffle_expt.m`'s first `for` loop does `i_stim = i_stim+1` (unsuppressed) inside the loop body; MATLAB's `for` ignores a body reassignment of the loop variable for iteration purposes, so the loop still runs correctly and the data it computes is unaffected, but the printed count is off by one on every iteration. Reachable, and loud in the sense that it prints a visibly wrong number, but touches display only — hence severity 2, not 1.
+<div style="margin-left:1.5em">
 
-**Severity 3 — latent**
+**Description.** Optimization candidates found during survey or Stage 1–4, recorded, never made until here. **Rating:** 🔴 large win, low risk · 🟠 real cost (moderate gain, or perturbs float/RNG/`parfor` order) · 🟡 small/speculative/unverified — most items start here. Id `O<tier>.<n>`. Separate axis, **verification status**: Proven / Perturbing / Unprofiled — an Unprofiled item is **not implementable as recorded**, whatever its tier. **User launches each item manually — never auto-dispatched.**
 
-- [ ] 🟡 **B3.1.** **`+lib/edge_props_stim.m:21` calls `lib.target_mask()` with no arguments**, so it always builds a 256×256 mask of radius 64 regardless of the input image, and `:129` hardcodes `reshape(...,[256,256,5,2])`. Currently correct by accident, because every stimulus in the repo is 256×256 with radius 64; it would silently mis-analyse the first stimulus of any other size.
-- [ ] 🟡 **B3.2.** **`+lib/cropImage.m:21`** tests `~exist('indColorChannel','var') || isempty(indColorChannels)` — the first name is missing its trailing `s`, so the channel argument is always overridden. Separately, `:33-35` swaps row and column patch sizes for a non-square `patchSize`.
-- [ ] 🟡 **B3.3.** **`+lib/ptch_norm.m:15-16` — undefined variable `m`.** **[ran]** `lib.ptch_norm(rand(64),128,0.2,2)` gives `Unrecognized function or variable 'm'.` The `ntype==2` branch, which normalises mean *and* contrast, is broken. Known and documented in `CLEANUP.md` §2; `vislab.lib.ptch_norm` is the corrected version but has a different signature. This repo's only caller passes a variable `ntype`, so it is safe only while that is never 2. Resolved by S3.11.
-- [ ] 🟡 **B3.4.** **`+experiment/+analysis/computeTemplateResponseSigma.m:44`** writes `if(size(patchIndexCurr{iLum, iCon, iSim} < 300))`. The comparison is *inside* `size()`, so this is `size(logical_array)`, always a positive vector, so the condition is always true and `smallSample` is always set; it should be `numel(...) < 300`. MATLAB's own linter flags it (`ELARLOG`). Related, same file `:42`: `for iSim = 1:size(tSigma,1)` iterates the third loop index over the size of dimension 1 rather than dimension 3 — possibly harmless if those dimensions happen to match, *unverified*.
-- [ ] 🟡 **B3.5.** **`+lib/find_spot_centers.m:7` uses `ismember(...,'row')`** — the valid flag is `'rows'`, so the row-wise membership test silently does something else.
-- [ ] 🟡 **B3.6.** **`+lib/hyperexp_nll.m` fits the *hypo*exponential density** (the sum of two exponentials), not the hyperexponential (a mixture). The name and the docstring disagree with the code; decide which is intended.
-- [ ] 🟡 **B3.7.** **`+experiment/sessionSettings.m:40` — stray transpose** in `strcmp(transformExpName','')`.
-- [ ] 🟡 **B3.8.** **`+experiment/loadStimuliCamouflage.m:34` sets `pixelsPerDeg = ExpSettings.monitor_distance`.** The field is *named* distance but holds 60 pixels per degree (`setUpExperiment.m:22`), so the code is correct today and the name is a trap. Rename the field only with a migration script (zone 3, S3.10).
-- [ ] 🟡 **B3.9.** **`+experiment/+analysis/computeThreshold_edgeResponse.m:1` declares `function [...] = computeThreshold(...)`** while the file is `computeThreshold_edgeResponse.m`. MATLAB uses the filename, so it works, but it is an unfinished rename (linter `FNDEF`).
-- [ ] 🟡 **B3.10.** **Undefined-variable blocks.** All **[read]**: `+experiment/+analysis/computeThreshold_edgeResponse.m:102-132` (`exp_values`, `a`, `b`, `c`, `target_means`, `target_sds`, `threshold`); `+general/compute_nat_img_eff_coding_bins.m:123` (`pca_coeffs`, used about 20 lines *before* it is computed at `:144`, with the alternative `load` at `:26` commented out) and `:283` (`pca(rgb)` where `rgb` is all-NaN because its only write at `:74` is commented out).
-- [ ] 🟡 **B3.11.** **About 15 top-level scripts in `+general/` depend on workspace variables they never define** — `ExpSettings`, `SubjectExpFile`, `edge_powers`, `texture_list`, `seed_energy`, `centers`, `alphas`, and others. Opening one and pressing Run always fails. The individual files were not enumerated in the original survey; enumerating them is part of S3.7.
-- [ ] 🟡 **B3.12.** **Bugs inside the `_`-prefixed dead files**, recorded so that reviving one does not reintroduce them unnoticed. `+stats/_loadStatisticsSettings.m:59,60,119,180` hold absolute paths (`D:\sebastian\natural_images\...`, `~/occluding/...`) that make `+stats` **silently produce an all-zeros `ImgStats`** rather than erroring, because `dir()` on a missing path returns empty — these are *not* in `CLEANUP.md`. `+general/_compute_edges.m:152,157,160,165,194,250` and `_compute_edge_strengths_multiscale.m:113-121` pass `'type','samp'` where the parameter is `input_type`, so it silently falls back to `'norm'` and sample matrices are interpreted as distribution parameters; `'bplot',false` at `_compute_edges.m:194` should be `plotmode` and opens 501 figures. `_fit_edge_model.m:184` uses `sqerr`, whose only assignment at `:160` is commented out, so cell 1 dies at its last line after about 20 minutes of work. `_fit_edge_model_old.m` has at least 11 undefined variables including `bBootstrap` on its live path. `_computeThreshold_trials.m:87-96` uses undefined `hit` and `correct_reject` and makes a 9-input/4-output call to an 8-input/3-output `fitPsychometric`. Worst of all, `+general/_changepower.m:17-18` **overwrites `exp_settings.mat` and a subject file in place with no backup** while `edge_powers` is never loaded (`:5`).
+**Status.** No timing data exists anywhere in the repo beyond raw `tic`/`toc` pairs in 21 files (no logged numbers, no README note on which stage is slow) — every item below starts Unprofiled.
 
-- [ ] 🟡 **B3.13.** **`lib.edge_measures` builds its default boundary ribbon from a hardcoded image size.** **[read]** Found in tranche 0.1.1. `+lib/edge_measures.m:6` calls `lib.target_mask()` with no arguments to supply the default for the `'bdry_strip'` parameter, so that default is always a 256-pixel image with a 64-pixel-radius circular target, whatever `stim` actually is — the same failure mode as B3.1 in `edge_props_stim.m`, and correct today only because every stimulus in the repo happens to be 256/64. It is also evaluated on **every** call, including calls that pass `'bdry_strip'` explicitly and throw the result away.
-- [ ] 🟡 **B3.14.** **`lib.target_mask` swaps row and column in the non-circular branch.** **[read]** Found in tranche 0.1.1. Pre-edit `+lib/target_mask.m:45-46` does `[x,y]=meshgrid(1:bg_size)` — so `x` is the column index — and then `cart2pol(x-mask_center(1), y-mask_center(2))`, pairing the column with `mask_center(1)`. The circular branch at `:34` pairs `mask_center(1)` with the **row** (`norm([i,j]-mask_center)`). For an off-centre non-circular target the mask is therefore displaced to the transposed location. Latent because `target_loc` is `'center'` everywhere in the repo, where both components are equal. A second, harmless consequence of the same swap: theta runs the opposite way round for a noisy target than for a circular one, which only relabels a noise realisation.
+**To-do.**
 
-- [ ] 🟡 **B3.15.** **`lib.edge_props_stim` computes the PCA rotation and throws it away, so `'pca_coeffs'` has no effect.** **[read]** Found in tranche 0.1.2. Pre-edit `+lib/edge_props_stim.m:121-131` builds `grads_pca` and never writes it back into `grads`; the very next live line, `:143`, reduces the **unrotated** `grads`. `checkcode` confirms it (`NASGU` at `:130`, "value assigned might be unused"), and the commented-out predecessor at `:112-118` ends with the assignment that is missing here (`grads=grads_pca;` at `:117`), so this looks like a rewrite that dropped its last line. Filed at severity 3 rather than 1 only because the function cannot currently reach a correct return at all: with the default `stim_type='camo'` it errors at the histogram loop (B2.2), and no caller uses `'tex'`. **Fixing B2.2 promotes this to a silent severity-1 fault**, so the two must be fixed together. Separately, the deployed `data`/`edge_props_pca.mat` was produced by some earlier version of this file and it is *unverified* whether that version rotated the gradients — check before trusting any PCA-basis model number.
-- [ ] 🟡 **B3.16.** **`experiment.main.stimulusInterval` returns a value labelled "onset" that is actually captured at stimulus offset.** **[read]** Found in tranche 0.1.4. `+experiment/+main/stimulusInterval.m:41` (pre-edit numbering) does `[~, StimulusOnsetTime] = Screen('Flip', ...)` right after the stimulus is drawn — this is the genuine onset flip. But the same variable is overwritten at `:52` by a second `Screen('Flip', ...)` that blanks the stimulus (after the `WaitSecs`/`FillRect` in between), and it is *that* second value the function returns as `stimulusOnsetMs`. So the return value is really the stimulus's offset time, not its onset. Filed as latent rather than reachable-and-silent because S3.17 already notes the caller (`vislab.psychframework.run_experiment`'s `hooks.stimulus`) discards this return value entirely on the current live path — so nothing downstream is corrupted today, but anyone who starts consuming `stimulusOnsetMs` for real timing analysis (exactly the concern S3.17 raises about the retired `runTrial.m`) would get the wrong timestamp under a name that says otherwise.
+- [ ] 🟠 **O2.1.** `+general/compute_noise_colour.m:81` — `parfor` body has no output assignment at all; the parallelization is a complete no-op (worker-pool startup cost for nothing). Unprofiled — profile is "does removing `parfor` change wall-clock at all," expected trivially yes.
+- [ ] 🟠 **O2.2.** `+tinker/pink_noise_seed_multiple_energies.m:21` — same shape: the loop's only output assignment is commented out (`:38-39`), currently computes nothing. Unprofiled.
+- [ ] 🟡 **O3.1.** File I/O inside loops, ~25 files flagged by grep co-occurrence of `load`/`imread`/`save`/`dir`/`exist` with a `for`/`parfor` — not individually verified as loop-invariant vs. genuinely per-iteration. Heaviest: `+general/_fit_edge_model.m:47,55,57` (per-subject `dir`+`load` inside `for i_subj`), same shape in `_fit_edge_model_naive_scaling.m`, `fit_edge_model_with_exps.m:117,125,127`, `compute_avg_acc_for_texture.m:34,37`. Unprofiled — needs per-file reading to separate genuine per-item I/O (`+vis/examplePatches.m`, `presentpatches.m`, `viewpatches.m` load a *different* file per iteration, likely legitimate) from redundant reloads.
+- [ ] 🟡 **O3.2.** Unpreallocated array growth by repeated concatenation (`var = [var; ...]`), ~40 instances across ~20 files, heaviest in `+experiment/+analysis/` threshold-computation family (`computeThreshold_edgePower.m:72-76`, `computeThreshold_edgeResponse.m:90-97`, `computeThreshold_texture_exponent.m:73-77`, `computeBootstrappedThreshold.m:70,72`) and `+general/` edge-power scripts (`_compute_edge_measures_ideal.m:9`, `_compute_edges.m:17,213`, `compute_edge_powers_camo.m:39`, `compute_noise_colour.m:99,154`). Several of these co-occur with the `parfor` loops in O3.3 below — worth profiling together. Unprofiled.
+- [ ] 🟡 **O3.3.** 24 `parfor` loops repo-wide, spot-checked (not exhaustively) as writing to sliced/accumulator outputs, consistent with safe `parfor` use — none confirmed as a reduction-variable hazard beyond O2.1/O2.2 above. Full list in 2 (survey). Unprofiled — no per-loop timing exists to say which, if any, are worth parallelizing differently or at all.
+- [ ] 🟡 **O3.4.** `+lib/gauss_llr.m:19` — `det(cov_b)/det(cov_a)`, a ratio of determinants rather than a solve, so `inv`/`\` substitution doesn't directly apply; flagged for a numerics look, not a confirmed win. Unprofiled.
+- [ ] 🟡 **O3.5.** Storage vs. seed trade for stimulus caching (paired with S1.1 in Structure — this is the same finding wearing its Speed hat): regenerating from seeds instead of storing ~100GB needs a caching strategy for the expensive Portilla-Simoncelli path (~25 iterations/texture); pink noise regeneration is cheap. Unprofiled — no timing on PS synthesis cost exists yet.
 
-- [ ] 🟡 **B3.17.** **`experiment.samplePatchesForExperiment` guards two different defaults on the same `nargin` test, so `simTypeStr` is silently discarded.** **[read]** Found in tranche 0.1.6. Pre-edit `+experiment/samplePatchesForExperiment.m:15` and `:19` both read `if(nargin < 9)`; the first should be `nargin < 8`. Called with eight arguments — i.e. supplying `simTypeStr` but not `imgTypeStr` — the caller's `simTypeStr` is overwritten with `'amplitude'`, so `:33` takes the `ImgStats.patchIndex` branch when the caller asked for `ImgStats.patchIndexSs`, and a whole different patch population is sampled with no error. Latent rather than silent-and-live because the function has **no callers anywhere in the tree** (checked by grep across all in-scope files), as do its two siblings `sampleNoisePatchForExperiment` and `sampleUniformPatchForExperiment`. Left as found and noted in the file's header; correcting a condition is not a Stage 1 edit.
-- [ ] 🟡 **B3.18.** **`experiment.generate_camouflage_stimuli_texture_exponent` writes the per-level exponent into a field `lib.stimulus` never reads.** **[read]** Found in tranche 0.1.6. Pre-edit `+experiment/generate_camouflage_stimuli_texture_exponent.m:14` does `texture.alpha = alphas(iLevel)`, but `+lib/stimulus.m:122-123` tests `~isfield(texture,'exponent')` and defaults `texture.exponent = 1`, and `:201` synthesises from `texture.exponent`. `.alpha` is read nowhere in `lib.stimulus`. Every level of this variant would therefore be generated at exponent 1, making the whole texture-exponent manipulation a no-op — silently. The `_diff_bg` variant passes `.exponent` correctly, which is the evidence for what was intended. Filed at severity 3 rather than 1 only because this file cannot reach that line today: it errors first at `lib.circular_mask` and `lib.edge_vector`, neither of which exists (B2.9), and its two `lib.stimulus` calls are also mis-destructured (B2.4). **Fixing B2.9 and B2.4 promotes this to a silent severity-1 fault**, exactly as B3.15 sits behind B2.2, so the three must be settled together. Whether the deployed `exp_files/texture_exponent/` stimuli were generated by a version carrying this defect is *unverified* — check before trusting that experiment's levels.
-- [ ] 🟠 **B2.22.** **`vis.examplePatches`'s `if bSave` branch references undefined variables `L` and `targetNr`.** **[read]** Found in tranche 0.1.9. Neither is a parameter (`ImgStats, lIndex, targetKeyStr, bSave, filePathOut`) nor a local of this function; the sibling `vis.presentpatches` does take `L`/`targetNr` as parameters and this branch — and the file's header, which said "PRESENTPATCHES" before this tranche fixed it — reads as a copy-paste of that file never fully adapted. Calling with `bSave` true errors immediately with "Undefined function or variable 'L'". Reachable, loud, hence severity 2.
-- [ ] 🟠 **B2.23.** **`vis.psychometrics_vs_angle` and `vis.psychometrics_vs_dur` both call `analysis.computeThresholdInBin`, which does not exist anywhere in this repo.** **[read]** Found in tranche 0.1.9. No `+analysis/` package exists at top level — the fitting functions live in `+experiment/+analysis/` — and no function named `computeThresholdInBin` exists there either. Both scripts error immediately with "Undefined function 'analysis.computeThresholdInBin'" if run. Filed as one item since both files carry the identical missing call. Reachable, loud, hence severity 2.
-- [ ] 🟠 **B2.24.** **`tests.block_jumping`'s recompute loop calls `lib.stimulus` with positional arguments against a name-value-only signature.** **[read]** Found in tranche 0.1.9. `lib.stimulus(texture_params, seed, bg_size, target_radius, 'center', 0, luminance, contrast, 'match', 'match')` passes everything positionally; `lib.stimulus` takes only name-value arguments via `inputParser`. Same bug shape as B2.20 (`general.video_demo`), in a different file — filed separately per the plan's re-filing rule. Errors immediately if run. Reachable, loud, hence severity 2.
-- [ ] 🟠 **B2.25.** **`tests.gaborSimilarity` calls `stats.computeSceneSimilarityAmplitude`, which does not exist under that name.** **[read]** Found in tranche 0.1.9. The backing file, `+stats/_computeSceneSimilarityAmplitude.m`, is `_`-prefixed and therefore not reachable as `stats.computeSceneSimilarityAmplitude`. Errors immediately with any `testTypeStr` if run. Reachable, loud, hence severity 2.
-- [ ] 🟡 **B3.19.** **Three of `general.compute_nll_edge_model`'s four outputs are unreliable.** **[read]** Found in tranche 0.1.7. Pre-edit `+general/compute_nll_edge_model.m:18` and `:35` assign `responses` and `p_c` **inside** the `for exp_id = 1:numel(edge_model)` loop, with no indexing by `exp_id`, so both hold only the **last** experiment's values while the sibling output `d_all` is correctly a cell indexed per experiment. Separately, all three of `p_c`, `d_all` and `responses` are left unassigned on the `sig_n <= 0` branch (`:52-53`), which assigns only `nll` — so any caller requesting more than one output while the fit is at a non-positive noise sd gets "Output argument not assigned", the same shape as B2.12. Latent rather than reachable-and-silent because the function's only caller anywhere in the tree is `+general/_fit_edge_model_old.m:25`, one of the deprecated `_`-prefixed files, and that caller does ask for `d_all` and `responses`. Both flaws are described in the file's header and left as found.
-- [ ] 🟡 **B3.20.** **`general.analyze_search_expts`'s detection cell and search cell write `SubjectExpFile.hitRate`/`.dPrime` under the same field names for differently-shaped quantities.** **[read]** Found in tranche 0.1.8. Cell 1 ("process detection experiment responses") writes `SubjectExpFile.hitRate`/`.dPrime` as scalars (one detection experiment); cell 3 ("process search experiment responses") writes the same two field names as 19-element per-location vectors (one search experiment). Running both cells against the same `SubjectExpFile` struct without an intervening reload would silently overwrite one experiment's summary with the other's, under a name that no longer describes what it holds. Filed as latent rather than reachable-and-silent because the script's own structure (detection cells vs. search cells) suggests each is meant to be run against a separately-loaded struct of the matching experiment type, not both against one — but that intent is *unverified*.
+</div>
 
-**Recorded and disproved.** For the record, one plausible-sounding hypothesis is *false*: `edge` called unqualified inside `+lib/detect_edge_pixels.m:20` and `+lib/edge_measures.m:18` does **not** resolve to `lib.edge`. `lib.detect_edge_pixels(stim)` runs correctly and returns 1814 edge pixels **[ran]** — MATLAB resolves it to the Image Processing Toolbox `edge`. Do not "fix" these call sites.
+</details>
 
-Stage 4's work log (section 4.4) fills in as each item here is actually fixed.
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">⬜ 0.6 · Stage 6 · Closing</h3></summary>
+
+<div style="margin-left:1.5em">
+
+**Description.** A single fixed gate, run once 0.1 through 0.5 are all done. Never auto-dispatched — the orchestrator runs all four itself.
+
+**To-do.**
+
+- [ ] **0.6.1.** `check_stage1` re-run across every in-scope file against current HEAD.
+- [ ] **0.6.2.** `golden_harness('replay', ...)` clean, end to end.
+- [ ] **0.6.3.** Every item in 0.3, 0.4, and 0.5 ticked, or explicitly closed with a reason.
+- [ ] **0.6.4.** Section 2 re-checked against the repo as it now stands.
 
 </div>
 
@@ -188,69 +216,19 @@ Stage 4's work log (section 4.4) fills in as each item here is actually fixed.
 ---
 
 <details>
-<summary><h2 style="display:inline; margin:0; font-size:1.15em">1. Scope and measurements</h2></summary>
+<summary><h2 style="display:inline; margin:0; font-size:1.15em">1. How an agent should execute this cleanup plan</h2></summary>
 
 <div style="margin-left:1.5em">
 
-Every number in this section was measured on the repo as it stands, under **MATLAB R2024b**, not estimated. Re-measure before trusting any of them after substantial changes.
-
-**Scope, precisely.** The repo holds **193 `.m` files** outside the vendored tree: 188 in the package folders and 5 at the root. Two groups are excluded. `por_sim_tx_synth/` is vendored third-party Portilla–Simoncelli code and is out of scope entirely. The **29 `_`-prefixed files** are known-dead and are excluded too — cleaning code that is about to be quarantined or deleted is wasted effort. Those 29 are 12 in `+stats/` (the whole package), 10 in `+general/`, and 7 in `+experiment/+analysis/`; they were renamed in place with a leading `_` so they sort to the top of every folder listing, and because MATLAB cannot resolve a package-qualified name beginning with `_`, they are no longer callable even from each other. If any of them is ever un-prefixed and brought back to life, it re-enters this pass's scope at that point like any other file.
-
-That leaves **164 files and 10,212 lines** in scope, of which 7,554 are code lines and 2,659 are comment lines.
-
-| Directory | In-scope files | In-scope lines | Excluded (`_`-prefixed) |
-|---|---|---|---|
-| `+lib/` | 56 | 2,967 | 0 |
-| `+experiment/` (top level) | 26 | 1,390 | 0 |
-| `+experiment/+main/` (incl. `testscripts/`) | 11 | 714 | 0 |
-| `+experiment/+analysis/` | 12 | 787 | 7 |
-| `+general/` | 31 | 2,474 | 10 |
-| `+stats/` | 0 | 0 | 12 |
-| `+vis/` | 8 | 377 | 0 |
-| `+tinker/` | 13 | 1,040 | 0 |
-| `+tests/` | 2 | 107 | 0 |
-| root | 5 | 356 | 0 |
-| **total** | **164** | **10,212** | **29** |
-
-**The work is far more concentrated than the file count suggests.** 41 in-scope files are under 25 lines and 81 more are under 75, while the **8 files of 150 lines or more hold 2,503 lines — 25 % of all in-scope code**. Those eight are `+lib/edge_props_stim.m` (535), `+tinker/pink_noise.m` (366), `+general/compute_nat_img_eff_coding_bins.m` (355), `+general/fit_edge_model_with_exps.m` (309), `+tinker/whitening_tinker.m` (283), `+lib/stimulus.m` (252), `+general/plot_contour_props.m` (213), and `+experiment/+main/runCamouflageExperiment_search.m` (190). Batch the small files aggressively; budget real time for these eight.
-
-**What is actually wrong with the files**, measured, not assumed:
-
-- **Lint.** `checkcode` over the 164 in-scope files reports **222 messages**, and **90 of 164 files are clean**. They split by stage: *Stage 1/2 mechanical (~117)* — `NOPTS` 37, `AGROW` 30, `NOSEMI` 20, `SAGROW` 19, `LOAD` 9, `ISCL` 5, `LOGSUM` 3, `NANMEAN`/`NANSUM` 4, plus `NCOMMA`/`NOCOMMA`/`NOPRT`/`NBRAK2` singletons. *Needing judgement (~44)* — `NASGU` 24 (value assigned but never used), `ASGLU` 12, `INUSD` 5, `USENS` 3, `STRNU` 1; each is either a leftover or a real logic gap, so decide per site. *Bug signals, Stage 4 (~40)* — `STOUT` 22 (return value may be unset), `PFBNS` 6, `GVMIS` 3, `NODEF` 2, and one each of `DSPNORM`, `ELARLOG`, `FNDEF`, `FXSET`, `PFTUSE`, `PFUIXW`, `BDLGI`, `EXIST`, `FNDSB`, `HIST`. Record these, do not fix them.
-- **Formatting.** 19 in-scope files are tab-indented; **718 lines carry trailing whitespace**. 45 files have at least one line over 100 characters; the worst concentrations are `+lib/edge_props_stim.m` (13 lines), `+vis/edge_strength_dists.m` (12), `+general/fit_edge_model_with_exps.m` (12), and `+experiment/+main/runCamouflageExperiment_search.m` (11).
-- **Spacing consistency — this is the bulk of the mechanical work.** Of the code lines containing an assignment, **2,309 are unspaced (`a=b`) against 1,102 spaced (`a = b`)**, so roughly two thirds of the repo is written in the tight style and the file-to-file split is real, not uniform. Commas are the same story: **1,888 lines have a comma with no following space against 815 that do**. There are also 659 lines with unspaced binary operators (`a+b`) and 137 comment lines with no space after the `%`. Indentation is not uniform: 19 files use tabs, the rest mostly 4 spaces.
-- **Header docs.** Of the 164 in-scope files, 116 begin with a `function` line. Only **39 have any `Inputs`/`Output` block** and only **18 have a `See also`**; 33 files have no header comment at all. There is **no `Contents.m` anywhere in the repo** — the shared library has one, and each package touched should gain one.
-- **Names.** This is the real problem. The most-used opaque identifiers, by occurrence count across in-scope code (comments and string bodies stripped): `stim` 157, `x` 150, `d` 94, `seed` 82, `n` 73, `cont` 62, `ml` 59, `N` 56, `S` 52, `z` 51, `len` 51, `idx` 49, `y` 47, `r` 47, `c` 43, `a` 37, `mask` 35, `p` 34, `u` 33, `img` 33, `f` 29, `th` 24, `b` 24, `e` 23, `amp` 22, `ppd` 21. `+lib/` additionally carries `XX`/`YY` (14 each), `mnv` 14, `grad` 14, `haar` 12, `filt` 9, `wn` 9, `wnf` 6, `N_b` 11. The low-count but genuinely unreadable ones are all in `+lib/`: `nhood` (`local_sd.m:16`), `ntype` (`ptch_norm.m:1`), `xo`/`yo` (`radialavg.m:1`), `sd` (`laplacian_of_gaussian_filter.m:1`), `dc` (`cosdRadial.m:1`), `m0`/`c0` (`ptch_norm.m:1`).
-- **Names diverge across call boundaries.** Concretely: `+general/compute_nat_img_eff_coding_bins.m:73` passes `patch_rgb` into a parameter named `ptch` (`+lib/ptch_norm.m:1`) and catches the returned `ptchout` as `ptch_rgb` — three names for one quantity in one statement. `+experiment/setUpExperiment_search.m:67` passes `'bg_size', Stimulus.stimulus_sz` and `'ml_b', Stimulus.ml`, so the same two quantities are `stimulus_sz`/`ml` on the caller side and `bg_size`/`ml_b` on the callee side. `+tinker/pink_noise.m:69` calls `lib.radialavg(img_corr,100)` against parameters named `z, m`.
-- **Convention splits.** The repo is broadly `snake_case` in `+lib/`, `+general/`, `+tinker/` and `camelCase` in `+experiment/` (including both sub-packages), which follows the Psychtoolbox heritage of that directory. This split is deliberate enough to keep: **do not convert `+experiment/` to snake_case in this pass.** Harmonise within each directory instead.
-- **Builtin shadows.** `mask` is declared 18 times (e.g. `+lib/correlations_across.m:1`, `+lib/edge.m:42`); `filter` 12 times, including as a name-value parameter at `+lib/steerable_grad.m:8`; `contrast` 8 times (`+experiment/sessionSettings.m:1,43`); `edge` 7 times — `+lib/edge.m:1` is a whole function shadowing the Image Processing Toolbox `edge`, which is exactly why the "disproved" note in section 0.4 matters; `alpha` 4 times (`+experiment/generate_camouflage_stimuli_shape_exponent.m:14,20`); `type` twice (`+lib/edge_energy.m:1,10`); `output` twice (`+lib/find_spot_centers.m:1`). Clean: `length`, `image`, `diff`, `sum`, `size`, `max`, `min`, `mean`, `hist`, `line`, `power` are never declared as variables in scope.
-- **Commented-out code — this is the single biggest readability problem.** 2,659 of the in-scope lines are full-line comments, and **780 of those are commented-out code**, about 29 % of all comments and 9 % of all non-blank lines. By directory: `+general/` 297, `+lib/` 282, `+experiment/` 116, `+tinker/` 55, root 18, `+vis/` 12, `+tests/` 0. **81 of the 164 files carry at least one dead-code line**, and `+lib/edge_props_stim.m` alone holds 197 of them. It is also the main reason nobody can tell which edge measure is live — the contour-group code that `+general/compute_edge_group_measures.m` still calls for is commented out at `+lib/edge.m:115-134` (B1.5), and the write that the dead per-trial threshold fitters need is commented out at `+experiment/saveCurrentLevel.m:24-33`. **This pass removes none of it**; the block-level inventory is in section 4.1.4 and feeds the triage there.
-- **Argument validation.** There are **no `arguments` blocks anywhere** in the repo. 9 files use `inputParser`. Converting changes validation behaviour, so it is Stage 3 (S3.12), not part of this pass.
-
-**The style target already exists** — do not invent one. `../vislab-common/+vislab/+lib/` is the same author's cleaned code and is the normative reference, and `watson_otf.m` there is the exemplar: an uppercase `FUNCTION_NAME` summary line, the fully-qualified call signature, `Inputs` and `Output` blocks **with units**, a note on the domain where the result is undefined, a `See also`, then a body with descriptive names (`cutoff`, `diffraction` rather than `u0`, `D`) and short end-of-line comments only where the *why* is non-obvious. `vislab-common/+vislab/+lib/Contents.m` is the model for the per-package `Contents.m` files this repo lacks.
-
-**Filename collisions with the shared library:** exactly two, both in `+lib/`. `+lib/ptch_norm.m` and `+lib/watson_otf.m` are the *uncleaned ancestors* of `vislab.lib.ptch_norm` and `vislab.lib.watson_otf` — the shared `ptch_norm` header even describes this repo's copy as "the buggy root +lib copy". **Do not clean either of them.** Polishing a copy that is already superseded elsewhere just makes it look maintained; the right move is to repoint callers and delete them, which is S3.11. No other in-scope file shares a name with anything in `vislab-common`.
-
-</div>
-
-</details>
-
----
-
-<details>
-<summary><h2 style="display:inline; margin:0; font-size:1.15em">2. The check (Stage 1) and what the repo affords for Stage 2</h2></summary>
-
-<div style="margin-left:1.5em">
-
-`mtree` parses a `.m` file into MATLAB's own syntax tree, and `tree2str` prints it back in canonical form: comments stripped, whitespace and bracket spacing normalised, missing `end` supplied.
+`mtree` parses a `.m` file into MATLAB's own syntax tree; `tree2str` prints it back canonically (comments stripped, whitespace/bracket spacing normalised, missing `end` supplied):
 
 ```matlab
 canon = @(f) tree2str(mtree(f,'-file'));
 ```
 
-This gives a fingerprint blind to exactly what Stage 1 is allowed to change and sensitive to everything else. **Verified: `canon` succeeds on all 164 in-scope files** — including the substantial fraction that cannot execute, which is the property golden-output testing cannot give you, and the reason this whole plan is organised around `canon` rather than around running the code.
+Blind to exactly what Stage 1 may change, sensitive to everything else. Verified: succeeds on all 164 in-scope files (see 2 for the scope definition — 29 `_`-prefixed dead files and the vendored `por_sim_tx_synth/` tree are excluded, same exclusion as the original survey).
 
-Reverse-rename check: clean a file (renames, header, reflow), then undo the rename map on the canonical form of the new file and assert it is identical to the canonical form of the old one:
+Reverse-rename check: undo the rename map on the canonical form of the new file, assert equality with the canonical form of the old file:
 
 ```matlab
 c_new = canon(new_file);
@@ -260,56 +238,25 @@ end
 isequal(canon(old_file), c_new)   % must be true
 ```
 
-The lookahead `(?![A-Za-z0-9_])` matters: without it a short name (`patch`) can wrongly match inside a longer one (`patch_size`). The lookbehind's `.` matters just as much here, because it is what excludes dot-qualified names — see the struct-field caveat in section 4.1.1. The rename map itself must be a bijection with disjoint domain and range; assert this before using it:
+The lookahead matters: without it a short name (`patch`) can wrongly match inside a longer one (`patch_size`). The rename map must be a bijection with disjoint domain/range, asserted before use (`assert_rename_bijection.m`). `mtree`/`tree2str` are undocumented APIs — pin the MATLAB version (R2024b Update 6) in every commit that depends on the check.
 
-```matlab
-dom = renames(:,1); ran = renames(:,2);
-assert(numel(unique(dom)) == numel(dom));
-assert(numel(unique(ran)) == numel(ran));
-assert(isempty(intersect(dom, ran)));
-```
+**Stage 2's extra requirement: runtime golden output.** `tools/golden_harness.m` + `tools/golden_ref.mat` capture/replay 32 fields across 16 entry points, seeded explicitly via `rng(cfg.seed)`, never through the top-level driver: `lib.stimulus`, `lib.edge`, `lib.edge_vector_ideal`, `lib.edge_measures_ideal`, `lib.steerable_grad`, `lib.steerable_filter`, `lib.local_sd`, `lib.target_mask`, `lib.create_pink_noise_square`, `lib.whiten`, `lib.compute_pClipped`, `lib.autocorr`, `lib.csf_fitted`, plus `experiment.analysis.psychometricFun`/`computeNegLogLikelihood`/`fitPsychometric`. Everything else (most of `+general/`, `+tinker/`, `+experiment/` — scripts, hardware-bound, or needing loaded `.mat` files) is pattern-check only, decided explicitly, not an oversight. `parfor` baseline: all 24 loops write to sliced outputs, none is a reduction — except two no-op cases now filed as O2.1/O2.2.
 
-A trial run of this check on `+lib/local_sd.m` during an earlier survey earned its keep immediately: cleaning that file (header doc, comments, reflow, and renaming `nhood`→`disc_mask`, `filter_size`→`mask_size`, `i,j`→`row,col`) produced a canonical form byte-identical to the original after reverse renaming, and along the way the check caught two swapped statements that were harmless but unintended, and that no reviewer would have noticed in the diff.
+Semicolon insertion is Stage 2, not Stage 1: the canonical diff is exactly `X` → `X;` — trivially whitelisted, but not invisible.
 
-Caveat: `mtree`/`tree2str` are undocumented MATLAB APIs — stable across many releases, but **pin the MATLAB version in every commit that depends on the check**. This plan was built under R2024b.
+Speed is its own stage because a Structure item is reviewed and reasoned about, while a Speed item isn't done until a stopwatch says it worked. It runs after Bugs and can be dropped entirely without touching anything else.
 
-**Stage 2's extra requirement: runtime golden output.** This repo executes only in part, and the harness surface is genuinely narrow. What it *can* cover, verified by running each with synthetic inputs under R2024b: `lib.stimulus` (self-seeds with `rng('default'); rng(seed)` at `+lib/stimulus.m:82-83`, verified bit-identical across two calls with the same seed), `lib.edge`, `lib.edge_vector_ideal`, `lib.edge_measures_ideal`, `lib.steerable_grad`, `lib.steerable_filter`, `lib.local_sd`, `lib.target_mask`, `lib.create_pink_noise_square`, `lib.whiten`, `lib.compute_pClipped`, `lib.autocorr`, `lib.csf_fitted`, and the three psychometric functions `experiment.analysis.psychometricFun`, `computeNegLogLikelihood`, and `fitPsychometric` (deterministic, `fminsearch`). Note that `lib.create_pink_noise_square` and the non-circular branch of `lib.target_mask` call `normrnd` and **do not self-seed**, so the harness must seed before each call itself.
+Stage 3 matters most: every tempting change belongs there (0.3's list), because each one changes output, call sites, or validation behaviour — keeping them out is what makes the behaviour-preserving pass's diff skimmable.
 
-**What cannot be covered, and is therefore pattern-check only** — this is a deliberate, recorded decision, not an oversight. `+general/`: 40 of its 41 files are top-level scripts with no arguments that assume workspace variables already exist, and several `save()` into `vislab-common/data/`. `+tinker/`: 8 of 13 are scripts, and several call the missing `lib.whiten_pink_noise_square` or the broken `lib.edge_energy`. `+experiment/+main/`: all 9 functions are Psychtoolbox, eye-tracker, or display bound. `+experiment/` top level: functions, but they take an `ExpSettings` struct and write into `exp_files/`, and three of them are broken (B2.4). `+vis/`: plotting, three of them scripts. `+experiment/+analysis/`: everything beyond the three psychometric functions needs loaded session `.mat` files. `+tests/`: two ad-hoc scripts, not a harness. Restructuring any of these into callable functions is itself Stage 3 (S3.7), so it cannot be done to make Stage 2 verifiable.
+**All three of Structure, Bugs, and Speed rate on the same three-colour scale**, though what the tier means differs by list (see 0.3/0.4/0.5 descriptions). When the pass uncovers a structural opportunity, a bug, or an optimization, **record it with its tier/severity emoji and do not act on it** — the fix/change/optimization is a later stage's item, never done on the spot however easy it looks mid-tranche.
 
-**`parfor` baseline: all 16 loops are sliced, none is a reduction.** Verified by reading every loop body. Each writes `out(idx,...)` or `out{idx,...}` with the loop variable in the index, so worker order cannot change a floating-point sum and they are safe to leave alone. The sites are `+lib/autocorr.m:8`; `+experiment/generate_camouflage_stimuli.m:33`, `_diff_bg.m:17`, `_shape_exponent.m:13`, `_texture_exponent.m:16`; `+general/compute_edge_group_measures.m:16`, `compute_edge_powers_camo.m:37`, `compute_edge_powers_camo_large.m:37`, `compute_noise_colour.m:24` and `:81`, `video_demo.m:11`; `+tinker/pink_noise.m:285`, `pink_noise_seed_multiple_energies.m:21`, `pink_noise_stimuli_autocorrelations.m:27`, `whitened_pn_stim_edge_energy.m:21`, `whitening_tinker.m:188`. Two oddities worth recording rather than fixing: `compute_noise_colour.m:81` has **no output at all** — its body only plots, and plotting inside a `parfor` is a no-op — and `video_demo.m:13` calls `rng('shuffle')` once per iteration, making that loop nondeterministic by design and therefore permanently outside any golden harness. **An edit that later turns any of these slices into an accumulator is a behaviour change**, and belongs in Stage 3.
+Statement reordering stays out of Stage 1/2 even though it looks cosmetic, because the check can't distinguish a safe reorder from an unsafe one.
 
-**The four Stage 2 patterns, sized.** Missing suppressing semicolons: `NOSEMI` 20 (expect most apparent hits to be a trailing `%` comment after an already-present `;`). Unpreallocated growth: `AGROW` 30 plus `SAGROW` 19, many already carrying an author-written `%#ok<AGROW>`, i.e. known and suppressed rather than fixed. `find(...)` that could become logical indexing: 16 call sites, most of which will *not* be targets, since a numeric index used to index a second array, printed in a label, or used as a scalar bound is not convertible. Unused assignments: `NASGU` 24. Separately, `nanmean`/`nansum` appear at 4 sites (`+lib/edge.m:102`, `+lib/edge_vector_ideal.m:80`, `+tinker/pink_noise_stimuli_autocorrelations.m:60,62`); the first two are passed as `@nanmean` into `groupsummary`, so replacing them means writing `@(x) mean(x,'omitnan')` — a real AST change, hence Stage 2 with its own whitelisted pattern, not Stage 1.
+**Before working section 0.3, check whether section 2 is still current** — re-measure if meaningful time has passed or the file set changed.
 
-</div>
+**Golden-reference maintenance, Stage 3 and Stage 4.** Run `golden_harness('replay', ...)` after every Stage 3/4 item. If output-preserving and replay passes, nothing to do. If replay fails: an expected-to-change item (a bug fix, a flagged behaviour change) gets a deliberate recapture with the delta logged; an item that was supposed to be output-preserving gets a **new bug** filed in 0.4, never a reflexive recapture.
 
-</details>
-
----
-
-<details>
-<summary><h2 style="display:inline; margin:0; font-size:1.15em">3. Four stages of change, in full</h2></summary>
-
-<div style="margin-left:1.5em">
-
-| Stage | Change | Canonical diff | Verification |
-|---|---|---|---|
-| **1** | Comments, header docs, whitespace, operator and bracket spacing, indentation, reflow, blank-line grouping, file-local renames, triaging commented-out code (verdicts only, no deletion) | empty (after reverse rename) | `isequal` — fully automatic, no execution |
-| **2** | Adding a suppressing `;`, preallocation, `find`→logical indexing, deleting a provably unused assignment | non-empty but must match a whitelisted pattern | pattern check **plus** runtime golden output |
-| **3** | Signature changes, adding `arguments` blocks, merging duplicate functions, reordering statements, changing accumulation order in a float reduction, anything touching the RNG stream, **acting on the Stage 1 triage of commented-out code** | — | **not part of the behaviour-preserving pass** — reviewed and done individually, once Stage 1/2 is done |
-| **4** | Bug fixes found anywhere during 1/2/3, each marked 🔴/🟠/🟡 | — | not mechanically checkable — reviewed and fixed individually in severity order, once Stage 3 is done |
-
-Semicolon insertion is Stage 2, not Stage 1: `tree2str` preserves display-vs-suppress, so the canonical diff is exactly `X` → `X;` — trivially whitelisted, but not invisible. **A missing semicolon is sometimes deliberate** in this repo, because `+general/` and `+tinker/` are full of top-level scripts whose only way to print a number when run interactively is an unsuppressed line. `+general/fit_edge_model_with_exps.m:217` is exactly this case: `var_exp=...` with no semicolon is how the headline number reaches the console. Ask before "fixing" one on a line whose variable is never read again; if it is deliberate, add a comment saying so, so a later pass does not undo it.
-
-Stage 3 matters most. The tempting changes are all Stage 3 — see section 0.3's list. Fixing B1.3 (`create_pink_noise_line` ignoring its exponent) *changes output*; so does S3.3's variant collapse and S3.7's script-to-function conversion. Every one of them changes output, call sites, or validation behaviour, so none belongs in the behaviour-preserving pass — keeping them out is what makes that pass's diff skimmable instead of line-by-line. They are the next step of the same overall cleanup, not abandoned.
-
-When the pass uncovers a *bug* — and it will — **record it in section 0.4 first, marked with its severity emoji**, so the recording survives even before the fix happens; the fix itself comes later, as a Stage 4 item, kept separate from Stage 3 so the bug list never gets buried inside the structural-cleanup list. Even a 🔴 waits: the severity sets the fix order within Stage 4, it does not pull a fix forward or interrupt the tranche that found it. This is the single rule most likely to be violated under pressure, and this repo makes it tempting, because the survey has already turned up ten severity-1 items.
-
-Statement reordering is kept out of Stage 1/2 even though it looks cosmetic, purely because the check cannot distinguish a safe reorder from an unsafe one — it gets the same individual review as the rest of Stage 3.
-
-**Ordering against the Stage 3 items.** Two of them interact with the readability pass and should be sequenced around it rather than simply queued behind it. **S3.5 (the smoke test and the `which()` resolution sweep) is worth building early**, before or during tranche 0, because running the sweep after every tranche is what catches a rename that broke a call site — it is the cheapest safety net this repo can have, and it already exists in scratch form. **S3.3 (collapsing the variant families) and S3.7 (scripts into functions) should wait until after the pass**, because both are far easier to perform on clean, well-named code than on the current text, and doing them first would mean cleaning files that are about to be merged or rewritten. Everything else in section 0.3 is independent of the ordering.
-
-**Practical notes for whoever runs this.** MATLAB runs headless here: `matlab -batch "cd('<repo>'); setup; <cmd>"`. `checkcode` is a cheap first-pass bug finder and is covered by the standing authorization, along with `canon`, `check_stage1`, `assert_rename_bijection`, and `golden_harness('replay', ...)`. Capturing a new golden reference, running the demo or driver scripts, and anything that does real image I/O or writes into `data/` all need asking first. The working directory must be the repo root, since every data path in the codebase is relative to it and `config.m` has no callers. Note that **scripts inside `+package/` folders are not callable as `package.name`** — most of `+general/`, `+tinker/`, `+tests/` and three files in `+vis/` must be opened and run, which is why they are pattern-check only. And assume any `+general/` script is stale until proven otherwise: the `+lib` API changed underneath it (`lib.stimulus` went name-value only, `lib.edge_measures` was repurposed, `lib.edge_vector` was deleted) and **most callers were never updated**. Finally, `exp_files/` is ~100 GB and gitignored — never `git add` it.
+**Stage 6 (Closing):** re-run the full check suite end to end rather than trusting the sum of per-item checks.
 
 </div>
 
@@ -318,912 +265,260 @@ Statement reordering is kept out of Stage 1/2 even though it looks cosmetic, pur
 ---
 
 <details>
-<summary><h2 style="display:inline; margin:0; font-size:1.15em">4. Stage-by-stage details and work log</h2></summary>
+<summary><h2 style="display:inline; margin:0; font-size:1.15em">2. Scope and measurements</h2></summary>
+
+<div style="margin-left:1.5em">
+
+Measured 2026-09-16 against current HEAD (MATLAB R2024b Update 6 for the Stage 1 tooling; the fresh survey below used `git`/grep-based static analysis, not headless MATLAB). Re-measure before trusting any of these after substantial changes.
+
+**Scope, precisely.** Excluded: `por_sim_tx_synth/` (105 files — vendored `matlabPyrTools`/`textureSynth`, own `Contents.m`/license), and 29 `_`-prefixed known-dead files (7 in `+experiment/+analysis/`, 10 in `+general/`, 12 in `+stats/` — i.e. **all** of `+stats/`). This exclusion is carried forward unchanged from the original survey; a raw `git ls-files` count without it gives 204 files / ~16,340 lines, materially larger, because it counts the dead files as if in scope. With the exclusion applied: **164 files, 10,212 lines** (7,554 code, 2,659 comment) across `+experiment/` (49 files, 2,891 lines), `+general/` (31 files excl. dead, 2,474 lines), `+lib/` (56, 2,967), `+stats/` (0 in-scope, 12 excluded), `+tests/` (2, 107), `+tinker/` (13, 1,040), `+vis/` (8, 377), root (5, 356).
+
+Concentration: 41 files under 25 lines, 81 more under 75; 8 files ≥150 lines hold 2,503 lines (25% of code): `+lib/edge_props_stim.m` (535), `+tinker/pink_noise.m` (366), `+general/compute_nat_img_eff_coding_bins.m` (355), `+general/fit_edge_model_with_exps.m` (309), `+tinker/whitening_tinker.m` (283), `+lib/stimulus.m` (252), `+general/plot_contour_props.m` (213), `+experiment/+main/runCamouflageExperiment_search.m` (190).
+
+**What is actually wrong with the files:**
+
+- **Lint.** `checkcode`: 222 messages, 90/164 files clean (measured at tooling time; not re-run for this update). Split: Stage 1/2 mechanical (~117: `NOPTS` 37, `AGROW` 30, `NOSEMI` 20, `SAGROW` 19, `LOAD` 9, `ISCL` 5, `LOGSUM` 3, `NANMEAN`/`NANSUM` 4), judgement-needed (~44: `NASGU` 24, `ASGLU` 12, `INUSD` 5, `USENS` 3, `STRNU` 1), bug signals (~40: `STOUT` 22, `PFBNS` 6, `GVMIS` 3, `NODEF` 2, singletons).
+- **Formatting.** 19 files tab-indented (fresh re-scan: 13 confirmed still tab-indented, concentrated in `_`-prefixed excluded files plus `computeBootstrappedThreshold.m` and 3 `_computeNegLogLikelihood*`/`_fitPsychometric*` siblings — all pre-existing, none touched by a completed tranche). 718 lines with trailing whitespace (at tooling time). 45 files with a line >100 chars; worst `edge_props_stim.m` (13 over-length lines). Assignment spacing: 2,309 unspaced vs 1,102 spaced (pre-cleanup baseline); fresh spot-check on remaining untouched dirs (`+tinker/`, root, `+stats/`-excluded) shows the same unspaced-`=` pattern still dominant — 62 hits by a rougher single-pattern grep, concentrated in `test.m` (12), `+tinker/pink_noise.m` (4), `edge_power_demo.m` (3).
+- **Header docs.** 116/164 begin with `function`; 39 originally had `Inputs`/`Output`, 18 had `See also`, 33 had none — all since improved by tranches 0.1.2–0.1.10's header rewrites (fresh count across the whole 204-file raw set, including excluded files: 90 have an Inputs/Output block, 156 have `See also` — the jump from 18→156 is almost entirely tranches 0.1.2–0.1.10's work). No `Contents.m` existed anywhere pre-cleanup; now 7 packages have one (`+experiment/`, `+experiment/+analysis/`, `+experiment/+main/`, `+general/`, `+lib/`, `+tests/`, `+vis/`). **Still missing: `+tinker/` and `+stats/`** (the latter excluded by design).
+- **Names, inside files.** Most-used opaque identifiers pre-cleanup: `stim` 157, `x` 150, `d` 94, `seed` 82, `n` 73, `cont` 62, `ml` 59, `N` 56, `S` 52, `z` 51, `len` 51, `idx` 49, `y` 47, `r` 47, `c` 43, `a` 37, `mask` 35, `p` 34, `u` 33, `img` 33, `f` 29, `th` 24, `b` 24, `e` 23, `amp` 22, `ppd` 21 — the bulk of these have since been expanded per the rename map (3.1.1) in whichever tranche their file fell into; `+tinker/` and root (0.1.11/0.1.12, not started) still carry them unrenamed.
+- **Names, of files.** Fresh census, all 204 raw filenames (i.e. including the 29 excluded): 107 snake_case, 54 camelCase (concentrated in `+experiment/+analysis` 11, `+experiment/+main` 10, `+experiment/` root 18, `+lib/` 10, plus `gaborSimilarity.m`, `spatialPattern.m`, `examplePatches.m`), 8 TitleCase, 29 leading-underscore (the excluded dead set), 6 other (`2D`/`1D`-suffixed: `gabor2D.m`, `haar2D.m`, `spot2D.m`, `pink_noise_1D.m`, `pink_noise_1D_dist.m`, `test_Erlang.m`). Families with a broken pattern: `compute_*`/`computeX` (24 files) splits hard on directory — `+general/` uniformly snake, `+experiment/+analysis/` uniformly camel; `compute_edge_props_exp*` sprawl (5 siblings — `_exp`, `_exp_eq`, `_exp_full`, `_exp_pca`, `_exp_raw` — no enumeration scheme distinguishing precedence); `plot_*`/`show_*`/`view*` (6 files) split three ways by directory with no rule for which verb a given visualization gets; `fit_*` (camel in `+experiment/+analysis/fitPsychometric.m`, snake elsewhere); `gammaCorrect` triplicated (already flagged in README.md:209, unconsolidated — tracked as S1.14). One filename/`function`-line mismatch confirmed: `+general/_changepower.m` declares `function e=newpower(...)` — excluded file, not urgent, but real.
+- **Casing census.** 107 snake / 54 camel / 8 TitleCase / 29 underscore-dead / 6 other, as above. camelCase assignment-target rough count: 574 across in-scope dirs — the split runs through variables too (`SubjectExpFile`, `ImgStats`, `bTarget`, `filePathOut`, all in `+experiment/`/`+stats/`). **Target is snake_case everywhere** per the new mandate; this is the size of what's still outstanding once 0.1.5–0.1.7's deliberate camelCase preservation is revisited (see S2.19).
+- **Names diverge across call boundaries.** `compute_nat_img_eff_coding_bins.m:73` passes `patch_rgb`→`ptch`(`ptch_norm.m`)→caught as `ptchout`→`ptch_rgb` (3 names, 1 quantity, pre-cleanup — since partly addressed in 0.1.8's vocabulary); `setUpExperiment_search.m:67` passes `'bg_size', Stimulus.stimulus_sz` and `'ml_b', Stimulus.ml`.
+- **Convention splits.** `+lib/`, `+general/`, `+tinker/` broadly snake_case; `+experiment/` (both subpackages) camelCase, Psychtoolbox heritage — **deliberately not converted** by 0.1.5/0.1.6/0.1.7, predates the snake_case mandate (see S2.19). `+vis/`/`+tests/` (0.1.10) turned out per-file mixed, harmonized only within each file.
+- **Builtin shadows.** Pre-cleanup: `mask` 18×, `filter` 12×, `contrast` 8×, `edge` 7× (`lib/edge.m` shadows Image Processing Toolbox `edge` — deliberate, same name as the concept), `alpha` 4×, `type` 2×, `output` 2× — all fixed in zone-1 renames by whichever tranche touched them. Fresh scan of *remaining untouched* files (`+tinker/`, root): essentially clean except `type` as a loop variable in `+tinker/pink_noise_seed_multiple_energies.m:43` and a comment echo in `whitened_pn_stim_edge_energy.m:43`.
+- **Commented-out code.** 780 of 2,659 comment lines were dead code pre-cleanup (~29% of comments); by directory `+general/` 297, `+lib/` 282, `+experiment/` 116, `+tinker/` 55, root 18, `+vis/` 12, `+tests/` 0. 37 contiguous ≥5-line blocks form the real worklist (triaged in 3.1.4); the rest are scattered 1–2-line fragments triaged in passing. `edge_props_stim.m` alone held 197 lines (19 separate blocks, since triaged in tranche 0.1.3). **`+tinker/` (0.1.11, not started) still carries its full 55 lines untriaged.**
+- **Argument validation.** `arguments` blocks: 0, repo-wide, still true after a fresh check. `inputParser`: 11 files (was 9 at original survey — 2 more counted in the fresh full-repo scan, `+general/video_demo.m` and `+tests/block_jumping.m`, likely miscounted the first time rather than new). Deferred to Stage 3 (S1.12).
+- **Performance shape (fresh scan, new for this update).** `inv`/`pinv`/`det`-where-`\`-would-do: 1 hit, `+lib/gauss_llr.m:19` (a determinant ratio, not a solve — flagged, not a confirmed target, O3.4). File I/O inside loops: ~25 files (O3.1). Unpreallocated growth-by-concatenation: ~40 instances, ~20 files (O3.2). `parfor`: 24 loops, all apparently sliced except two no-op cases (`compute_noise_colour.m:81`, `pink_noise_seed_multiple_energies.m:21` — O2.1, O2.2). Full locations in 0.5.
+- **Is there any timing data at all?** 21 files have `tic`/`toc` pairs (all `+general/`, one `+experiment/+main/`, three `+tinker/`) but no logged runtime numbers and no README note on which stage is slow. Nobody knows where the wall-clock actually goes — stated plainly rather than inferred from loop nesting. This is why every Speed item above starts Unprofiled.
+
+**The style target already exists.** `../vislab-common/+vislab/+lib/watson_otf.m` — summary line, fully-qualified signature, `Inputs`/`Output` with units, `See also`. Two in-scope files share a name with (uncleaned ancestors of) shared-library functions: `+lib/ptch_norm.m`, `+lib/watson_otf.m` — explicitly not cleaned in this pass, repointing is S3.11's job.
+
+**Prior tooling** (`tools/`): `canon.m`, `check_stage1.m`, `assert_rename_bijection.m`, `golden_harness.m`, `golden_ref.mat` — all present and committed from tranche 0.1.0.
+
+</div>
+
+</details>
+
+---
+
+<details>
+<summary><h2 style="display:inline; margin:0; font-size:1.15em">3. Stage-by-stage details and work log</h2></summary>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h3 style="display:inline; margin:0; font-size:1.05em">4.1 Stage 1 — renaming zones, tranches, and findings log</h3></summary>
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">3.1 · Stage 1 · Style</h3></summary>
 
 <div style="margin-left:1.5em">
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h4 style="display:inline; margin:0; font-size:0.98em">4.1.1 Renaming: three zones</h4></summary>
+<summary><h4 style="display:inline; margin:0; font-size:0.98em">3.1.1 Renaming: the three zones, and the function/file map</h4></summary>
 
 <div style="margin-left:1.5em">
 
-The rename map is the pass's most valuable artifact and its main divergence risk — build it first, once, repo-wide, in tranche 0, and commit it before touching any file.
+**Casing.** `+lib/`, `+general/`, `+tinker/` are snake_case by established convention (tranches 0.1.2–0.1.4, 0.1.8–0.1.9). `+experiment/` (both subpackages) is camelCase by deliberate decision, not yet reconciled with the new mandate — see S2.19. `+vis/`/`+tests/` (0.1.10) is genuinely mixed by original authorship, harmonized per-file rather than repo-wide.
 
-**Zone 1 — file-local variables. Free.** `canon` makes these completely safe, so this is where nearly all the value is. Three sub-jobs: expand the abbreviations listed in section 1 (`ml`→`mean_lum`, `cont`→`contrast_rms`, `th`→`theta`, `amp`→`amplitude`, `len`→`n_samples`, `img`→`image_data` or better, `wn`/`wnf`→`white_noise`/`white_noise_filtered`, `mnv`, `haar`, `filt`, `XX`/`YY`, and the `+lib/` one-offs `nhood`, `ntype`, `xo`/`yo`, `sd`, `dc`, `m0`/`c0`); name every loop counter for what it indexes rather than `i`, `j`, `n`; and fix the builtin shadows — `mask`, `filter`, `contrast`, `alpha`, `type`, `output`, and the local variable `edge` inside `+lib/edge.m`. Bare single letters (`x` 150, `d` 94, `z` 51, `r` 47, `c` 43, `a` 37, `p` 34, `u` 33, `b` 24, `e` 23) are the bulk of the count and should be renamed per file to whatever the quantity actually is; do not try to give one of them a single repo-wide expansion, because `d` means distance in `+tinker/` and a `d'` sensitivity in `+experiment/+analysis/`.
+1. **File-local variables — free.** Cumulative vocabulary tables, one per completed tranche:
+   - **0.1.2** (`+lib/` core): `theta`/`theta_grid`/`theta_field`/`theta_edge`/`theta_lags`; `filter_kernel`; `stim_grad`; `grad_normal`; `edge_amplitude_spectrum`/`edge_power_spectrum`/`edge_phase_spectrum`; `white_noise_bg`/`white_noise_target`; `stim_bg`; `source_image`; `boundary_`/`texture_` prefixes; `n_scales`/`n_orientations`/`neighborhood_size`/`n_synthesis_iter`; `disc_mask`/`disc_size`/`disc_center`/`disc_radius`.
+   - **0.1.4** (`+lib/` remainder): `spatial_freq`/`pupil_diameter`/`wavelength`/`surround_shape_exponent`/`surround_strength`/`surround_size`/`center_size`/`params`/`atf`/`human_atf` (CSF family); `pink_noise`/`white_noise`/`pink_noise_filter`/`white_noise_fft`/`white_noise_filtered_fft`; `n_obs`/`mean_x`/`mean_y`/`mean_xy`/`mean_x2`/`mean_y2`/`corr_coeff` (+`_list`); `patch_coords_rc`; `x_grid`/`y_grid`/`envelope_radius`/`gabor_sd`/`amplitude`; `i_pixel`/`j_pixel`/`pixel_idx`/`next_pixel_idx`.
+   - **0.1.6** (`+experiment/+analysis/`): `threshold_scale`, `slope`, `bias`, `d_prime`, `p_hit`/`p_correct_rejection`/`p_correct`, `n_blanks`/`n_targets`/`n_hits`/`n_correct_rejections`, `log_likelihood`/`neg_log_likelihood`, `exponent` (split `threshold` vs `edge_threshold` across sibling files — see B3.10), `edge_response`/`response_blank_means`/`response_blank_sds`/`response_target_means`/`response_target_sds`.
+   - **0.1.7** (`+experiment/` top level): `luminance`/`contrast` (overriding the original prediction of `mean_lum`/`contrast_rms`, per decision A below); `mask_strip`; `shape_exponents`/`texture_exponents`; `filePathOut`; `patchIndex`; `n_scales`/`n_orientations`/`neighborhood_size`/`n_synthesis_iter`; `source_image`/`source_image_path`; `kernel_sigma`.
+   - **0.1.8** (`+general/` live model chain): `d_prime`/`d_primes`/`d_primes_model`/`d_prime_subj`/`d_prime_contributions`; `noise_sd`; `edge_count_z`; pooled response moments (as 0.1.6); `d_prime_hit_false_alarm`/`false_alarm_rate`; `error_rates_model`/`error_rates_subj`/`error_rate_sd_subj`; `efficiency_scalar`/`squared_error`; `overall_boundary`; `norm_mean`/`norm_contrast`/`norm_type`; `patch_row_start`/`patch_col_start`; `patch_size`/`patch_padded_size`/`max_filter_size`/`source_image_size`/`n_elements`; `kernel_sigma_list`/`kernel_sigma_max`/`kernel_n_sigma`; `source_image_rgb`/`_grey`/`_otf`/`_path`; `filter_kernel`; `corr_raw`/`corr_pca`; `trial_grid`/`level_grid`/`session_grid`.
+   - **0.1.9** (`+general/` remainder): `perf`→`accuracy`; `hitRate`/`faRate`/`dPrime`→`hit_rate`/`false_alarm_rate`/`d_prime`; `t`/`h`/`c`→`target_present`/`hits`/`correct_rejection`; `ep`→`edge_power`; `bd_strip`/`bd_pixels`→`mask_strip`/`boundary_edge_pixels`; `input_img`/`im0`→`source_image_path`/`source_image_grey`; `th`/`th_bin`→`theta`/`theta_bin`; `thislevel`→`this_level`.
+   - **0.1.10** (`+vis/`+`+tests/`): per-file only, no shared cross-file vocabulary.
+   - **0.1.11, 0.1.12** (`+tinker/`, root): not started — the abbreviation list in section 2 above (`stim`, `x`, `d`, `seed`, `n`, `cont`, `ml`, `N`, `S`, `z`, `len`, `idx`, `y`, `r`, `c`, `a`, `mask`, `p`, `u`, `img`, `f`, `th`, `b`, `e`, `amp`, `ppd`, plus `+tinker/`-specific `XX`/`YY`, `mnv`, `grad`, `haar`, `filt`, `wn`, `wnf`, `N_b`) is still live there.
 
-**Zone 2 — cross-file name-value parameters. Repo-wide, or not at all.** The public vocabulary is **37 distinct name-value parameter names across 55 declaration sites**, nearly all declared in `+lib/`. Renaming one means editing a string literal at every call site, which is a real AST change — so **this zone is deferred entirely to Stage 3 (S3.9)** and no Stage 1 tranche may touch it. The measured call-site counts, which are what decide whether each is worth doing:
+2. **Cross-file vocabulary — repo-wide, or not at all.** Three kinds:
+   - **Function and file names** — this tranche (0.1.1), **not run yet**. Candidate families surfaced by the fresh survey: the `compute_edge_props_exp*` sprawl (5 siblings, no precedence scheme), the `plot_*`/`show_*`/`view*` split (6 files, 3 directories, no verb rule), the `fit_*` camel/snake split, the triplicated `gammaCorrect`. No map committed to yet — building it is 0.1.1's job.
+   - **Function arguments named consistently across the repo** — 37 distinct parameter names, 55 declaration sites (full call-site table: `target_radius` 34 sites, `texture` 24, `ml_b`/`cont_b` 23 each, `bg_size` 20, `kernel_size` 13, `seed` 8, plus 13 declared-but-never-passed names). **Deferred to Stage 3 (S1.9)** — high value, everywhere, but a half-done rename is worse than none.
+   - **The config struct** — 33 `ExpSettings` fields + 8 `SubjectExpFile` fields, dot-qualified so `check_stage1` can't see them. **Deferred to Stage 3 (S3.10)**.
 
-| Parameter | Declared at | Call sites |
+3. **Serialised variable names — frozen.** `ExpSettings`, `SubjectExpFile`, `Stimulus`, `edge_powers`, `edgePowerBlockEdges`, `edge_props`, `seed_energy`, `stim_energy`, `d`, `corr_cross`, `corr_blank_cross`, `corr_target_cross`, `LLR_blank`, `LLR_target`, plus `cdfs.mat`'s `ea,Na,eb,Nb,er,Nr,egm,Ngm,coeff`. Plus **all 33 `ExpSettings` fields and all 8 `SubjectExpFile` fields** — struct fields evade the rename regex, the trap `check_stage1` cannot catch.
+
+**Function and file rename map** (step 2a — 0.1.1, not started). No map committed yet. Family rules to decide before building it: one verb for `plot_*`/`show_*`/`view*` (currently split three ways with no rule), a precedence/naming scheme for the `compute_edge_props_exp*` five-way sprawl, and where the triplicated `gammaCorrect` implementations converge (ties to S1.14, since that's the same finding as a Structure item — the rename and the consolidation are two different jobs on the same three files).
+
+| old file | new file | why |
 |---|---|---|
-| `target_radius` | `+lib/stimulus.m:55`, `+lib/target_mask.m:8` | 34 |
-| `texture` | `+lib/stimulus.m:51` | 24 |
-| `ml_b` | `+lib/stimulus.m:59` | 23 |
-| `cont_b` | `+lib/stimulus.m:60` | 23 |
-| `bg_size` | `+lib/stimulus.m:49`, `+lib/target_mask.m:5` | 20 |
-| `kernel_size` | `+lib/edge.m:34`, `edge_vector_ideal.m:10`, `steerable_grad.m:7` | 13 |
-| `seed` | `+lib/stimulus.m:53` | 8 |
-| `grad_mag_bins`, `grad_or_bins`, `grad_prod_bins` | `+lib/edge_props_stim.m:16-18` | 5 each |
-| `pca_coeffs`, `edge_pixels` | `+lib/edge_props_stim.m:15,20` | 4 each |
-| `target_loc` | `+lib/stimulus.m:57` | 4 |
-| `ml_t`, `cont_t` | `+lib/stimulus.m:61,62` | 4 each |
-| `mask` | `+lib/edge.m:30` | 3 |
-| `mask_edge`, `mask_normal`, `target_shape` | `+lib/edge.m:31,32`; `+lib/stimulus.m:54` | 2 each |
-| `normalize` | `+lib/steerable_grad.m:10` | 2 |
-| `texture_bg` | `+lib/stimulus.m:52` | 2 |
-| `bdry_strip` | `+lib/edge_measures.m:7` | 1 |
-| `target_or` | `+lib/stimulus.m:58` | 1 |
-| 13 declared but never passed: `n_edge`, `pad_val`, `target_radius_cont`, `edge_detection_filter`, `thresh`, `edge_kernel`, `stim_raw`, `stim_type`, `otf_ppd`, `grad_hist_thresh`, `nbins_grad_or`, `target_normal`, `filter` | various | 0 |
+| *(not yet built)* | | |
 
-When S3.9 happens, the cheap and high-value ones are the scientifically meaningful names with four or fewer call sites — `target_or`, `bdry_strip`, `normalize`, `target_shape`, `ml_t`, `cont_t` — plus the 13 zero-call-site declarations, which can be renamed for free today. The expensive ones are `target_radius` (34), `ml_b`/`cont_b` (23 each), and `kernel_size` (13); do those in one commit or not at all, since a half-done rename is worse than none.
+**The four sweeps the check cannot do for you** — not yet run, since 0.1.1 hasn't started.
 
-**Zone 3 — serialised names. Frozen.** These appear inside `save`/`load` string literals, so ~100 GB of collected human data depends on them. **The string literal cannot change**; a local variable that merely *holds* one of these can. The full set, enumerated from every `save`/`load` call in scope: `ExpSettings`, `SubjectExpFile`, `Stimulus`, `edge_powers`, `edgePowerBlockEdges`, `edge_props`, `seed_energy`, `stim_energy`, `d`, `corr_cross`, `corr_blank_cross`, `corr_target_cross`, `LLR_blank`, `LLR_target`, and `cdfs.mat`'s `ea, Na, eb, Nb, er, Nr, egm, Ngm, coeff`. Beyond those, **every field of `ExpSettings` (33 fields) and `SubjectExpFile` (8 fields) is frozen too**, and this is the trap the check will not catch for you: `check_stage1`'s regex excludes dot-qualified names, so renaming a local variable `edgePowers` while `ExpSettings.edgePowers` must stay produces a **clean pass and a mismatched codebase**. Where that happens, note the resulting local-vs-field mismatch in the file's header. Note also that `d` is frozen in `+tinker/pink_noise_stimuli_autocorrelations.m` and completely free in the 90-odd other places it appears — check the file, not the name.
-
-**Units are the other half of naming.** State them in every header. This repo's conventions: `kernel_size` is `[sigma, n_sigma]` in **pixels**; `target_radius` is in **pixels**, while the paper reports degrees at 60 ppd; `ppd` is pixels per degree (60 for the stimuli, but 106 in `compute_nat_img_eff_coding_bins.m` — see B1.10); `wavelength` is nm and `pupil_diameter` is mm; `ml`/`cont` are mean luminance in [0,1] and RMS contrast as a fraction. And beware names that are already lies: in `+lib/local_sd.m` the variable called `filter_radius` is actually the *product* `kernel_size(1)*kernel_size(2)`, and `ExpSettings.monitor_distance` holds 60 pixels per degree (B3.8). That class of misnaming is exactly what this pass exists to fix.
+**Units.** State pixels vs. degrees, mm, nm, "integer divisor not degrees" in every header — done per-tranche as headers are rewritten; not separately tabulated here.
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h4 style="display:inline; margin:0; font-size:0.98em">4.1.2 Tranches, sequencing, and model assignment</h4></summary>
+<summary><h4 style="display:inline; margin:0; font-size:0.98em">3.1.2 Tranches, sequencing, and model assignment</h4></summary>
 
 <div style="margin-left:1.5em">
-
-Batched by directory but sized by lines, because the distribution is so skewed: 122 of the 164 in-scope files are under 75 lines while eight files hold a quarter of the code. `+lib/` is split into three tranches so that the naming-critical core is settled by a strong model before the long tail is handled mechanically, and `+general/` into two for the same reason. `+stats/` does not appear at all — all 12 of its files are `_`-prefixed and out of scope.
-
-The **Agent** column is what the orchestrator dispatches to, per the skill's "Dispatching tranches" section. Tranches run **in order, one at a time**, because each one's naming decisions bind the next. Dispatch `matlab-cleanup-mechanical` with an explicit `model: "sonnet"`; dispatch the three opus agents with no `model` parameter at all, so their frontmatter effort setting applies.
 
 | # | Tranche | Files / lines | Agent | Why |
 |---|---|---|---|---|
-| 0 | Rename map + `canon`/`check_stage1`/`assert_rename_bijection` + golden harness | — | `matlab-cleanup-lead` | Every other tranche trusts this being right; a bug here silently invalidates every downstream `isequal` result |
-| 1 | `+lib/` edge & stimulus core: `stimulus.m`, `target_mask.m`, `edge.m`, `edge_vector_ideal.m`, `edge_measures_ideal.m`, `edge_measures.m`, `edge_energy.m`, `edge_shape.m`, `edge_response.m`, `edge_fit_cost.m`, `steerable_grad.m`, `steerable_filter.m`, `local_sd.m`, `compute_pClipped.m` | 14 / 948 | `matlab-cleanup-lead` | **Sets the naming conventions for the whole repo.** These are the functions whose vocabulary every other directory borrows |
-| 2 | `+lib/edge_props_stim.m` | 1 / 535 | `matlab-cleanup-lead` | Largest file in the repo, holds the largest commented-out block, and is the front end of the model pipeline. Needs judgement, not throughput |
-| 3 | `+lib/` remainder (41 files, none over 125 lines) | 41 / 1,484 | `matlab-cleanup-mechanical` | One decision applied many times, once tranche 1 has fixed the vocabulary |
-| 4 | `+experiment/+main/` incl. `testscripts/` | 11 / 714 | `matlab-cleanup-mechanical` | Psychtoolbox runtime; self-contained, camelCase, no cross-file naming to settle |
-| 5 | `+experiment/+analysis/` | 12 / 787 | `matlab-cleanup-mechanical` | Psychometric fitting; the three golden-checkable functions live here |
-| 6 | `+experiment/` top level, including the 15 near-duplicate variant files | 26 / 1,390 | `matlab-cleanup-lead` | The `{setUpExperiment, sessionSettings, generate_camouflage_stimuli} × 5` families need the *same* edit applied five times. Drift between the base file and a variant manufactures exactly the divergence S3.3 exists to remove. **Clean the base file first, then apply identical edits to the four variants, then diff base against variant to confirm** |
-| 7 | `+general/` live model chain: `compute_nat_img_eff_coding_bins.m`, `compute_edge_props_exp_pca.m`, `fit_edge_model_with_exps.m`, `compute_nll_edge_model.m` | 4 / 833 | `matlab-cleanup-lead` | The only files feeding the paper's model figure, and the only function in `+general/`. Three of the ten severity-1 bugs live here |
-| 8 | `+general/` remainder | 27 / 1,641 | `matlab-cleanup-mechanical` | Top-level scripts, no cross-file propagation risk |
-| 9 | `+vis/` + `+tests/` | 10 / 484 | `matlab-cleanup-mechanical` | Plotting and ad-hoc scripts; no callers outside themselves |
-| 10 | `+tinker/` | 13 / 1,040 | `matlab-cleanup-mechanical` | Large exploratory files with no callers — last, per the skill's sequencing rule |
-| 11 | Root: `config.m`, `setup.m`, `edge_power_demo.m`, `test.m`, `test_Erlang.m` | 5 / 356 | `matlab-cleanup-lead` | The config file and the user-facing demo go late and get the strongest model |
+| 0.1.0 | Tooling + rename map + golden harness | — | `matlab-cleanup-lead` | Everything else trusts this |
+| 0.1.1 | Function and file renames, repo-wide | all files | `matlab-cleanup-lead` | Should have gone before 0.1.2–0.1.10; didn't. Repo-wide, never parallel |
+| 0.1.2 | `+lib/` edge & stimulus core | 14 / 948 | `matlab-cleanup-lead` | Set in-file naming conventions |
+| 0.1.3 | `+lib/edge_props_stim.m` | 1 / 535 | `matlab-cleanup-lead` | Largest single file |
+| 0.1.4 | `+lib/` remainder | 39 / 1484 | `matlab-cleanup-mechanical` (sonnet) | Mechanical once 0.1.2's vocabulary exists |
+| 0.1.5 | `+experiment/+main/` | 11 / 714 | `matlab-cleanup-mechanical` (sonnet) | Own camelCase family, self-contained |
+| 0.1.6 | `+experiment/+analysis/` | 12 / 787 | `matlab-cleanup-mechanical` (sonnet) | Mixed camel/snake, self-contained |
+| 0.1.7 | `+experiment/` top level | 26 / 1390 | `matlab-cleanup-lead` | Variant-family judgment calls |
+| 0.1.8 | `+general/` live model chain | 4 / 833 | `matlab-cleanup-lead` | `eval`/bare-`load` frozen names, highest risk |
+| 0.1.9 | `+general/` remainder | 27 / 1641 | `matlab-cleanup-mechanical` (sonnet) | Mechanical once 0.1.8's vocabulary exists |
+| 0.1.10 | `+vis/` + `+tests/` | 10 / 484 | `matlab-cleanup-mechanical` (sonnet) | Small, per-file convention |
+| 0.1.11 | `+tinker/` | 13 / 1040 | `matlab-cleanup-mechanical` (sonnet) | Mechanical once repo vocabulary exists |
+| 0.1.12 | Root files | 5 / 356 | `matlab-cleanup-lead` | User-facing driver, config, demo |
 
-**Escalation rule, any tranche:** if `check_stage1` fails and the cause isn't obvious from the diff — stop, don't retry with a bigger prompt, hand that one file to `matlab-cleanup-escalation`. Don't loosen the check instead.
+**Escalation rule:** if `check_stage1` fails and the cause isn't obvious from the diff — stop, hand the file to `matlab-cleanup-escalation`, don't loosen the check.
 
-**"Done" checklist for a Stage 1 tranche:**
+**"Done" checklist** — as in the skill's Step 3, plus: every identifier the repo owns is snake_case except external-API/frozen/class names (not yet satisfied by 0.1.2–0.1.10, see S2.19); each file's `function` line agrees with its filename (not yet checked repo-wide — 0.1.1's job).
 
-- [ ] `check_stage1(old, new, renames)` true for every file, with the **verbatim checker output** pasted into the tranche's findings-log entry — a claim that it passed is not evidence.
-- [ ] Every file has a header matching `watson_otf.m`'s shape: summary, fully-qualified signature, `Inputs`/`Output` with units, `See also`.
-- [ ] Formatting harmonized per the skill's step 2b: `=` and binary operators spaced, space after commas, no space inside brackets, 4-space indent, no tabs, no trailing whitespace, one space after `%`.
-- [ ] No line exceeds 100 characters except documented string-literal exceptions, listed per tranche in section 4.1.3 — each would require turning a string literal into a `horzcat` expression, a real AST change Stage 1 forbids.
-- [ ] No zone-3 frozen identifier renamed, no `save`/`load` string literal changed, and any local-variable-vs-struct-field mismatch created by a rename noted in the file's header.
-- [ ] No zone-2 name-value parameter renamed — that is deferred to S3.9.
-- [ ] Each package touched has a `Contents.m`, following `vislab-common/+vislab/+lib/Contents.m`.
-- [ ] `+experiment/` files stay camelCase and `+lib/`/`+general/`/`+tinker/` files stay snake_case — harmonise within a directory, do not convert between them.
-- [ ] Every commented-out block in the tranche's files has a verdict in section 4.1.4, and nothing was deleted or converted on the strength of it.
-- [ ] Bugs found are written into section 0.4 with a severity tag, and **not** fixed.
-
-One commit per tranche, per the skill's Committing section, each stating the checker result and that it was run under MATLAB R2024b.
-
-**Housekeeping to do first, in the tranche-0 commit:** create `tools/` and add the three checker scripts plus the golden harness; nothing else in this repo needs moving, since the only filename-conflict copies (`+lib/ptch_norm.m`, `+lib/watson_otf.m`) are being excluded from cleaning rather than relocated, and are dealt with by S3.11.
+One commit per tranche, per the skill's Committing section.
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h4 style="display:inline; margin:0; font-size:0.98em">4.1.3 Findings log</h4></summary>
+<summary><h4 style="display:inline; margin:0; font-size:0.98em">3.1.3 Findings log</h4></summary>
 
 <div style="margin-left:1.5em">
-
-Prose entries, one per tranche, written as the tranche finishes and never retroactively tidied. Each records the naming decisions that bind later tranches and why, the documented line-length exceptions, which baseline the verification used (HEAD, or a pre-edit backup copy) and why, and anything deliberately left alone. A tranche that found nothing still gets an entry saying what was checked — that is the evidence it was examined.
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0 — tooling</h5></summary>
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.0 — tooling</h5></summary>
 
 <div style="margin-left:1.5em">
 
-**Done**, under **MATLAB 24.2.0.2923080 (R2024b) Update 6** — the version string is printed by `version` and is what every `canon`-based result below is pinned to, since `mtree`/`tree2str` are undocumented. Commit: the tooling commit named in the git log.
-
-**What was built.** Four files in `tools/`, none of which existed before:
-
-- `tools/canon.m`, `tools/check_stage1.m`, `tools/assert_rename_bijection.m` — copied from the skill, repo-agnostic. The only edit made to the copies: their `See also` lines and one body comment referred to `CHECK_TIER_A`, a function that does not exist under that name any more, so those three references now read `CHECK_STAGE1`. This is a deliberate divergence from the skill's copies; re-apply it if they are ever re-synced.
-- `tools/golden_harness.m` plus its captured `tools/golden_ref.mat` (1.3 kB, 32 fields). Both are committed, because the reference file is what `replay` checks against.
-
-**`canon` verified on every in-scope file — 164 of 164 parse and print.** Verbatim output of the sweep (`canon` called on each file, with the vendored tree, the `_`-prefixed files and `tools/` itself excluded):
-
-```
-24.2.0.2923080 (R2024b) Update 6
-in-scope files: 164
-canon OK      : 164
-canon FAILED  : 0
-```
-
-**Scope, re-confirmed while building the sweep.** A raw find turns up **166** non-vendored, non-`_`-prefixed `.m` files, not 164. The two extras are `Presentations, reports, abstracts/cps_intclassnorm_demo.m` and `Presentations, reports, abstracts/2025 VSS/pca_demo.m`. That whole directory is gitignored (`.gitignore:4`), so it is correctly out of scope and section 1's count stands — but the sweep has to exclude it by name, and so does any later file-list generator. Excluding it is not an oversight to be "fixed" by a later tranche.
-
-**`check_stage1` self-tested before anything trusts it**, on `+lib/csf_fitted.m`, with a scratch copy carrying a realistic Stage 1 edit (header added, `n`→`n_terms`, `d`→`pupil_diameter`, `w`→`wavelength`, `u`→`spatial_freq`, `z`→`sensitivity`, `p`→`params`, the packed `n = 2; d = 4; w = 555;` line split one-per-line, and a `...` continuation introduced). Verbatim:
-
-```
-identical, no renames : 1
-different file        : 0
-renamed + reformatted : 1
-one constant changed  : 0
-bijection guard fires : a name appears on both sides of the rename map
-```
-
-The fourth line is the one that matters: changing `a = 0.8563` to `0.8564` and nothing else is caught. The third confirms the skill's claim that splitting packed statements and adding continuations round-trips clean.
-
-**The golden harness covers 32 fields across 16 entry points**, called directly — never through `edge_power_demo.m`, which is the repo's demo driver. Covered: `lib.steerable_filter`, `lib.csf_fitted`, `lib.compute_pClipped`, `lib.create_pink_noise_square`, `lib.whiten`, `lib.target_mask` (both the circular and the filtered-noise branch), `lib.stimulus`, `lib.steerable_grad`, `lib.local_sd`, `lib.edge`, `lib.edge_vector_ideal`, `lib.edge_measures_ideal`, `lib.autocorr`, and `experiment.analysis.psychometricFun` / `computeNegLogLikelihood` / `fitPsychometric`. Everything else is pattern-check only, per the decision already recorded in sections 2 and 4.2. Capture-then-replay was run and matched:
-
-```
-golden_harness: captured 32 fields to tools/golden_ref.mat
-golden_harness: replay matched all 32 fields
-```
-
-Four decisions inside the harness that later tranches inherit:
-
-1. **The reduction is not a plain sum.** The first capture used the template's `sum(x(:))` and immediately produced a false-safe fingerprint: `lib.create_pink_noise_square`, its own white noise, and `lib.whiten` all reduced to the **same** number, 69.7224, because the 1/f filter leaves the FFT origin at 1 and so preserves the DC term. Any edit that changed the filtering would have replayed clean. The fingerprint is now the 1×5 row `[sum, sum of squared magnitudes, index-weighted sum, NaN count, element count]` over the non-NaN elements in column order — order-sensitive and magnitude-sensitive. **Do not weaken this back to a sum when adding entry points in 0.2.0.**
-2. **NaN-aware, deliberately.** `lib.steerable_grad` pads with NaN (3000 of its 32768 elements here). A plain sum collapses such an output to NaN, and `isequal(NaN, NaN)` is true, so every NaN-padded output would have compared equal to every other. The NaN count is carried as its own term instead.
-3. **`lib.compute_pClipped` is exercised on a synthetic clipped array**, not only on a real stimulus. On a real stimulus it returns exactly 0, which is a degenerate fingerprint that any broken rewrite would still match. The synthetic case returns 0.5 and trips the function's own `>1%` warning — **that warning in the harness log is expected, not a failure.**
-4. **Seeding.** `lib.stimulus` self-seeds (`rng('default'); rng(seed)` at `+lib/stimulus.m:82-83`), but `lib.create_pink_noise_square` and the non-circular branch of `lib.target_mask` call `normrnd` and do not, so the harness calls `rng(cfg.seed)` before every block regardless — blocks stay order-independent. Toolbox gating is on `normcdf`/`knnsearch` (Statistics) and `stdfilt`/`bwboundaries` (Image Processing), warning rather than erroring.
-
-**Harness runtime is about 55 s, nearly all of it the parallel-pool start** that `lib.autocorr`'s `parfor` forces. Keeping `lib.autocorr` in was a deliberate trade: it is the only golden coverage of any `parfor` loop in the repo. Note also that replay output is noisy — `+lib/autocorr.m:9` has a bare unsuppressed `i` inside the loop, so a handful of `ans = 4` / `ans = 3` lines are printed out of worker order. That is a Stage 2 `NOSEMI` target (tranche 3), not a harness fault; grep for the `golden_harness:` line rather than reading the whole log.
-
-**`parfor` re-confirmed by reading all 16 loop bodies, not taken on trust from the survey.** Every one writes only into a sliced output indexed by the loop variable — `edgePowers(iTrial,...)`, `stimuli(:,:,iTrial,...)`, `stim_l_groups{iTrial,...}`, `corr_cross(:,seed)`, `temp_response(seed,:)`, `autocorrs(:,:,n)`, `stim_f(:,:,i)`, `stim_energy(i,:)`, `r(i,j)`. **There is no accumulator anywhere**, so worker order cannot change a float sum and none of them needs to be touched. **Any edit that turns one of these slices into a reduction variable is a behaviour change and belongs in Stage 3.** Two loops produce no output at all: `+general/compute_noise_colour.m:81` (already recorded in section 2 — its body only plots, and plotting inside `parfor` is a no-op) and, newly noticed, `+tinker/pink_noise_seed_multiple_energies.m:21`, whose only output assignment is the commented-out `seed_energy_whitened(seed,:)=...` at `:38-39`. The second one is exploratory `+tinker/` code and is already on the triage worklist as block `27-39`, so tranche 10 should judge it there rather than treating it as a separate finding.
-
-**Baseline decision for the dirty working tree — this binds every later tranche, decide nothing per-tranche.** `git status` at the time of this entry: the 29 `_`-prefix renames staged, `README.md` modified, `docs/` untracked, and two **in-scope** files carrying uncommitted edits — `+general/compute_nat_img_eff_coding_bins.m` and `+general/fit_edge_model_with_exps.m`, each with one live and one commented-out `colorbarpzn(...)` → `vislab.lib.colorbarpzn(...)` repoint. The live one is a real AST change, so:
-
-- **For those two files only, HEAD is not a valid Stage 1 baseline.** Tranche 7 must copy the current on-disk content aside *before editing* and run `check_stage1` against that copy. Diffing them against HEAD will show a false change that is not the tranche's doing.
-- **For every other in-scope file, HEAD is the baseline.** The `_`-prefix renames are staged but out of scope, and `README.md` is not a `.m` file.
-- The repointing was deliberately **not** committed here to make HEAD clean. It is someone else's uncommitted work; blessing it inside a tooling commit would hide it in a diff nobody would look at again.
-
-**`which_sweep.m` was not adopted into `tools/`, and that is a decision, not an omission.** The scratch sweep checks that every package-qualified reference resolves. It catches a *function* rename that broke a call site — but Stage 1 renames only file-local variables (zone 1), while zone 2 is deferred to S3.9 and zone 3 is frozen, so no Stage 1 tranche can create the damage the sweep detects. Its value is real but it belongs where the plan already puts it: as part (d) of the S3.5 smoke test, run when function-level renames actually start. Re-open this if any tranche finds itself wanting to rename a function.
-
-**Housekeeping.** None was needed beyond creating `tools/`, exactly as section 4.1.2 predicted: the only two filename collisions with the shared library, `+lib/ptch_norm.m` and `+lib/watson_otf.m`, are excluded from cleaning rather than moved, and are S3.11's problem.
-
-**No new bugs found.** `checkcode` on the four `tools/` files is clean. One cosmetic thing for tranche 1 to pick up rather than a bug: `lib.compute_pClipped` warns with the text "% of boundary ribbon clipped" no matter what it is handed, though it is a general-purpose clipping fraction — that is a header/message wording fix, well inside Stage 1.
-
-**Rename map.** Nothing new to build: section 4.1.1 already carries the three zones, measured, from the survey — zone 1 free, zone 2 (37 name-value parameters, 55 declaration sites) deferred whole to S3.9, zone 3 (the `save`/`load` literals plus all 33 `ExpSettings` and 8 `SubjectExpFile` fields) frozen. It was re-read and is the map tranche 1 works from. Tranche 1 sets the concrete zone-1 expansions for the shared vocabulary and must record them here, since every later tranche will be told to follow whatever it writes down.
+MATLAB R2024b Update 6. `canon` verified on 164/164 in-scope files. Golden harness covers 32 fields / 16 entry points; capture-then-replay matched. Four design decisions: (1) reduction is a 5-field vector, not a plain sum — a naive sum gave a false-safe collision (69.7224 across three different functions); (2) NaN-aware via a separate NaN count; (3) `compute_pClipped` exercised on synthetic clipped data, not just a real stimulus; (4) always explicitly seeds via `rng(cfg.seed)`. Runtime ~55s, mostly parallel-pool startup. `parfor` confirmed safe for all 16 loops known at the time (later found to be 24 once `+tinker/`/root were counted). **Baseline decision, binding on all later tranches:** `+general/compute_nat_img_eff_coding_bins.m` and `+general/fit_edge_model_with_exps.m` carried an uncommitted live+commented `colorbarpzn(...)`→`vislab.lib.colorbarpzn(...)` repoint at tooling-commit time — not this repo's work, deliberately not committed here (kept clean of an unrelated in-progress edit); HEAD is not a valid baseline for those two files specifically. `which_sweep.m` explicitly not adopted into `tools/` (deferred to S3.5(d)).
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h5 style="display:inline; margin:0; font-size:0.92em">Tranche 0.1.1 — <code>+lib/</code> edge &amp; stimulus core (14 files, 948 lines)</h5></summary>
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.2 — `+lib/` edge & stimulus core (14 files, 948 lines)</h5></summary>
 
 <div style="margin-left:1.5em">
 
-**Done**, under **MATLAB 24.2.0.2923080 (R2024b) Update 6**. Files: `stimulus.m`, `target_mask.m`, `edge.m`, `edge_vector_ideal.m`, `edge_measures_ideal.m`, `edge_measures.m`, `edge_energy.m`, `edge_shape.m`, `edge_response.m`, `edge_fit_cost.m`, `steerable_grad.m`, `steerable_filter.m`, `local_sd.m`, `compute_pClipped.m`. **This entry is binding on tranches 0.1.2–0.1.11**; the conventions below were chosen once, here, and later tranches follow them rather than re-deriving them.
+Baseline: HEAD. All 14 passed `check_stage1` first try (24/14/13/18/4/5/5/10/7/1/12/3/6/0 renames). Golden harness replayed clean (32/32). `checkcode` unchanged (8 messages, same ids/files). **Binding entry for 0.1.3–0.1.12** — established conventions 1–7 (see below) plus the vocabulary table (3.1.1). Line-length exceptions: 3, all commented-out lines in `edge_measures.m` (115/117/124 chars). Bugs found: B2.13, B2.14, B3.13, B3.14.
 
-**Baseline: HEAD, for all 14.** `git status` showed no in-scope `+lib/` file dirty, and `git diff HEAD -- '+lib/'` was empty before any edit, so the tooling entry's rule applies unchanged. The pre-edit copies were extracted with `git show HEAD:+lib/<f>.m` into a scratch directory and `check_stage1` was run against those. The two files carrying uncommitted `colorbarpzn` repoints are both in `+general/` and were not touched.
-
-**Verbatim checker output.** The sweep script builds each file's rename map, runs `assert_rename_bijection` (inside `check_stage1`) and then the reverse-rename comparison:
-
-```
-24.2.0.2923080 (R2024b) Update 6
-check_stage1 stimulus               1  (24 renames)
-check_stage1 target_mask            1  (14 renames)
-check_stage1 edge                   1  (13 renames)
-check_stage1 edge_vector_ideal      1  (18 renames)
-check_stage1 edge_measures_ideal    1  (4 renames)
-check_stage1 edge_measures          1  (5 renames)
-check_stage1 edge_energy            1  (5 renames)
-check_stage1 edge_shape             1  (10 renames)
-check_stage1 edge_response          1  (7 renames)
-check_stage1 edge_fit_cost          1  (1 renames)
-check_stage1 steerable_grad         1  (12 renames)
-check_stage1 steerable_filter       1  (3 renames)
-check_stage1 local_sd               1  (6 renames)
-check_stage1 compute_pClipped       1  (0 renames)
-files checked : 14
-check_stage1 true : 14
-check_stage1 false: 0
-```
-
-Stage 1 does not require a runtime check, but eight of these files are inside the golden harness, so it was replayed as a free extra confirmation:
-
-```
-golden_harness: replay matched all 32 fields
-```
-
-`checkcode` over the 14 files gives **the same 8 messages before and after**, the same ids in the same files — `stimulus` ASGLU ×3, `edge` NANMEAN, `edge_vector_ideal` NANMEAN, `edge_energy` DSPNORM, `compute_pClipped` LOGSUM ×2. No lint was introduced and none was fixed; all 8 are Stage 2 or Stage 4 work.
-
----
-
-**Binding convention 1 — one old name maps to exactly one new name, per file.** This is a hard constraint, not a preference: `check_stage1` reverse-renames the canonical text globally, and `assert_rename_bijection` rejects a map where two new names share an old one. So where one file reuses a letter for two different roles, **you get one name for both**. It bit three files here. `+lib/edge.m` and `+lib/edge_vector_ideal.m` each use `i` as a pixel row index in the circular branch and as an index into a list of edge pixels in the other branch; `+lib/edge_shape.m` uses `i` for pixel rows and then for autocorrelation lags. In all three the name chosen was `i_row`, fitting the first use, with a two-line comment at the second site saying plainly that `i_row` indexes something else there and why it cannot be renamed separately. **Splitting such a variable into two is a Stage 3 change; do not attempt it in Stage 1, and do not "solve" it by leaving the counter as `i`.**
-
-**Binding convention 2 — loop counters.** In the snake_case directories (`+lib/`, `+general/`, `+tinker/`), a loop counter is `i_<thing>`: `i_row`, `i_col`, `i_lag`, `i_exp`, `i_longest`, `i_unique_theta`. This is not invented — `+lib/edge_fit_cost.m` already wrote `i_exp` and `+lib/edge_props_stim.m` already writes `i_scale`. In `+experiment/` the equivalent is the existing camelCase `iTrial`/`iLevel`, which stays. **Pixel loops are `i_row`/`i_col`, never `row`/`col`**, because `row`/`col` is already taken in this code for *vectors* of found pixel coordinates (`[row,col] = find(mask_edge)`), and using the same words for a scalar index and a vector is what forces the collision in convention 1. Those coordinate vectors were renamed to `edge_rows`/`edge_cols`.
-
-**Binding convention 3 — a local variable that mirrors a zone-2 name-value parameter keeps the parameter's exact name.** `bg_size`, `target_radius`, `target_shape`, `target_loc`, `target_or`, `kernel_size`, `n_edge`, `mask`, `mask_edge`, `mask_normal`, `ml_b`, `cont_b`, `ml_t`, `cont_t`, `texture`, `texture_bg`, `seed`, `pad_val`, `normalize`, `bdry_strip`, `edge_kernel`, `target_radius_cont` were all left alone for this reason, even where the name is poor (`ml_b`, `cont_b`). Renaming the local would pass the check — `parser.Results.ml_b` is dot-qualified and the regex skips it — and would leave the file reading `mean_lum_bg = parser.Results.ml_b`, which is worse than either name alone. Section 4.1.1's promised `ml`→`mean_lum` and `cont`→`contrast_rms` expansions therefore **do not happen in Stage 1 anywhere the name is a parameter**; they belong to S3.9, which renames the parameter and every call site together. A local that merely *holds* a parameter's value under a different name of its own is still free.
-
-**Binding convention 4 — header shape.** Exactly the exemplar's: `% FUNCTION_NAME  One-line summary.`, then the fully-qualified call signature(s) indented three spaces, a blank comment line, prose, an `Inputs` block, an `Output`/`Outputs` block, then `See also`. `See also` targets are written **package-lowercase, function-uppercase** — `lib.STEERABLE_GRAD`, matching `vislab.lib.OTF_FILTER` in the exemplar. Every input and output line states a unit or says the quantity is dimensionless. Where a recorded bug makes the documented behaviour a lie, the header says so and cites the bug id, rather than quietly documenting the intent.
-
-**Binding convention 5 — function bodies are indented four spaces, and every function file ends with `end`.** Half of these files indented the body and half did not; the exemplar indents, so all 14 now do. The terminal `end` was likewise inconsistent. Both were verified to round-trip clean through `canon` on a probe file before being applied — `tree2str` supplies a missing `end` and normalises indentation, so neither is visible to the check.
-
-**Binding convention 6 — author attribution moves to the bottom of the header**, just above `See also`, instead of sitting between the summary line and the examples. It was only present in `stimulus.m` and `edge.m`; both now carry it in the new position. Later tranches should place any attribution block the same way and should not add one where none existed.
-
-**Binding convention 7 — cross-boundary names are harmonised toward the caller's word, not the callee's**, when the two disagree and both are file-local. The concrete case here: `lib.target_mask` returned `target_normal` and `bd_strip`, while every caller catches them as `mask_normal` and (in `lib.stimulus`) `mask_strip`. The outputs are now `mask_normal` and `mask_strip`, so the whole `mask`/`mask_edge`/`mask_normal`/`mask_strip` family reads as one family on both sides of every call. The one caller that disagrees is `lib.edge_measures`, whose local is `bdry_strip` — but that is its zone-2 parameter name, so convention 3 wins there and the mismatch stays until S3.9. It is noted in that file's header.
-
-**The concrete vocabulary set here**, to be reused rather than re-invented:
-
-| meaning | name | notes |
-|---|---|---|
-| boundary parameter / polar angle | `theta`, `theta_grid`, `theta_field`, `theta_edge`, `theta_lags` | never `th`. `th` meant *threshold*, not theta, in `edge_response.m` — check the file, not the name |
-| steerable kernel pair | `filter_kernel` | in both `steerable_filter.m` (output, was `filter`, a builtin shadow) and `steerable_grad.m` (local, was `filt`) |
-| image gradient, rows × cols × 2 | `stim_grad` | `steerable_grad`'s output was `grad`; every caller already wrote `stim_grad` |
-| normal component of the gradient | `grad_normal` | `edge_energy.m` called it `edge_normal`; `edge_shape.m` already said `grad_normal`. Pairs with the existing `grad_tangent` |
-| gradient magnitude | `..._magnitude` | never `mag` |
-| amplitude / spectrum | `edge_amplitude_spectrum`, `edge_power_spectrum`, `edge_phase_spectrum` | never `as`, `ps`, `spec` |
-| white noise that generates a texture | `white_noise_bg`, `white_noise_target` | was `wn_b`, `wn_t` |
-| background image | `stim_bg` | was `stim_b`. `_b`/`_t` suffixes expand to `_bg`/`_target` throughout |
-| a loaded source image on disk | `source_image` | was `img`. Section 4.1.1's suggested `image_data` was not used — `source` carries the useful distinction from the synthesised `stim` |
-| boundary/texture prefix | `boundary_`, `texture_` | never `bdry_`, `txtr_` |
-| P–S texture-synthesis knobs | `n_scales`, `n_orientations`, `neighborhood_size`, `n_synthesis_iter` | were `Nsc`, `Nor`, `Na`, `Niter`. The **struct field** `texture.Niter` is untouched — it is dot-qualified and is written to disk |
-| disc-shaped neighbourhood in `local_sd` | `disc_mask`, `disc_size`, `disc_center`, `disc_radius` | section 2's trial run used `disc_mask` + `mask_size`; `disc_*` throughout is more consistent and is what shipped |
-
-**A correction to section 4.1.1.** It says the variable `filter_radius` in `+lib/local_sd.m` "is actually the *product* `kernel_size(1)*kernel_size(2)`" and offers it as an example of a name that is a lie. On reading, that is not right: `kernel_size` is `[sigma, n_sigma]`, so that product *is* the kernel's truncation radius in pixels, and `+lib/steerable_filter.m:8` computes the identical quantity under the identical name. The name was accurate. It was still renamed, to `disc_radius`, but for a different reason — to match the `disc_*` neighbourhood family in that file — and `filter_radius` was deliberately **kept** in `steerable_filter.m`, where it describes the filter rather than a neighbourhood. `ExpSettings.monitor_distance` (B3.8) remains a genuine example of the misnaming class; this one was not.
-
-**Deliberately left alone.**
-
-- **`compute_pClipped`'s camelCase name**, in an otherwise snake_case package. It is the filename, and renaming a file is a cross-file change, out of Stage 1's scope. The reason is written into the file's header so the next reader does not "fix" it.
-- **`lib.edge` shadowing the Image Processing Toolbox `edge`**, and the unqualified `edge(stim,'zerocross',...)` call inside `+lib/edge_measures.m`, which resolves to the toolbox function. Section 0.4's "recorded and disproved" note says so; both files now say so in their headers too, because this is the single most inviting wrong "fix" in the package.
-- **`mask` as a variable name.** It is the zone-2 parameter name in `lib.edge`, so convention 3 settles it regardless of whether it shadows anything.
-- **`bPlot`** in `edge_shape.m`. The `b`-prefix boolean is an established repo convention (`bTargetPresent`, `bFovea`, `bBootstrap`); keep it in every tranche.
-- **All eight `checkcode` messages**, listed above.
-
-**Line-length exceptions — three, all in `+lib/edge_measures.m`**, at post-edit lines 68 (115 chars), 83 (117) and 84 (124). All three are **commented-out code** that step 2c triaged as *unfinished*. They were left byte-identical rather than reflowed: rewrapping dead code makes it harder to restore verbatim if S3.16 decides to revive it, and the wrapping would be invented by this pass rather than the author's. Every live line in all 14 files is under 100 characters; four function signatures and about a dozen expressions were wrapped with `...` and a four-space hanging indent to get there.
-
-**Contents.m — deferred to tranche 0.1.3, deliberately.** The "done" checklist asks for a `Contents.m` in each package touched, but this tranche cleans 14 of `+lib/`'s 56 files. A `Contents.m` written now would list a quarter of the package and be stale within two tranches. **Tranche 0.1.3, the last `+lib/` tranche, writes the one `+lib/Contents.m` covering all 56 files**, following `vislab-common/+vislab/+lib/Contents.m`. Tranche 0.1.2 should not write one either. Later packages that are cleaned in a single tranche should write theirs in that tranche.
-
-**Stage 2 not attempted**, per the plan: `+lib/` Stage 2 is item 0.2.1, done after the whole `+lib/` Stage 1 is complete. The four patterns are visible here and are left for it — `AGROW` none, `NOSEMI` none, `find` none convertible, and the `NASGU`/`ASGLU` targets are `stimulus.m`'s three unused `*_tight` outputs.
-
-**Bugs found: four, all recorded in section 0.4 and none fixed** — 🟠 B2.13 (`stimulus.m` target branch tests the background texture struct), 🟠 B2.14 (`compute_pClipped`'s warning text, which the tooling entry had wrongly called a Stage 1 fix), 🟡 B3.13 (`edge_measures.m`'s hardcoded default boundary ribbon), 🟡 B3.14 (`target_mask.m` swaps row and column in the non-circular branch). Two observations that are *not* filed as bugs, recorded so they are not re-discovered: `lib.edge_energy` leaves its output unassigned if `measure_type` matches none of its eight strings, which errors loudly and only on a file that already cannot run (B2.3); and `lib.edge_fit_cost` depends on `sumsqr` from the Deep Learning Toolbox, which is a dependency, not a defect. Both are noted in their files' headers.
-
-**A note for tranche 0.1.2.** `+lib/edge_props_stim.m` calls into four files cleaned here. It should adopt `theta`, `grad_normal`, `stim_grad`, `filter_kernel` and the `i_<thing>` counters, and it will hit convention 1 hard, since it reuses short names across a 535-line body.
+**Conventions 1–7 (binding on every later tranche):**
+1. One old name → exactly one new name per file (bijection constraint).
+2. Loop counters `i_<thing>` in snake_case dirs / camelCase equivalent in `+experiment/`.
+3. A local mirroring a zone-2 parameter keeps the parameter's exact name.
+4. Header shape: exemplar's `% FUNCTION_NAME  Summary.` + signature + `Inputs`/`Output` (units) + `See also`.
+5. Function bodies 4-space indented, terminal `end` added.
+6. Author attribution moved to bottom of header (only where it already existed).
+7. Cross-boundary names harmonized toward the caller's word, not the callee's.
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h5 style="display:inline; margin:0; font-size:0.92em">Tranche 0.1.2 — <code>+lib/edge_props_stim.m</code> (1 file, 535 lines)</h5></summary>
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.3 — `+lib/edge_props_stim.m` (1 file, 535 lines)</h5></summary>
 
 <div style="margin-left:1.5em">
 
-**Done**, under **MATLAB 24.2.0.2923080 (R2024b) Update 6**. One file: `+lib/edge_props_stim.m`, the largest in the repo and the front end of the model feature extraction. Tranche 0.1.1's conventions were followed as written and not re-derived; the two decisions below that 0.1.1 did not cover are flagged as such.
-
-**Baseline: HEAD.** `git status -- '+lib/edge_props_stim.m'` was empty and the on-disk file was byte-identical to `git show HEAD:+lib/edge_props_stim.m` (checked with `diff` before any edit), so the tooling entry's default rule applies. The pre-edit copy was taken into a scratch directory anyway and is what `check_stage1` compared against.
-
-**Verbatim checker output.**
-
-```
-24.2.0.2923080 (R2024b) Update 6
-assert_rename_bijection : passed (54 renames)
-check_stage1 edge_props_stim  1
-```
-
-The golden harness does not cover this function (it cannot run — B2.2), so no replay was attempted. `checkcode` gives **the same 18 messages before and after**: `STOUT` ×15 (the fifteen outputs the commented-out contour block would assign) and `NASGU` ×3 (`bd_strip_rep`/`mask_strip_xy`, `grad_hist_thresh`, and `grads_pca`/`stim_grads_pca` — the third of these is now filed as B3.15). No lint introduced, none fixed.
-
----
-
-**Renames — 54, all zone 1.** The vocabulary from 0.1.1 was applied directly: `mag`→`magnitude` (`grad_mags`→`grad_magnitudes`, `grad_mag_a`→`grad_magnitude_a`, `grad_m_hist_a`→`grad_magnitude_hist_a`, …), `or`→`orientation`, `prod`→`product`, `grad`/`grad_crop`→`stim_grad_tiled`/`stim_grad` (0.1.1's "`steerable_grad`'s output is `stim_grad`"), `grads`→`stim_grads`, `num_scales`→`n_scales` (matching 0.1.1's `n_scales` for the P–S knobs), `stim_sz`→`stim_size`, `epsl`→`epsilon`, `term_tot`→`term_total`, `N_a`/`N_b`→`n_elements_a`/`n_elements_b`, `stim_rep`→`stim_tiled`. `bd_strip`→`mask_strip` follows 0.1.1's convention 7 and its rename of `lib.target_mask`'s fourth output to `mask_strip`; `bd_strip_rep`→`mask_strip_xy` (replicated over the two gradient components). `kernel_sd_list`/`kernel_sd`/`kernel_nsd`→`kernel_sigma_list`/`kernel_sigma`/`kernel_n_sigma`, matching the documented `kernel_size = [sigma, n_sigma]` units. `i_scale` was already the 0.1.1 counter convention and is unchanged.
-
-**Convention 3 held everywhere it applied.** `stim_raw`, `stim_type`, `otf_ppd`, `grad_hist_thresh`, `pca_coeffs`, `edge_pixels`, `target_normal` are all zone-2 name-value parameters declared in this file, so all seven keep their names, `target_normal` included even though 0.1.1 renamed the corresponding `lib.target_mask` output to `mask_normal`. That mismatch is noted in the file's header and belongs to S3.9.
-
-**New decision A — a local that merely holds a parameter must not be renamed *onto* that parameter's own name.** `grad_m_bins = parser.Results.grad_mag_bins` was renamed to `grad_magnitude_bins`, deliberately **not** to `grad_mag_bins`. Renaming it onto the parameter's name would look tidier and would pass nothing: `check_stage1`'s reverse-rename regex has no way to tell a bare identifier from the same text inside the `addParameter(parser, 'grad_mag_bins', …)` **string literal**, so it would rewrite the literal too and the check would fail — or, worse, would not fail in some other file and would silently change a parameter name, which is zone 2 and forbidden here. **Rule for later tranches: a zone-1 new name may never equal any string literal in the file.** The same applies to `grad_o_bins`→`grad_orientation_bins` and `grad_p_bins`→`grad_product_bins`.
-
-**New decision B — an output that only commented-out code would assign keeps its original name.** Fifteen of this function's thirty outputs (`npix_llr`, `ncon_llr`, `len_llr`, `len_sum`, `pos_llr`, `pos_sum`, `or_llr`, `or_sum`, `curv_llr`, `curv_sum`, `ep1_llr`…`ep16_llr`) are never assigned; the code that would assign them is the 260-line dead block at the end of the file (triage rows T2.5–T2.8 below). Expanding those names would leave the signature and the dead block that has to fill it out of step, and the dead block is deliberately left byte-identical. So they were left alone, and the header says plainly that they are never assigned and why their names are short. The fifteen outputs that *are* assigned were renamed in full (`grad_m_llr_1`→`grad_magnitude_llr_1`, etc.). **Later tranches: apply the same rule wherever a signature is half-dead.** Note this is a narrow exception to 0.1.1's vocabulary map, not a loosening of it.
-
-**Not resolved here, per instruction — the B1.1/S3.4 normalisation question surfaces in this file too.** The `'camo'` branch calls `lib.steerable_grad(..., 'normalize', false)` while the `'tex'` branch forwards `varargin{:}` and passes no `normalize`, so it gets the default `2e-4`. The two branches therefore measure gradient magnitude in different units and their histogram bin edges are not comparable. The commented-out region-split loop (T2.2) passes no `normalize` on **either** branch, so restoring it verbatim would also change the camo normalisation. This is the same axis as `steerable_grad.m:64` (T1.14) and `edge.m:115-134` (T1.1). **Recorded, not decided: S3.4 owns it.**
-
-**Line-length exceptions — thirteen, every one a commented-out line**, at post-edit lines 185, 186, 399, 484, 508, 601, 621, 627, 634, 639, 644, 649, 654 (101–118 characters). Same treatment and same reason as 0.1.1's three in `edge_measures.m`: dead code is left byte-identical rather than rewrapped, because invented wrapping makes verbatim restoration harder if S3.16 revives it. **Every live line is under 100 characters**; four statements were wrapped with `...` and a four-space hanging indent to get there, and three `% if p = 0, set p ln(p) to 0` inline comments were moved onto their own line above the statement for the same reason.
-
-**The dead code was spliced, not retyped.** The four commented-out regions (pre-edit `75-94`, `112-118`, `134-139`, `271-536`) were copied out of the pre-edit file by line range and re-inserted programmatically, so their content cannot have drifted while the file was rewritten. The only change made to them is leading indentation (+4 spaces, to sit inside the now-indented function body) and stripped trailing whitespace. **Recommended for any later tranche handling a large dead block: splice it, do not retype it.**
-
-**Contents.m:** none written, per 0.1.1's decision that tranche 0.1.3 writes the single `+lib/Contents.m` covering all 56 files.
-
-**Stage 2 not attempted** — `+lib/` Stage 2 is item 0.2.1. For the record, the four patterns in this file: `NOSEMI` none (the unsuppressed `randi(10)` at pre-edit `:30` is S3.13's, not a semicolon fix); `AGROW` none; `find` none; unused assignments three (`bd_strip_rep`, `grad_hist_thresh`, `grads_pca`) — and **none of the three is a Stage 2 deletion target**, because each is evidence for a recorded defect rather than a leftover: the first two are only used by commented-out code (T2.1, T2.3) and the third is B3.15.
-
-**Bugs found: one, recorded and not fixed** — 🟡 **B3.15** (the PCA rotation is computed and discarded). One further finding was folded into an existing Stage 3 item rather than filed as a bug: the three per-scale `figure`/`subplot`/`bar`/`title` groups inside the main loop are the same debug scaffolding S3.13 already lists for this file, so S3.13's scope was extended to name them. Two things deliberately **not** filed: the live per-region element counts `N_a`/`N_b` are taken once from the boundary mask, while the commented-out alternative (T2.4) counts non-NaN gradients per scale — the live denominators therefore ignore the NaN border that grows with kernel size, but which of the two the author intended is not recoverable, so it is a triage row and an S3.4/S3.16 question, not a bug; and `lib.edge_props_stim`'s existing defects B2.2 and B3.1 were re-confirmed by reading and are cited in the file's header rather than re-filed.
+Baseline: HEAD. 54 renames, passed. `checkcode` unchanged (18 messages). New decision A: a local merely *holding* a parameter value isn't renamed onto that parameter's own string-literal name (`grad_m_bins`→`grad_magnitude_bins`, not `grad_mag_bins`). New decision B: an output only assigned by dead code keeps its original short name — 15/30 outputs left unrenamed, documented in header. Line-length exceptions: 13, all dead lines. Bug found: B3.15.
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h5 style="display:inline; margin:0; font-size:0.92em">Tranche 0.1.3 — <code>+lib/</code> remainder (41 files, 1484 lines)</h5></summary>
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.4 — `+lib/` remainder (41 listed, 39 cleaned; 1484 lines)</h5></summary>
 
 <div style="margin-left:1.5em">
 
-**Done**, under **MATLAB 24.2.0.2923080 (R2024b) Update 6**. 41 files named in the tranche table; two of them, `ptch_norm.m` and `watson_otf.m`, are the filename collisions with the shared library excluded from cleaning per 0.1.1/0.1.2's housekeeping note (S3.11's problem) and were not touched — **39 files were actually cleaned**. Tranches 0.1.1/0.1.2's conventions were read in full and applied as written, not re-derived; the decisions below are applications of those conventions to files/situations 0.1.1/0.1.2 did not cover, not new conventions.
-
-**Baseline: HEAD, for all 41.** `git status -- '+lib/'` was clean before this tranche started (confirmed empty `git diff HEAD -- '+lib/'`), so the tooling entry's default rule applies. Pre-edit copies of the 39 edited files were extracted with `git show HEAD:+lib/<f>.m` into a scratch directory and `check_stage1` was run against those copies.
-
-**Verbatim checker output**, from the sweep script that builds each file's rename map and runs `assert_rename_bijection` (inside `check_stage1`) then the reverse-rename comparison:
-
-```
-24.2.0.2923080 (R2024b) Update 6
-autocorr                         1  (4 renames)
-combine_pairwise_stats           1  (15 renames)
-correlations_across              1  (10 renames)
-cosdRadial                       1  (7 renames)
-cosWindow2                       1  (9 renames)
-create_averaging_filter          1  (5 renames)
-create_pink_noise_cube           1  (8 renames)
-create_pink_noise_line           1  (7 renames)
-create_pink_noise_square         1  (7 renames)
-cropImage                        1  (6 renames)
-csf_err                          1  (8 renames)
-csf_fitted                       1  (9 renames)
-csf_floating                     1  (10 renames)
-csf_spatial_filter               1  (5 renames)
-deg2rad                          1  (0 renames)
-detect_edge_pixels               1  (2 renames)
-diff_of_gaussians_filter         1  (10 renames)
-differenceOfGaussians2D          1  (8 renames)
-embedImageinCenter               1  (12 renames)
-fftconv2                         1  (7 renames)
-find_spot_centers                1  (7 renames)
-gabor2D                          1  (14 renames)
-gauss_llr                        1  (5 renames)
-getTargetIndexFromString         1  (3 renames)
-haar2D                           1  (10 renames)
-hyperexp_nll                     1  (1 renames)
-laplacian_of_gaussian_filter     1  (4 renames)
-loadPatchAtIndex                 1  (11 renames)
-maha_dist                        1  (3 renames)
-mismatch_template                1  (15 renames)
-monitorDegreesToPixels           1  (6 renames)
-pairwise_stats                   1  (7 renames)
-radialavg                        1  (11 renames)
-samplePatchCoordinates           1  (10 renames)
-spot2D                           1  (9 renames)
-stimulus_spots                   1  (0 renames)
-subplot_tight                    1  (0 renames)
-trace_contours                   1  (8 renames)
-whiten                           1  (7 renames)
-files checked : 39
-check_stage1 true : 39
-check_stage1 false: 0
-```
-
-The golden harness covers five of these files (`create_pink_noise_square`, `whiten`, `csf_fitted`, `autocorr`, plus `compute_pClipped` from 0.1.1), so it was replayed as a free extra confirmation: `golden_harness: replay matched all 32 fields` — both immediately after the renames and again after the line-length reflow pass below, to catch anything the reflow might have disturbed.
-
-`checkcode` over the 39 files gives the **same lint ids** before and after in every file except five, where the count only ever **drops**, never grows, and every drop is a formatting artifact the harmonisation pass naturally resolved rather than a deliberate Stage 2 fix: `cropImage` and `loadPatchAtIndex` each lost a `NOSEMI` ("extra semicolon is unnecessary") from dropping a stray `;` after `end`; `embedImageinCenter` lost six of the same; `differenceOfGaussians2D` and `gabor2D` each lost a `NOCOMMA`/`NCOMMA` pair from adding the missing comma between bracketed outputs (`[XX,YY]` → `[x_grid, y_grid]`) and dropping a trailing comma after a `for` header. None of these is a suppressing-semicolon insertion in the Stage 2 sense — they are semicolons and commas that were already inert — and all are confirmed still `check_stage1`-safe, since `canon` round-tripped every one of them.
-
----
-
-**Binding-convention applications new to this tranche, recorded because later tranches will hit the same situations:**
-
-1. **A local variable can be renamed onto a name that is also frozen elsewhere in the repo, as long as this file does not itself freeze it.** `+lib/correlations_across.m`'s outputs are named `corr_cross` and `d` — both on the zone-3 frozen list (section 4.1.1), but frozen there because `+tinker/pink_noise_stimuli_autocorrelations.m:42` does `save(...,'d','corr_cross')` on **its own local variables** of those names. `check_stage1`'s regex only protects dot-qualified names and string literals; a plain output-variable name in a different file that merely produces the value is zone 1. Renamed to `corr_vs_distance` and `distances` here. **Check the file, not the name — same rule as the survey's warning about `d`.**
-2. **A whole-file camelCase style inside an otherwise snake_case package converts its internal variables, not its filename.** Several files here (`cosWindow2.m`, `cosdRadial.m`, `gabor2D.m`, `differenceOfGaussians2D.m`, `haar2D.m`, `spot2D.m`, `embedImageinCenter.m`, `cropImage.m`, `loadPatchAtIndex.m`, `samplePatchCoordinates.m`, `monitorDegreesToPixels.m`, `getTargetIndexFromString.m`, `find_spot_centers.m`) are written by other authors (Johannes Burge, Steve Sebastian, R. Calen Walshe, and others) entirely in camelCase, unlike the `edge`/`stimulus` core. The Stage 1 checklist already says `+lib/` files stay snake_case; the only precedent for *not* converting something is `compute_pClipped`'s **filename**, kept camelCase because renaming a file is a cross-file/out-of-scope change. That precedent does not extend to a file's internal locals, so every internal identifier in these files was converted to snake_case, same as the rest of the package. Filenames are untouched.
-3. **A struct field is frozen even when nothing in section 4.1.1's enumerated zone-3 list names it**, whenever it is set by a caller outside this tranche's files. `Parameters.dc`/`.std`/`.size`/`.envelope`/etc. in `gabor2D.m`/`differenceOfGaussians2D.m`/`haar2D.m` and `stimulusParams.*` in `spot2D.m` are all left untouched, and `Settings.targetKey` in `getTargetIndexFromString.m` likewise, because `Settings` there is built by the out-of-scope `+stats/_loadStatisticsSettings.m` (`_`-prefixed) and read by later, not-yet-cleaned `+experiment/`/`+experiment/+analysis/` files. The general rule (struct fields not covered by the rename regex) already covers this; it is recorded here because it bit several files that were not part of the survey's explicit zone-3 enumeration.
-4. **A zone-1 rename must not equal an existing string literal, checked per file, not just against the file's own addParameter keys.** No new instance of the exact `edge_props_stim.m` problem (0.1.2's decision A) came up, but it was checked in every file with a `switch`/`case` or `addParameter` (`gabor2D`, `differenceOfGaussians2D`, `haar2D`, `spot2D`, `detect_edge_pixels`) before choosing new names, since a case string like `'envelope'` or `'dc'` could otherwise have collided with a candidate local name.
-5. **`case('literal')` and other redundant-looking parentheses are not free to remove.** `canon`/`mtree` preserves explicit grouping parentheses as real nodes: `if (nargin<4) || isempty(x)` and `if nargin<4 || isempty(x)` are **different** ASTs, and `case('horizontal')` vs `case 'horizontal'` likewise. This is not mentioned in the skill or in 0.1.1/0.1.2 because neither happened to touch a file with this pattern. It cost a first failed check-run on 11 of this tranche's files (`subplot_tight`, `cropImage`, `cosdRadial`, `embedImageinCenter`, `loadPatchAtIndex`, `getTargetIndexFromString`, `radialavg`, `fftconv2`, `differenceOfGaussians2D`, `gabor2D`, `haar2D`, `spot2D`) before every stray removed paren was put back exactly where the source had it. **Later tranches: do not "clean up" a redundant `if(...)`/`case(...)` paren as a formatting improvement — leave every parenthesization exactly as found, even where it looks inconsistent within the same file (as it does in `embedImageinCenter.m`, which wraps only the `exist(...)` call in some guards and the whole condition in others).** A companion trap: adding `exist(x, 'var')`'s second argument where the source called `exist(x)` with one argument is also a real AST change (an added argument), not a formatting fix — `cosdRadial.m`'s `if ~exist('bPLOT')` stays one-argument.
-6. **A python text-mode file write can silently convert line endings.** One file (`gabor2D.m`) came out with CRLF line endings end-to-end after being rewritten via a Python one-liner running under Git Bash (Python's default text-mode newline translation on Windows); every other file in the tranche, written directly, stayed LF. Caught by an explicit end-of-tranche sweep (`file *.m` / trailing-byte check on every file), not by `check_stage1` (`canon` does not care about line-ending bytes). Converted back to LF before the final check-run and commit. **Any later tranche that shells out to a text-processing tool for a bulk edit should check line endings explicitly afterward — `check_stage1` will not catch it.**
-
-**The concrete vocabulary set here**, extending 0.1.1's table, to be reused rather than re-invented:
-
-| meaning | name | notes |
-|---|---|---|
-| CSF/ATF fit family (`csf_err`, `csf_fitted`, `csf_floating`, `csf_spatial_filter`) | `spatial_freq`, `pupil_diameter`, `wavelength`, `surround_shape_exponent`, `surround_strength`, `surround_size`, `center_size`, `params`, `atf`, `human_atf` | were `u`, `d`, `w`, `n`, `a`, `b`, `c`, `p`, `z`, `z0`. `pupil_diameter`/`wavelength` match the units already fixed by `vislab.lib.watson_otf`'s exemplar signature; this repo's own (excluded, uncleaned) `+lib/watson_otf.m` still reads `u,d,lambda` |
-| pink noise generation (`create_pink_noise_square/cube/line`, `whiten`) | `pink_noise`, `white_noise`, `pink_noise_filter`, `white_noise_fft`, `white_noise_filtered_fft` | were `img_1f`/`cube_1f`/`sig_1f`, `wn`, `fil_1f`, `wnf`, `wnf_fil`. Matches 4.1.1's predicted `wn`→`white_noise` |
-| pairwise-statistics family (`pairwise_stats`, `combine_pairwise_stats`, `correlations_across`) | `n_obs`, `mean_x`, `mean_y`, `mean_xy`, `mean_x2`, `mean_y2`, `corr_coeff`, plus `_list` for the per-group vectors | were the packed `n,xm,ym,xym,x2m,y2m,r` / `*_l` used identically in both functions |
-| patch/coordinate family (`cropImage`, `loadPatchAtIndex`, `samplePatchCoordinates`) | `patch_coords_rc` | was `PcoordsRC`/`PCoordsRC`, kept consistent across all three files since they pass this value to each other |
-| Gaussian/Gabor kernel family (`gabor2D`, `differenceOfGaussians2D`, `haar2D`, `spot2D`) | `x_grid`, `y_grid`, `envelope_radius`, `gabor_sd`, `amplitude` | were `XX`/`YY`, `envelopeRadius`, `GaborSD`, `amp` |
-| pixel-list index in a graph/contour trace | `i_pixel`/`j_pixel`, `pixel_idx`/`next_pixel_idx` | `trace_contours.m`; `i_pixel` is convention-1's collision again (pixel-list index, then reused as contour-position counter), noted at the second site |
-
-**Line-length exceptions — five, every one a commented-out or otherwise byte-preserved line**, left un-reflowed for the same reason as 0.1.1/0.1.2 (rewrapping dead code invents wrapping that was never the author's, and makes verbatim restoration harder for S3.16): `+lib/embedImageinCenter.m` post-edit line 34 (126 chars, the commented-out `warning(...)` call, T3.6 below). Every other over-100 line found during the pass was a live line and was wrapped with `...` and a four-space hanging indent; the worst was `+lib/embedImageinCenter.m`'s original 135-character signature/doc line.
-
-**Contents.m — written**, `+lib/Contents.m`, covering the full 56-file package as 0.1.1 deferred it to this tranche. Modelled on `vislab-common/+vislab/+lib/Contents.m`'s shape (namespace line, one-paragraph summary, call convention) and adds one repo-specific note: `ptch_norm.m`/`watson_otf.m` are this repo's own uncleaned copies of names that collide with the shared library, not aliases to it, per S3.11.
-
-**Stage 2 not attempted** — `+lib/` Stage 2 is item 0.2.1, done after all of `+lib/`'s Stage 1 (0.1.1–0.1.3) is complete. The four patterns, surveyed across all 39 files: `NOSEMI` none live (only the stale extras removed above); `AGROW` one, `+lib/find_spot_centers.m`'s `centers(end+1,:)`, already flagged `%#ok`-free but growing by one row per recursive call — a candidate, not fixed here; `find` none convertible (every `find` call either needs the index itself — `getTargetIndexFromString.m`, `trace_contours.m` — or is already reduced with a `1` count argument); unused assignments none beyond the pre-existing `combine_pairwise_stats`/`pairwise_stats` unused `corr_coeff`/`corr_coeff_list` argument (present before this tranche, not introduced by it, and not a Stage 2 deletion target since it is a function input, not a local assignment).
-
-**Bugs found: one new, recorded and not fixed; one existing re-confirmed with a severity question flagged, not re-filed.**
-
-- 🟠 **B2.15.** **`lib.cropImage`'s always-overridden `indColorChannels` (B3.2) is reachable, not just latent.** B3.2 (filed before any tranche started) already documents the root cause — `if ~exist('indColorChannel','var') || isempty(indColorChannels)` misspells the guard variable, so the branch always runs and always overwrites `indColorChannels` to `1:size(source_image,3)` regardless of what the caller passed. Filed at severity 3 as latent. Reading the actual call sites in this tranche shows it is not latent: `+vis/examplePatches.m:43`, `+vis/presentpatches.m:28`, and `+vis/viewpatches.m:39` all pass `indColorChannels = 1` explicitly, intending to crop a single colour channel, and the bug silently substitutes all channels instead — every one of those call sites is in `+vis/`, i.e. display-only. That fits B2's definition ("reachable, not silent... or it only touches plots, logging, or display") better than B3's "not reachable with the current config or inputs." Filed here as a new item rather than relabelling B3.2, per the skill's re-filing rule; B3.2 itself is left as originally recorded.
-
-Two things read and deliberately **not** filed as bugs: `+lib/hyperexp_nll.m`'s name/docstring-vs-code mismatch is already B3.6, re-confirmed by reading the density formula (it is the hypoexponential sum, not a hyperexponential mixture) and cited in the file's header rather than re-filed; and `+lib/find_spot_centers.m`'s `ismember(...,'row')` typo is already B3.5, likewise re-confirmed and cited rather than re-filed.
-
-**A note for later tranches.** `+lib/mismatch_template.m` and `+lib/stimulus_spots.m` both call `lib.circular_mask`, which does not exist anywhere in the tree (B2.9); neither function can currently run. `stimulus_spots.m` also duplicates most of `lib.stimulus`'s job under a different name (S3.3's near-duplicate-elimination territory) — not touched here, just flagged so S3.3 knows another candidate exists beyond the five `{setUpExperiment, sessionSettings, generate_camouflage_stimuli}` families already named in section 4.1.2.
+Baseline: HEAD for all 41. All 39 in-scope passed (0–15 renames each; `ptch_norm.m`/`watson_otf.m` excluded, S3.11). Golden harness replayed twice (post-rename, post-reflow), matched. Six new rule discoveries: a local reused across frozen zones must be checked per-file, not just per-name; whole-file camelCase-authored files convert internals only, keep filename; struct fields can be frozen beyond the enumerated list if set by an out-of-scope caller; the zone-1-vs-string-literal check extends to `switch`/`case`; `case(...)`/`if(...)` redundant-looking parens are real AST nodes, never strip them (cost a first failed check-run on 11 files); Python text-mode writes under Git Bash on Windows can silently convert LF→CRLF (`gabor2D.m`) — always verify line endings after a bulk/shell-tool edit. `+lib/Contents.m` written (56 files). Bug found: B2.15 (re-severitied from B3.2). Line-length exceptions: 5.
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h5 style="display:inline; margin:0; font-size:0.92em">Tranche 0.1.4 — <code>+experiment/+main/</code> (11 files, 714 lines)</h5></summary>
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.5 — `+experiment/+main/` (11 files, 714 lines)</h5></summary>
 
 <div style="margin-left:1.5em">
 
-**Done**, under **MATLAB 24.2.0.2923080 (R2024b) Update 6**. All 11 files: `checkFixationCross.m`, `configureEyetracker.m`, `displayLevelStart.m`, `fixationInterval.m`, `giveFeedback.m`, `responseInterval.m`, `runCamouflageExperiment.m`, `runCamouflageExperiment_search.m`, `stimulusInterval.m`, `testscripts/gettestexperimentstruct.m`, `testscripts/runsingletrialTest.m`. Tranches 0.1.1–0.1.3's binding conventions were read in full and applied as written; this directory is `+experiment/`'s camelCase family, so the snake_case vocabulary table (theta, magnitude, stim_grad, etc.) mostly does not apply here — none of that vocabulary's abbreviations (`ml`, `cont`, `th`, `mag`, `or`, `filt`/`filter`, `grad`, `img`, `bdry`/`txtr`, `wn_b`/`wn_t`, `Nsc`/`Nor`/`Na`/`Niter`, `kernel_sd*`, `epsl`) occur anywhere in these 11 files. Loop counters already follow the established camelCase convention (`iTrial`, `iSession`, `iLocation`) and needed no changes.
-
-**Baseline: HEAD, for all 11.** `git status -- '+experiment/+main'` and `git diff HEAD -- '+experiment/+main'` were both empty before this tranche started, so the tooling entry's default rule applies. Pre-edit copies of all 11 files were extracted with `git show HEAD:<path>` into a scratch directory and `check_stage1` was run against those copies.
-
-**Verbatim checker output**, from a sweep script that builds each file's rename map and runs `assert_rename_bijection` (inside `check_stage1`) then the reverse-rename comparison:
-
-```
-24.2.0.2923080 (R2024b) Update 6
-check_stage1 checkFixationCross               1  (1 renames)
-check_stage1 configureEyetracker              1  (1 renames)
-check_stage1 displayLevelStart                1  (0 renames)
-check_stage1 fixationInterval                 1  (0 renames)
-check_stage1 giveFeedback                     1  (0 renames)
-check_stage1 responseInterval                 1  (0 renames)
-check_stage1 stimulusInterval                 1  (0 renames)
-check_stage1 runCamouflageExperiment          1  (0 renames)
-check_stage1 runCamouflageExperiment_search   1  (13 renames)
-check_stage1 testscripts/gettestexperimentstruct 1  (0 renames)
-check_stage1 testscripts/runsingletrialTest   1  (0 renames)
-files checked : 11
-check_stage1 true : 11
-check_stage1 false: 0
-```
-
-This directory is outside the golden harness's coverage (`+experiment/+main` is Psychtoolbox/EyeLink-bound, per the tooling entry and section 2), so no runtime replay was attempted — Stage 2 for this tranche is item 0.2.3, pattern-check only, per that recorded decision.
-
-`checkcode -id` over all 11 files gives **identical message-id lists before and after**, file by file: `checkFixationCross` (`ASGLU, STRNU, NASGU, ASGLU, ASGLU, NOPRT`), `configureEyetracker` (`ASGLU`), `displayLevelStart` (`NASGU, NASGU`), `giveFeedback` (`NASGU, NASGU, NASGU`), `stimulusInterval` (`ASGLU`), and none in `fixationInterval`, `responseInterval`, `runCamouflageExperiment`, `runCamouflageExperiment_search`, or either `testscripts/` file. No lint introduced, none fixed.
-
----
-
-**Renames — 2 single-file renames plus 13 in one file, all zone 1, none touching the vocabulary table (none applied here).**
-
-- `+experiment/+main/checkFixationCross.m`: `evtype`→`eventType` (an unused local — assigned once from `SessionSettings.el.ENDSACC` in the dummy-mode branch, never read; kept as an unused assignment per the "don't fix Stage 2 material in Stage 1" rule, just given a readable name).
-- `+experiment/+main/configureEyetracker.m`: the bare `i` holding `Eyelink('Openfile', edfFile)`'s return code →`edfOpenStatus`, so `if i~=0` reads as `if edfOpenStatus ~= 0`.
-- `+experiment/+main/runCamouflageExperiment_search.m` (13 renames) — this file mixes snake_case locals (`exp_type`, `gamma_correction`, `stim_start`/`stim_end`, `luminanceSheet_gc`, `blank_tex`, `circle_cues`, `cue_tex`, `sampleStimulus_gc`, `valid_click`) into an otherwise-camelCase `+experiment/+main` file, the same situation tranche 0.1.3's binding-convention-application #2 named for a camelCase file inside a snake_case package, mirrored here. Converted to the directory's camelCase convention: `exp_type`→`expType` (also the function's second parameter), `gamma_correction`→`gammaCorrection`, `stim_start`/`stim_end`→`stimStart`/`stimEnd`, `luminanceSheet_gc`→`luminanceSheetGc`, `blank_tex`→`blankTex`, `circle_cues`→`circleCues`, `cue_tex`→`cueTex`, `sampleStimulus_gc`→`sampleStimulusGc`, `valid_click`→`validClick`. Also applied here: the vocabulary rule `num_*`→`n_*` (given in this tranche's own instructions, matching section 4.1.1's list), which for a camelCase file becomes `num_Correct`→`nCorrect`. Two bare single-letter locals from `GetClicks`, `x`/`y` (click coordinates), renamed to `clickX`/`clickY` per the survey's instruction to name every bare letter for what it holds — checked against the file's other coordinate pair `displayX`/`displayY` first to confirm no collision. No collision with any string literal in the file (checked `strcmpi(expType,'detect'|'search')` and the `exp_files/search/...` path-building string concatenations, none of which contain the token `expType` etc. as literal text).
-
-**No renames in the other 8 files** (`displayLevelStart.m`, `fixationInterval.m`, `giveFeedback.m`, `responseInterval.m`, `stimulusInterval.m`, `runCamouflageExperiment.m`, and both `testscripts/` files) — their existing camelCase locals (`fixTarget`, `fixPosXY`, `targetDestination`, `stimulusOnsetMs`, `SessionSettings`, etc.) already read clearly and none is a bare letter, a builtin shadow, or one of the vocabulary abbreviations.
-
-**`SessionSettings` kept everywhere it appears**, per binding convention 3's spirit (a local that mirrors an established config-struct name keeps that name) — it is this directory's equivalent of a zone-2 parameter, threaded through every interval function's first argument.
-
-**Terminal `end` added to 8 of the 11 function files** (`checkFixationCross.m` already had one; `configureEyetracker.m`, `displayLevelStart.m`, `fixationInterval.m`, `giveFeedback.m`, `responseInterval.m`, `stimulusInterval.m`, `runCamouflageExperiment_search.m` did not; `runCamouflageExperiment.m`'s already had one; `testscripts/gettestexperimentstruct.m` already had one), per binding convention 5. `testscripts/runsingletrialTest.m` is a script, not a function, so no terminal `end` applies to it; its body indentation was also de-indented to column 0 for the same reason (a script's statements are not inside anything to indent relative to).
-
-**Header docs — all 11 rewritten to the exemplar shape** (summary line, fully-qualified `experiment.main.<name>(...)` signature, `Inputs`/`Output` with units where they exist, `See also`). `runCamouflageExperiment.m` already had strong prose (it documents the retirement of the old `runSession`/`runTrial` monolith) — that prose was kept verbatim and only reshaped into the `Inputs`/`Output`/`See also` structure; nothing substantive was rewritten. Void functions (`checkFixationCross`, `displayLevelStart`, `fixationInterval`, `giveFeedback`, `runCamouflageExperiment_search`) get an `Output` section reading `none (side effect: ...)`, naming the side effect, since the exemplar has no void-function precedent to follow and this seemed the most literal extension of its shape. `stimulusInterval.m`'s `Output` section documents the onset/offset mismatch (this tranche's new finding, B3.16) inline, citing the file:line pair, rather than only in the bug list.
-
-**Line-length exceptions — two, both documented.** `displayLevelStart.m` post-edit line 41 (168 chars): the `DrawFormattedText`/`sprintf` instruction string, which cannot be wrapped without turning one string literal into a `horzcat`, a real AST change Stage 1 forbids — confirmed by first attempting exactly that wrap and having `check_stage1` fail, then reverting to the original single-literal form. `runCamouflageExperiment_search.m` post-edit line 75 (122 chars): a commented-out (dead) line inside the `displayMask`/`iLocation` block (this tranche's only commented-out block, see below) — left byte-identical rather than rewrapped, matching 0.1.1–0.1.3's rule for dead code. Every other over-100 line found (18 of them, all in `runCamouflageExperiment_search.m`, `checkFixationCross.m`, `fixationInterval.m`, `runCamouflageExperiment.m`, and `stimulusInterval.m`) was live and was wrapped with `...` and a four-space hanging indent, including one case where a trailing inline comment was moved to its own line above the statement instead (`stimulusInterval.m`'s two `% If not foveal experiment...` comments) since that alone brought both lines under 100 characters without touching any code.
-
-**Commented-out code — one block found, not in the survey's sizing table.** `+experiment/+main/displayLevelStart.m:39-45` (pre-edit numbering), 7 lines: a commented `if SessionSettings.bFovea ... else ... end` wrapping the order in which the fixation cross and the target outline are drawn. The commented branch (foveal case) would draw the target then the fixation cross; the live, unconditional code — what the `else` used to guard — draws the target then the fixation cross **on top**, unconditionally, regardless of `bFovea`. So the author disabled the conditional and kept only the peripheral-case draw order for every run. **Verdict: alternative** — a real, complete branch the author switched away from in favour of one fixed order; ties into the existing `S.bFovea`/foveal-vs-peripheral open question already flagged in S3.17 (`loadStimuliCamouflage.m:16` hardcodes `bFovea = 1`, so the peripheral path is currently unreachable from the live entry point regardless). Keep; S3.16 should convert it to a header note about why the draw order is fixed, per the *alternative* verdict's usual disposition, rather than deleting it. Not previously listed in section 4.1.4's sizing table (that table is heuristic and self-flagged as an undercount); recorded here as this tranche found it, per the skill's triage-at-read-time rule.
-
-**One further scattered dead-code fragment, triaged in passing (below the 5-line block threshold).** `+experiment/+main/giveFeedback.m:20,23,26`: three one-line `%sound(...)` calls, one per branch, sitting under three live `Beeper(...)` calls of the same semantic role. **Verdict: alternative** — the tones (`correctTone`/`incorrectTone`/`errorTone`) are still computed above (hence the `NASGU` lint on those three lines, pre-existing and unchanged) but only the commented `sound()` calls would ever read them; the author switched from playing a synthesised tone via `sound` to a fixed system beep via `Beeper` for all three cases. Keep; S3.16 should either delete the now-pointless tone computation alongside the commented calls, or convert the switch into a one-line header note, but not without deciding what to do about the resulting unused `correctTone`/`incorrectTone`/`errorTone`.
-
-**Bugs found: two new, recorded in section 0.4 and not fixed.**
-
-- 🟠 **B2.16.** `+experiment/+main/testscripts/runsingletrialTest.m` references an undefined variable `w` (the window handle is actually named `window`) and errors immediately if run. Not previously documented — this file was not covered by the original survey's per-file reading.
-- 🟡 **B3.16.** `experiment.main.stimulusInterval`'s returned `stimulusOnsetMs` is actually captured at the stimulus's second `Screen('Flip', ...)` call (which blanks it), not the first (which turns it on) — the two flips share one variable name, `StimulusOnsetTime`, and the second overwrites the first before the return. Filed latent rather than reachable because S3.17 already records that the current caller discards this return value.
-
-Nothing else new: `B1.6` (timeout responses corrupting SDT scoring, `responseInterval.m:25`) and the `S.bFovea`/`S.targetTypeStr`/`stimulusOnsetMs`-discarded questions from S3.17 were re-confirmed by reading these files and are cited in the relevant files' headers (`responseInterval.m`, `stimulusInterval.m`) rather than re-filed.
-
-**Contents.m — written**, `+experiment/+main/Contents.m`, covering all 11 files (this tranche cleans the whole package in one pass, so — per 0.1.1's precedent for a partially-cleaned package — no deferral was needed). Modelled on `vislab-common/+vislab/+lib/Contents.m`'s shape, adapted for a runtime package rather than a function library: names the shared-harness wiring (`runCamouflageExperiment` → `vislab.psychframework.run_experiment`), the standalone `_search` variant, and flags `testscripts/` as non-live scratch code.
-
-**A note for tranche 0.1.6** (`+experiment/` top level, including the variant families): `runCamouflageExperiment.m`'s docstring documents that the old monolithic `runCamouflageExperiment`/`runSession`/`runTrial` were retired in favour of the shared `vislab.psychframework.run_experiment` harness — so `+experiment/` top-level files that still reference a `runTrial.m` or similar (S3.17 mentions one) are referring to retired code, not a currently-live sibling of this package.
+Baseline: HEAD. All 11 passed (1,1,0,0,0,0,0,0,13,0,0 renames). This directory's snake_case abbreviations from 0.1.2–0.1.4 don't apply — confirmed pure camelCase family by reading; `runCamouflageExperiment_search.m`'s internal snake_case stragglers converted *to* camelCase (13 renames), the mirror-image of 0.1.4's whole-file rule. Terminal `end` added to 8 files. Void-function `Output: none (side effect: ...)` header convention introduced here. Line-length exceptions: 2. Commented-out code: T4.1 (`displayLevelStart.m:39-45`), T4.2 (`giveFeedback.m:20,23,26`) — both **alternative**. Bugs found: B2.16, B3.16. `+experiment/+main/Contents.m` written.
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h5 style="display:inline; margin:0; font-size:0.92em">Tranche 0.1.5 — <code>+experiment/+analysis/</code> (12 files, 787 lines)</h5></summary>
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.6 — `+experiment/+analysis/` (12 files, 787 lines)</h5></summary>
 
 <div style="margin-left:1.5em">
 
-**Done**, under **MATLAB 24.2.0.2923080 (R2024b) Update 6**. All 12 in-scope files: `computeBootstrappedThreshold.m`, `computeNegLogLikelihood.m`, `computeNegLogLikelihood_edgeResponse.m`, `computeTemplateResponseSigma.m`, `computeThreshold_edgePower.m`, `computeThreshold_edgeResponse.m`, `computeThreshold_texture_exponent.m`, `computeThresholdsVsStatistic.m`, `compute_thresholds_vs_lum_cont.m`, `fitPsychometric.m`, `plotThresholdvsCondition_mine.m`, `psychometricFun.m`. The 7 `_`-prefixed files already renamed out of scope before this tranche started (`_computeNegLogLikelihood_steve.m`, `_computeNegLogLikelihood_trials.m`, `_computeThreshold_steve.m`, `_computeThreshold_trials.m`, `_fitPsychometric_steve.m`, `_fitPsychometric_trials.m`, `_psychometricFun_trials.m`) are pre-existing uncommitted work by the repo owner, not this tranche's — they were not touched, and the working tree's `_`-prefixed set matched section 1's count of 7 for this directory exactly, so nothing was ambiguous about which 12 files are actually in scope. Tranches 0.1.1–0.1.4's binding conventions were read in full before touching any file.
-
-**Convention check, per this tranche's own instruction to verify rather than assume.** `+experiment/+analysis/` is *not* the clean camelCase directory `+experiment/+main/` turned out to be. Every file's local scratch variables (`exp_values`, `target_means`, `num_targets`, `p_c`, `a_init`, `n_boot`, `blank_mean`, `thresholds_lum_cont`, `lum_cont`, …) are snake_case, consistently, across all 12 files; only variables that are function parameters, loop counters, or that mirror an `ExpSettings`/`SubjectExpFile` field are camelCase (`expTypeStr`, `subjectStr`, `bPlot`, `bBootstrap`, `nTrials`, `nLevels`, `bTarget`, `iBoot`, `iLevel`). This is the mirror image of tranche 0.1.3's finding for a camelCase file inside a snake_case `+lib/` — here it is snake_case scratch locals inside a camelCase-named-file package, and it is consistent enough across all 12 files (not just one outlier) that it reads as this directory's own established style rather than drift to correct. **Decision: kept the existing split as-is** — camelCase for parameters/loop-counters/struct-mirroring locals, snake_case for scratch/derived locals — rather than importing either convention wholesale. Loop counters follow the established camelCase (`iBoot`, `iLevel`, and new ones introduced below), matching 0.1.1's rule for `+experiment/`.
-
-**Baseline: HEAD, for all 12.** `git status -- '+experiment/+analysis'` and `git diff HEAD -- '+experiment/+analysis'` were both empty before this tranche started, so the tooling entry's default rule applies. Pre-edit copies of all 12 files were copied from the working tree (byte-identical to HEAD) into a scratch directory and `check_stage1` was run against those copies.
-
-**Verbatim checker output**, from a sweep script that builds each file's rename map and runs `assert_rename_bijection` (inside `check_stage1`) then the reverse-rename comparison:
-
-```
-24.2.0.2923080 (R2024b) Update 6
-check_stage1 psychometricFun.m                             1  (7 renames)
-check_stage1 computeNegLogLikelihood.m                     1  (12 renames)
-check_stage1 fitPsychometric.m                             1  (10 renames)
-check_stage1 computeNegLogLikelihood_edgeResponse.m        1  (19 renames)
-check_stage1 computeThreshold_edgePower.m                  1  (25 renames)
-check_stage1 computeThreshold_edgeResponse.m               1  (27 renames)
-check_stage1 computeThreshold_texture_exponent.m           1  (25 renames)
-check_stage1 computeThresholdsVsStatistic.m                1  (5 renames)
-check_stage1 compute_thresholds_vs_lum_cont.m              1  (4 renames)
-check_stage1 plotThresholdvsCondition_mine.m               1  (0 renames)
-check_stage1 computeBootstrappedThreshold.m                1  (1 renames)
-check_stage1 computeTemplateResponseSigma.m                1  (5 renames)
-files checked : 12
-check_stage1 true : 12
-check_stage1 false: 0
-```
-
-Three files failed on the first pass and were fixed before the run above: `computeThreshold_edgePower.m` and `computeThreshold_texture_exponent.m` each had a loop counter renamed to `iLevel`, which collided with a *different*, already-existing `iLevel` elsewhere in the same file (the bootstrap inner loop) — a rename-chain that `assert_rename_bijection` is specifically designed to catch (old name `iLevel` on the domain side, new name `iLevel` on the range side). Fixed by renaming the outer per-level loop to `iTargetLevel` instead, freeing `iLevel` for the (separately renamed) bootstrap loop, `iBootLevel`. `compute_thresholds_vs_lum_cont.m` failed because the chosen new name `threshold` collided with the pre-existing string literal `'threshold'` in `zlabel 'threshold'` — the exact hazard tranche 0.1.2's "decision A" describes, just with a plot label instead of an `addParameter` key. Fixed by renaming to `fit_threshold`/`fit_threshold_std` instead. **All three are recorded here because they are exactly the two escalation-relevant traps this tranche was warned about, not because the fix was unclear.**
-
-Golden harness replayed as a free extra confirmation, since three of this tranche's files (`computeNegLogLikelihood.m`, `fitPsychometric.m`, `psychometricFun.m`) are inside its coverage — **these are the three files item 0.2.2 means by "the three psychometric functions"**:
-
-```
-golden_harness: replay matched all 32 fields
-```
-
-`checkcode -id` gives the **same message-id count in every file, before and after**: `computeBootstrappedThreshold.m` 10, `computeNegLogLikelihood_edgeResponse.m` 2, `computeTemplateResponseSigma.m` 5, `computeThreshold_edgePower.m` 8, `computeThreshold_edgeResponse.m` 13, `computeThreshold_texture_exponent.m` 9, `computeThresholdsVsStatistic.m` 3, everything else 0. No lint introduced, none fixed.
-
----
-
-**Renames — the vocabulary, built here since no earlier tranche touched this directory's fit-model terms.** The signal-detection psychometric model (`experiment.analysis.psychometricFun`, fit by `fitPsychometric`/`computeNegLogLikelihood`) uses bare `a`, `b`, `c`, `d`, `p_c`, `p_h`, `p_cr`; the edge-response variant (`computeNegLogLikelihood_edgeResponse`/`computeThreshold_edgeResponse`) uses `th`, `n`, `sigma`, `r`. Renamed consistently across every file that shares the vocabulary:
-
-| meaning | name | notes |
-|---|---|---|
-| Weibull scale (stimulus level at d' = 1) | `threshold_scale` | was `a`. Docstring already called this "model alpha"; not renamed to `alpha` because `ExpSettings.alphas`/`\alpha` already means *texture exponent* in `computeThreshold_texture_exponent.m` — reusing the word for a different quantity in the same file would be a readability trap, not a fix |
-| Weibull shape exponent | `slope` | was `b` |
-| criterion asymmetry, dimensionless in (-1,1) | `bias` | was `c` |
-| sensitivity index | `d_prime` | was `d`. Per section 4.1.1's own warning, `d` means something else in `+tinker/` — checked file by file, not name by name |
-| probability of a hit / correct rejection / correct | `p_hit` / `p_correct_rejection` / `p_correct` | were `p_h` / `p_cr` / `p_c` |
-| trial counts feeding the binomial likelihood | `n_blanks`, `n_targets`, `n_hits`, `n_correct_rejections` | were `num_blanks`, `num_targets`, `num_hits`, `num_cr` — the `num_*`→`n_*` rule tranche 0.1.4 already applied to a camelCase file |
-| log likelihood / negative log likelihood | `log_likelihood` / `neg_log_likelihood` | were `ll` / `nll` |
-| edge-response model's threshold-like and shape parameters | `exponent`, plus **`threshold` in `computeNegLogLikelihood_edgeResponse.m` but `edge_threshold` in `computeThreshold_edgeResponse.m`** | were `n` and `th`. See the collision note below for why the same old name got two different new names across these two sibling files — a deliberate exception to "one vocabulary per concept," forced by a pre-existing bug |
-| pooled edge response and its per-level blank/target moments | `edge_response`, `response_blank_means`, `response_blank_sds`, `response_target_means`, `response_target_sds` | were `r`, `r_b_means`, `r_b_sds`, `r_t_means`, `r_t_sds` |
-| per-level loop counter | `iLevel` (outer, uncontested files) / `iTargetLevel` (where a bootstrap-inner `iLevel` already existed) / `iBootLevel` (that inner loop) / `iSession` (loop over completed sessions, was `cItr`/`idx`) | see the collision note |
-
-**A deliberate, file-specific exception forced by B3.10.** `computeThreshold_edgeResponse.m`'s `%% Bootstrap` section is the copy-pasted, never-adapted scaffolding B3.10 already documents: it references `target_means`, `target_sds`, `exp_values`, and `threshold`, none of which this function ever assigns. Its sibling `computeThreshold_edgePower.m` names its own fitted parameter `threshold` (`= mu + threshold_scale`) with no such conflict. Renaming this file's `th` to `threshold` too would have coincided with the Bootstrap section's already-broken bare `threshold` reference and **silently supplied it a value** — turning a loud, reproducible error into a quiet non-error, which is a real behaviour change and would have buried B3.10 rather than left it intact. Renamed to `edge_threshold` instead, and the file's header explains why, citing B3.10 by id. The Bootstrap section's other three undefined names, `a`/`b`/`c`, were renamed anyway (to `threshold_scale`/`slope`/`bias`, matching the vocabulary above) because neither the old nor the new name is ever validly assigned in that file — renaming an already-undefined identifier cannot mask anything. `target_means`, `target_sds`, `exp_values`, and the bare `threshold` inside that same Bootstrap section were left **completely untouched**, both because they are never validly assigned (so renaming risked nothing) and to keep the B3.10 citation's variable names matching the code exactly.
-
-**The `iLevel` collision, generalized.** Three files (`computeThreshold_edgePower.m`, `computeThreshold_edgeResponse.m`, `computeThreshold_texture_exponent.m`) each contain two conceptually-similar but textually-distinct per-level loops: an outer one (originally `i` or, in `computeThreshold_edgeResponse.m`, absent from the final `bPlot` loop's `i`) and a bootstrap-inner one (originally `iLevel`). Naming both `iLevel` — the natural choice for either alone — creates exactly the rename-chain `assert_rename_bijection` forbids. Resolved uniformly across all three files: the outer loop is `iTargetLevel` (since in every case it is indexing per-level target statistics), the inner bootstrap loop is `iBootLevel`. **Later tranches: if a file has two loops that both deserve the same natural per-level name, check whether one of the two old names is itself `iLevel` (or otherwise equal to the other's natural new name) before choosing — the fix is to make the new names describe what's different about each loop (here, "target" vs "boot"), not to abbreviate one of them.**
-
-**Convention 3 held throughout.** `ExpSettings`, `SubjectExpFile`, `nTrials`, `nLevels`, `bTargetPresent`/`bTarget`, `levelCompleted`, `correctRejection`, `edgePowers`, `ImgStats`, `expTypeStr`, `subjectStr`, `targetTypeStr`, `binIndexLevels` and similar were left exactly as found, including where a local's name only *approximately* mirrors the struct field it is copied from or into: `correct_reject` (local) vs. `SubjectExpFile.correctRejection` (field) is exactly 0.1.1's convention-7 situation — both are file-local-vs-frozen-field mismatches, not touched, and each file's header now says so explicitly so the mismatch isn't mistaken for an oversight.
-
-**`computeThresholdsVsStatistic.m` and `computeTemplateResponseSigma.m` share vocabulary deliberately**, even though `check_stage1` is per-file and doesn't require it: `tSigma`→`templateSigma`, `iLum`/`iCon`/`iSim`→`iLuminance`/`iContrast`/`iSimilarity`/`iTarget` (from `iTar`) are the same rename in both files, since the former calls the latter and passes results back and forth under these names.
-
-**Calls to `analysis.*` and `nm.analysis.*` were left exactly as written, not repointed to `experiment.analysis.*`.** `computeThresholdsVsStatistic.m`, `compute_thresholds_vs_lum_cont.m`, and `computeBootstrappedThreshold.m` all call an unqualified `analysis.*` or `nm.analysis.*` function that does not resolve (B2.9, pre-existing) — adding the missing `experiment.` prefix would be an obvious-looking one-word fix, and is exactly the kind of call-site repair Stage 1 forbids (it changes what the AST resolves to, which is a real behaviour change, not a rename). Left alone and cited to B2.9 in each file's header.
-
-**Line-length exceptions — two, both commented-out (dead) lines**, left byte-identical rather than reflowed, same reasoning as every earlier tranche: `computeThreshold_edgeResponse.m` post-edit line 129 (a sketch of a never-written `fitPsychometric_edgeResponse` two-stage fit, part of triage block T5.5 below) and `computeThreshold_texture_exponent.m` post-edit line 165 (the commented `rectangle(...)` alternative to the live `errorbar(...)` call two lines below it). Every live line in all 12 files is under 100 characters; the large `computeThreshold_*` family needed extensive `...` continuation with a four-space hanging indent to get there, since several lines packed 4–5 statements or an 8-argument call onto one line.
-
-**Line endings: this directory's own pre-existing convention is CRLF, confirmed and preserved, not creep.** All 12 pre-edit files were already 100% CRLF (verified: `grep -c $'\r'` equals `wc -l` exactly, for every file, both before and after editing) — unlike `+lib/`'s uniform LF, this directory (all authored by Steve Sebastian/Jared Abrams per the file headers) was CRLF from the start. Preserved throughout; this was checked explicitly rather than assumed, per the skill's CRLF-creep warning, and the new `Contents.m` (a genuinely new file, no pre-existing convention to match) was written LF to match every other `Contents.m` in the repo (e.g. `+experiment/+main/Contents.m`).
-
-**Contents.m — written**, `+experiment/+analysis/Contents.m`, covering all 12 in-scope files (this tranche cleans the whole in-scope set in one pass, so per 0.1.1's precedent for a fully-cleaned package, no deferral was needed). Notes the `analysis.*`/`nm.analysis.*` resolution gap (B2.9) and that the 7 `_`-prefixed files are excluded pending S3.6.
-
-**Bugs found: one new, recorded in section 0.4 and not fixed.**
-
-- 🟠 **B2.17.** `+experiment/+analysis/plotThresholdvsCondition_mine.m` references an undefined variable `dur` and errors immediately if run — same class as tranche 0.1.4's B2.16 (an ad-hoc, uncalled scratch script), so filed at the same severity.
-
-Nothing else new: `B3.9` (`computeThreshold_edgeResponse.m`'s function name vs. filename), `B3.10` (the undefined-variable Bootstrap block in the same file), `B2.9` (the `analysis.*`/`nm.analysis.*` resolution gap), `B2.11` (the hardcoded Dropbox paths in `computeBootstrappedThreshold.m`), and `B3.4` (`computeTemplateResponseSigma.m`'s `size(...<300)` and loop-bound issues) were all re-confirmed by reading these files and are cited in the relevant files' headers rather than re-filed.
-
-**Commented-out code — triaged below in section 4.1.4 (T5.1–T5.5).** Five blocks/fragment-groups found across `computeNegLogLikelihood.m`, `computeNegLogLikelihood_edgeResponse.m`, `fitPsychometric.m`, and `computeThreshold_edgeResponse.m`, all variants on the same theme: an earlier, more general form of the fit (a 4-parameter model with `mu` free, or a per-trial rather than per-level-summarized likelihood, or a bias-aware edge-response likelihood) that was fixed/simplified down to what's live today. None were previously listed in section 4.1.4's sizing table for this directory except the one `computeNegLogLikelihood.m` row; the rest are new, found on first read of each file, per the skill's triage-at-read-time rule. All verdicts are **alternative** or **unfinished** — nothing here was judged **superseded**, since in every case the live code is a genuine simplification (fewer parameters, or a different pooling rule) rather than a strict improvement on the same computation.
-
-**Stage 2 not attempted** — this tranche's Stage 2 is item 0.2.2, pattern-check only except the three psychometric functions named above (golden-checked here as a bonus, formally item 0.2.2's job). The four patterns, surveyed across all 12 files: `NOSEMI` none (the pre-existing `checkcode` `NOSEMI`-free state was preserved); `AGROW` several, all pre-existing and unchanged (the `exp_values`/`bTarget`/`hit`/`correct_reject`/`correct` pooling loops in the `computeThreshold_*` family, `thresholds`/`thresholdsStd` in `computeThresholdsVsStatistic.m`, `patchIndex`/`tMatch`/`scaleFactor` in `computeTemplateResponseSigma.m`); `find` none present anywhere in this directory; unused assignments unchanged (`blank_mean`, `mu_sd` in the `computeThreshold_*` family — both pre-existing `NASGU`s, not introduced and not touched).
+Baseline: HEAD. Convention: snake_case-scratch-locals + camelCase-parameters/struct-mirrors/loop-counters, consistent across all 12 — kept as found. 3 files failed first pass (rename-chain collisions, all self-caught, no escalation): `iLevel` reused for two different loops in 2 files; a rename onto an existing plot-label string literal in the 3rd. Deliberate exception: `threshold` vs `edge_threshold` across sibling files, forced by B3.10's dead scaffolding (renaming would silently supply a value to an undefined-variable dead block). `mean_subj_acc` left deliberately untruthful — renaming would erase evidence of the B1.9 pattern. Line-length exceptions: 2. `+experiment/+analysis/Contents.m` written. Bug found: B2.17. Commented-out code: T5.1–T5.5, all alternative/unfinished.
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h5 style="display:inline; margin:0; font-size:0.92em">Tranche 0.1.6 — <code>+experiment/</code> top level (26 files, 1390 lines)</h5></summary>
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.7 — `+experiment/` top level (26 files, 1390 lines)</h5></summary>
 
 <div style="margin-left:1.5em">
 
-**Done**, under **MATLAB 24.2.0.2923080 (R2024b) Update 6**. All 26 top-level files: `gammaCorrect.m`, `generateTargetPresentMatrix.m`, `generate_camouflage_stimuli{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m`, `loadCurrentSession.m`, `loadStimuliCamouflage.m`, `sampleNoisePatchForExperiment.m`, `samplePatchesForExperiment.m`, `sampleUniformPatchForExperiment.m`, `saveCurrentLevel.m`, `sessionSettings{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m`, `setUpExperiment{,_all,_diff_bg,_search,_shape_exponent,_texture_exponent}.m`, `subjectExperimentFile.m`, `transform_camouflage_stimuli.m`. Tranches 0.1.1–0.1.5's binding conventions were read in full before any file was touched. The working tree was checked directly against that file list rather than trusting the survey count: 26 files, no `_`-prefixed files in this directory, nothing dirty.
-
-**Baseline: HEAD, for all 26.** `git status -- '+experiment/'` and `git diff HEAD -- '+experiment/'` were both empty before this tranche started. Pre-edit copies were extracted with `git show HEAD:<path>` into a scratch directory and confirmed byte-identical to the working tree with `cmp` on all 26 before any edit; `check_stage1` compared against those copies.
-
-**Verbatim checker output**, from a sweep script that builds each file's rename map and runs `assert_rename_bijection` (inside `check_stage1`) then the reverse-rename comparison:
-
-```
-24.2.0.2923080 (R2024b) Update 6
-check_stage1 gammaCorrect                                   1  (2 renames)
-check_stage1 generateTargetPresentMatrix                    1  (2 renames)
-check_stage1 generate_camouflage_stimuli                    1  (3 renames)
-check_stage1 generate_camouflage_stimuli_all                1  (4 renames)
-check_stage1 generate_camouflage_stimuli_diff_bg            1  (4 renames)
-check_stage1 generate_camouflage_stimuli_shape_exponent     1  (4 renames)
-check_stage1 generate_camouflage_stimuli_texture_exponent   1  (6 renames)
-check_stage1 loadCurrentSession                             1  (1 renames)
-check_stage1 loadStimuliCamouflage                          1  (0 renames)
-check_stage1 sampleNoisePatchForExperiment                  1  (5 renames)
-check_stage1 samplePatchesForExperiment                     1  (7 renames)
-check_stage1 sampleUniformPatchForExperiment                1  (2 renames)
-check_stage1 saveCurrentLevel                               1  (0 renames)
-check_stage1 sessionSettings                                1  (0 renames)
-check_stage1 sessionSettings_all                            1  (0 renames)
-check_stage1 sessionSettings_diff_bg                        1  (0 renames)
-check_stage1 sessionSettings_shape_exponent                 1  (1 renames)
-check_stage1 sessionSettings_texture_exponent               1  (1 renames)
-check_stage1 setUpExperiment                                1  (7 renames)
-check_stage1 setUpExperiment_all                            1  (1 renames)
-check_stage1 setUpExperiment_diff_bg                        1  (3 renames)
-check_stage1 setUpExperiment_search                         1  (2 renames)
-check_stage1 setUpExperiment_shape_exponent                 1  (1 renames)
-check_stage1 setUpExperiment_texture_exponent               1  (2 renames)
-check_stage1 subjectExperimentFile                          1  (0 renames)
-check_stage1 transform_camouflage_stimuli                   1  (5 renames)
-files checked : 26
-check_stage1 true : 26
-check_stage1 false: 0
-```
-
-**One file failed the first run, and the failure was a real edit slipping in.** `generate_camouflage_stimuli_all` came back `0`, and the canonical diff was one line: the rewritten signature had **dropped the eleventh input argument, `bTargetPresent`**. That parameter is genuinely dead — the only caller passes ten arguments and the function's first act is to overwrite the name — which is exactly why it read as noise while the header was being written. Deleting it is a signature change, i.e. Stage 3. Restored, and the header now says plainly that the input is dead and why it is still there. **This is the tranche's main lesson: the check earns its keep against the edit that feels like tidying rather than like a change.** No escalation was needed, because the canonical diff named the cause in one line.
-
-This directory is outside the golden harness (section 2: `+experiment/` top level writes into `exp_files/`), so no runtime replay was attempted. `checkcode -id` gives **identical sorted message-id lists before and after in all 26 files** — verified programmatically rather than by eye, comparing `checkcode(pre,'-id')` against `checkcode(post,'-id')` file by file. No lint introduced, none fixed.
-
----
-
-**Convention check, per this tranche's own instruction to verify rather than assume.** `+experiment/` top level is **mixed, in the same pattern as `+experiment/+analysis/` (0.1.5) rather than the clean camelCase of `+experiment/+main/` (0.1.4)** — and consistently so across the family. camelCase is used for anything that mirrors a serialised struct field or a Psychtoolbox-side name (`nTrials`, `nLevels`, `nSessions`, `bTargetPresent`, `stimPosDeg`, `bgPixVal`, `monitorMaxPix`, `subjectStr`, `expTypeStr`, `folderOut`, `edgePowerBlockEdges`) and for loop counters (`iTrial`, `iLevel`, `iSession`, `iSubject`); snake_case is used for physical-quantity and scratch locals (`bg_size`, `target_radius`, `exp_type`, `texture_params`, `edge_powers`, `bg_exponents`, `target_coords`, `seeds_available`). **Decision: kept the split exactly as found**, same as 0.1.5. The one systematic change was to bring the *stragglers* into whichever side of the split their neighbours already use — plural loop counters `iTrials`/`iLevels`/`iBlocks` → `iTrial`/`iLevel`/`iBlock` in the three `sample*ForExperiment` files, matching every other loop in the package.
-
-**Decision A — `ml`/`cont` expand to `luminance`/`contrast`, but only in the files where no string literal blocks it.** Section 4.1.1 promised `ml`→`mean_lum` and `cont`→`contrast_rms`; that is **not** what this directory should get, for two reasons. First, convention 3's spirit: these two quantities are serialised as `ExpSettings.luminance` and `ExpSettings.contrast`, and the base `sessionSettings.m`/`setUpExperiment.m` already name their parameters `luminance`/`contrast`, so those are the directory's established words and `mean_lum` would be a third name for a quantity that already has two. Second, convention 7 says harmonise toward the caller, and the caller here is the base file. So `ml`→`luminance`, `cont`→`contrast` in `generate_camouflage_stimuli{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m`, `setUpExperiment_diff_bg.m` and `transform_camouflage_stimuli.m` (plus `ml_old`/`cont_old`→`luminance_old`/`contrast_old`).
-
-**But three files could not take the rename, and this is 0.1.2's decision A biting again**: `sessionSettings_diff_bg.m`, `sessionSettings_shape_exponent.m` and `sessionSettings_texture_exponent.m` each build the settings struct with `'luminance', ml, 'contrast', cont`, so `'luminance'` and `'contrast'` exist as **string literals in the same file**, and a zone-1 new name may never equal one. Renaming would have reverse-renamed the literals too and failed the check — or worse, silently changed a serialised field name. Those three keep `ml`/`cont`, with a paragraph in each header saying exactly why, so the inconsistency reads as a recorded constraint rather than a missed file. **Later tranches: the blocking literal does not have to be an `addParameter` key or a `case` label — a `struct(...)` field name and a plot label (0.1.5's `zlabel 'threshold'`) block a rename just as hard.**
-
-`contrast` shadows a builtin. Kept anyway, deliberately: it is already the parameter name of the base `sessionSettings` and a frozen field name, so avoiding the shadow would cost more than it buys. Recorded here so it is not "fixed" later.
-
-**Decision B — a `global` keeps its name; a local copy of the same quantity takes the 0.1.1 vocabulary.** `bdry_ribbon` appears in this directory only, at three `global bdry_ribbon` declarations (`setUpExperiment.m`, `_diff_bg.m`, `_texture_exponent.m`) and as a plain local in four generators. 0.1.1's vocabulary says the fourth output of `lib.target_mask` is `mask_strip` and that `bdry_` expands to `boundary_`. The locals were renamed to `mask_strip` accordingly — which also makes them agree with `generate_camouflage_stimuli_shape_exponent.m`, which already used `mask_strip` for the same value. **The three globals were left alone**: a global is shared workspace state across files, not file-local, so it belongs to zone 2 in spirit even though no other file reads it today. (Verified by grep that nothing outside these three files mentions `bdry_ribbon`, which also re-confirms S3.13's claim that the global is never read.) The resulting local-vs-global mismatch is noted in each `setUpExperiment*` header.
-
-**Decision C — the two `alphas` mean different things, so neither keeps the name.** `ExpSettings.alphas` holds a **target boundary shape** exponent in the `_shape_exponent` family and a **texture** exponent in the `_texture_exponent` family. The locals feeding it were `exponents`/`shape_exponents` in one family and `alphas`/`exponents` in the other, inconsistently within each family. Renamed to `shape_exponents` throughout the first family and `texture_exponents` throughout the second, so the local always says which exponent it is; the **field name `'alphas'` is frozen and unchanged** in both, and each header says so. This is the same trap 0.1.5 hit when it declined to rename its Weibull scale to `alpha` because `alphas` already meant texture exponent — the two entries are consistent, and neither directory now uses the bare word.
-
-**Convention 3 held everywhere else, and it does most of the work in this directory.** The `sessionSettings*` files are almost entirely locals that mirror a frozen `ExpSettings` field, which is why three of the five take **zero** renames. Two misspellings are frozen with them and were deliberately not corrected: the field `.moniter_brightness`, and the local `responseInvervalMs` that feeds `'responseIntervalMs'` — correcting the local's typo would make it equal that string literal in the same file, so it cannot be done in Stage 1 at all. Both are documented in every file that carries them.
-
-**The concrete vocabulary set here**, extending 0.1.1's and 0.1.3's tables:
-
-| meaning | name | notes |
-|---|---|---|
-| mean luminance / RMS contrast of a stimulus set | `luminance`, `contrast` | were `ml`, `cont`. Blocked in the three `sessionSettings_*` variants by the field-name literals; **not** 4.1.1's `mean_lum`/`contrast_rms`, per decision A |
-| the boundary ribbon returned by `lib.target_mask` | `mask_strip` | was `bdry_ribbon`, as a local. The `global bdry_ribbon` keeps its name (decision B) |
-| target boundary shape exponent vs texture exponent | `shape_exponents` / `texture_exponents` | both were `exponents` or `alphas`; the frozen field is `.alphas` in both families (decision C) |
-| a path built for a `save` | `filePathOut` | was `fpOut`, harmonised with `loadCurrentSession.m`'s existing `filePathSubject`/`filePathSession` |
-| a patch index array | `patchIndex` | was `pIndex`, in all three `sample*ForExperiment` files. Distinct from the pre-existing `patchIndexBin`, and from the dot-qualified `ImgStats.patchIndex` |
-| P–S texture-synthesis knobs | `n_scales`, `n_orientations`, `neighborhood_size`, `n_synthesis_iter` | were `Nsc`, `Nor`, `Na`, `Niter` — exactly 0.1.1's names, applied here to `setUpExperiment.m`. The **field** `texture_params.Niter` is untouched |
-| a source image on disk and its path | `source_image`, `source_image_path` | were `im0`, `input_img`, following 0.1.1's `source_image` |
-| kernel sigma | `kernel_sigma` | was `kernel_sd`, matching 0.1.2's `kernel_size = [sigma, n_sigma]` units |
-
-**Variant families: cleaned as five separate files, not merged.** Per the tranche's instructions, each variant was judged on its own merits. Concretely that means the headers differ where the code differs — each variant's header opens by naming what its level varies, lists the constants it hardcodes (which differ: `_shape_exponent` is 512 px at 120 ppd and 16 sessions, everything else is 256 px at 60 ppd and 4 sessions), and cites the bugs specific to it. The shared paragraphs — the frozen-field note, the S3.3 pointer — are worded identically across the family on purpose, so a future diff of base against variant shows only real differences. `setUpExperiment_search.m` was treated as its own paradigm, as S3.3 already says it should be.
-
-**Header docs — all 26 rewritten to the exemplar shape**, following 0.1.1/0.1.2/0.1.3/0.1.4's rendering (`% NAME  Summary.`, space after the `%`, `%   ` prose, `See also lib.FUNCTION` with lowercase package and uppercase function). Note this differs in two small ways from 0.1.5's output, which wrote `%NAME` with no space and `EXPERIMENT.ANALYSIS.NAME` fully uppercase; four tranches to one, so the majority form was followed rather than the immediately preceding one. Void functions get `Output: none (side effect: ...)`, per 0.1.4's extension of the exemplar.
-
-**Function bodies indented four spaces and a terminal `end` added, per binding convention 5.** Measured on the pre-edit copies: **8 of the 26 indented their body** (`setUpExperiment.m`, `setUpExperiment_texture_exponent.m`, the three `sessionSettings_*` variants, `generate_camouflage_stimuli.m`, `generate_camouflage_stimuli_texture_exponent.m`, `transform_camouflage_stimuli.m`) and **9 closed the function with an explicit terminal `end`** (`setUpExperiment{,_all,_shape_exponent,_texture_exponent}.m` and all five `sessionSettings*`). The two sets barely overlap, which is why the directory read as written by several hands. All 26 now have both. Recorded because 0.1.5 did not do this in `+experiment/+analysis/` — convention 5 is from 0.1.1 and was followed here.
-
-**Line endings: CRLF, this directory's own pre-existing convention, preserved.** All 26 pre-edit files were 100 % CRLF (CR byte count equal to LF byte count in every file, checked with `tr -cd` before and after), like `+experiment/+analysis/` and unlike `+lib/`. Verified after editing too, including a check that no file ended up with doubled CRs from the conversion pass — the specific creep 0.1.3 warned about. The new `Contents.m` was written LF, matching every other `Contents.m` in the repo.
-
-**Line-length exceptions — four, every one a commented-out (dead) line**, left byte-identical rather than reflowed, same reasoning as every earlier tranche: `generate_camouflage_stimuli.m` post-edit line 106 (127 chars, the `%fprintf('Cannot choose %d from %d available stimuli...')` inside the dead `else` block), `generate_camouflage_stimuli_shape_exponent.m` line 71 (140 chars, the commented earlier `lib.stimulus` call), `loadCurrentSession.m` line 69 (103 chars, the commented `disp` of luminance and contrast), and `setUpExperiment.m` line 119 (119 chars, the commented `folderOut` variant with the `_L`/`_C` suffix). Every live line in all 26 files is under 100 characters; the `sessionSettings*` and `generate_camouflage_stimuli*` families needed heavy `...` continuation with a four-space hanging indent to get there, since most calls in this directory packed eight to eleven arguments onto one line.
-
-**One tab removed**, in `setUpExperiment.m`'s `Niter = 25;	% Number of iterations` line — the only tab in the tranche.
-
-**Contents.m — written**, `+experiment/Contents.m`, covering **only** the 26 top-level files, since `+main/` and `+analysis/` are subpackages that already carry their own from 0.1.4 and 0.1.5; it names them and points at those. Grouped by job (setting up, the four variant families as a group, the search paradigm, running a session, the uncalled patch samplers) rather than alphabetically, and closes with the serialisation warning, because this is the package where the frozen `ExpSettings`/`SubjectExpFile` names live.
-
-**Commented-out code — triaged below in section 4.1.4 (T6.1–T6.9).** Nine blocks and fragment groups. Two were in the survey's sizing table (`setUpExperiment.m:52-64` and `:71-77`, plus `saveCurrentLevel.m:24-33`); the rest were found on first read, per the triage-at-read-time rule. Nothing was judged *superseded* except one fragment whose replacement is on the next live line.
-
-**Bugs found: three new, recorded in section 0.4 and not fixed** — 🟠 **B2.18** (`transform_camouflage_stimuli` reads `.nBlocks`/`.stimuliSeed`, which only the `_texture_exponent` chain emits, from inside the *base* chain), 🟡 **B3.17** (`samplePatchesForExperiment`'s duplicated `nargin < 9` guard silently discards `simTypeStr`), 🟡 **B3.18** (`generate_camouflage_stimuli_texture_exponent` writes `texture.alpha`, which `lib.stimulus` never reads, so its whole level manipulation would be a no-op once the file's other blockers are fixed). B3.18 is the same shape as B3.15: latent only because a louder bug fires first, and it must be settled together with B2.9 and B2.4.
-
-Re-confirmed by reading and cited in the relevant files' headers rather than re-filed: B1.3, B1.4, B1.6, B2.1, B2.4, B2.6, B2.7, B2.8, B2.9, B2.10, B2.13, B3.7, B3.8, and the S3.13 scaffolding sites (the never-read `global bdry_ribbon`, the duplicate `bTargetPresent` write, the unmodified re-`save`). One thing deliberately **not** filed: `generate_camouflage_stimuli_all.m`'s eleventh input `bTargetPresent` is dead (no caller passes it, and the body overwrites the name immediately) — that is a signature cleanup for S3.3, not a defect, and it is the argument this tranche accidentally deleted and had to restore.
-
-**Stage 2 not attempted** — this tranche's Stage 2 is item 0.2.3, pattern-check only, per the recorded decision in section 2. The four patterns, surveyed across all 26 files: **`NOSEMI`** none; there is one unsuppressed display, `setUpExperiment_search.m`'s `[iSession iTrial target_loc_index]`, and it is the **deliberate** kind the skill warns about — it is the only progress report while that file generates 2280 large stimuli, so a comment was added saying so rather than a semicolon. **`AGROW`** none anywhere in the directory. **`find`** three sites, none convertible: `loadCurrentSession.m:47` needs the two subscripts themselves, `:65` needs a scalar bin number, and `samplePatchesForExperiment.m:78`'s index is used to subscript a *second* array. **Unused assignments** three, all pre-existing and none a deletion target: `targetKeyIndex` and `nPatches` in `sampleNoisePatchForExperiment.m` (the function's real body was replaced by synthesis and these are what is left of the patch-sampling version), and the dead eleventh input above.
+Baseline: HEAD. One file (`generate_camouflage_stimuli_all`) failed first pass — the rewritten header had dropped a dead parameter (`bTargetPresent`) from the signature, a real Stage-3-level edit; restored, documented as the tranche's main lesson. Convention: mixed camel/snake kept as found, only stragglers harmonized. **Decision A:** `ml`/`cont`→`luminance`/`contrast` (overriding the original `mean_lum`/`contrast_rms` prediction), blocked in 3 sibling files by string-literal collisions with struct-field names. **Decision B:** `global bdry_ribbon` keeps its name; local copies renamed to `mask_strip`. **Decision C:** the two meanings of `ExpSettings.alphas` (shape vs texture exponent) get two different local names while the frozen field stays `.alphas` in both. Two misspellings frozen and left uncorrected: `.moniter_brightness` field, `responseInvervalMs` local. Variant families cleaned as five separate files, not merged (S2.3's job later). Line-length exceptions: 4. `+experiment/Contents.m` written (top-level only). Commented-out code: T6.1–T6.9. Bugs found: B2.18, B3.17, B3.18.
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h5 style="display:inline; margin:0; font-size:0.92em">Tranche 0.1.7 — <code>+general/</code> live model chain (4 files, 833 lines)</h5></summary>
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.8 — `+general/` live model chain (4 files, 833 lines)</h5></summary>
 
 <div style="margin-left:1.5em">
 
-**Done**, under **MATLAB 24.2.0.2923080 (R2024b) Update 6**. The four files named in the tranche table: `compute_nat_img_eff_coding_bins.m` (355 lines), `compute_edge_props_exp_pca.m` (116), `fit_edge_model_with_exps.m` (309), `compute_nll_edge_model.m` (53) — 833 lines, matching the table exactly. Confirmed against the working tree before starting, since several `+general/` files show `R`/`RM` renames to `_`-prefixed names from the user's own pre-existing work; none of the four is one of those, and `_fit_edge_model_old.m`, `_fit_edge_model.m` and `_fit_edge_model_naive_scaling.m` were left untouched. Tranches 0.1.1–0.1.6's conventions were read in full before any file was touched and applied as written; the decisions below are new situations those tranches did not cover.
-
-**Baseline: a pre-edit backup copy for all four, not HEAD** — the stricter of the two rules, applied uniformly. The tooling entry requires it for `compute_nat_img_eff_coding_bins.m` and `fit_edge_model_with_exps.m`, which carry the uncommitted `colorbarpzn(...)` → `vislab.lib.colorbarpzn(...)` repoint; the other two were clean and HEAD would have done, but copying all four to the same scratch directory before editing removes the chance of picking the wrong baseline for the wrong file. The repoint was **kept**, not reverted: it is live at post-edit `compute_nat_img_eff_coding_bins.m:229,237` and commented-out at `fit_edge_model_with_exps.m:241,247`, verified present after the edit.
-
-**Verbatim checker output**, from a sweep script that builds each file's rename map and runs `assert_rename_bijection` (inside `check_stage1`) then the reverse-rename comparison against the pre-edit copies:
-
-```
-24.2.0.2923080 (R2024b) Update 6
-check_stage1 compute_nat_img_eff_coding_bins    1  (51 renames)
-check_stage1 compute_edge_props_exp_pca         1  (15 renames)
-check_stage1 fit_edge_model_with_exps           1  (30 renames)
-check_stage1 compute_nll_edge_model             1  (22 renames)
-files checked : 4
-check_stage1 true : 4
-check_stage1 false: 0
-```
-
-All four passed on the first run; no escalation was needed. **The golden harness covers none of these four files** (grepped `tools/golden_harness.m` for `general.` and for each filename — no hits; section 2 already puts `+general/` in the pattern-check-only group, item 0.2.4), so no replay was attempted. `checkcode -id` gives **identical sorted message-id lists before and after in all four files**, compared programmatically: `compute_nat_img_eff_coding_bins` `SAGROW` x6, `compute_edge_props_exp_pca` `NOPTS` x2 + `SAGROW` x3, `fit_edge_model_with_exps` `NASGU` + `NOPTS` x4, `compute_nll_edge_model` clean. No lint introduced, none fixed.
-
----
-
-**Decision A — a variable reached by `eval` of a string keeps its name, and `check_stage1` cannot protect you here.** This is the most dangerous thing in the tranche and it is new: `compute_edge_props_exp_pca.m` reaches `grad_m`, `grad_o`, `grad_p` through `eval(input_array_names{i_input})` where `input_array_names = {'grad_m', 'grad_o', 'grad_p'}`, and reaches the fifteen per-scale outputs through `eval(['grad_m_' num2str(2^(i_scale-1))])`. Renaming any of them would have **passed `check_stage1` cleanly and broken the script**: the checker reverse-renames identifiers in the canonical text, and a name assembled at runtime out of a string literal and `num2str` is not an identifier the regex can see. 0.1.2's decision A is the same hazard one step milder (a new name equal to a string literal, which the checker *does* catch by rewriting the literal). **Rule for later tranches: before renaming anything, grep the file for `eval`, `evalin`, `assignin`, `feval`, `str2func` and `exist('...','var')`, and treat every name those can construct or test as frozen.** Concretely this file also keeps `h`, because it is tested with `exist('h', 'var')`. `+general/` has several more `eval`-driven scripts, so tranche 0.1.8 will hit this again.
-
-**Decision B — a name that arrives from a bare `load` is frozen exactly like a `save` literal.** `compute_edge_props_exp_pca.m:8` does `load('vislab-common/data/nat_im_eff_coding.mat')` with no output argument, which injects `grad_pca_m_bins`, `grad_pca_o_bins`, `grad_pca_p_bins` and `pca_coeffs` into the workspace under the names the `.mat` carries. Section 4.1.1's zone 3 is phrased around `save`/`load` *string literals*; this is the mirror case, where the frozen names appear nowhere as literals in the reading file at all. Same for `ExpSettings`, `edge_props`, `SubjectExpFile` and `texture_list` in `fit_edge_model_with_exps.m`. All left alone.
-
-**Decision C — the bins keep their short names while the arrays they are computed from get long ones, and that mismatch is deliberate.** `compute_nat_img_eff_coding_bins.m` saves `grad_m_bins`, `grad_o_bins`, `grad_p_bins`, `grad_pca_m_bins`, `grad_pca_o_bins`, `grad_pca_p_bins`, `grey_hist_bins` and `pca_coeffs` by name (zone 3, frozen), but the arrays they are quantised from are plain locals, so `grad_m` → `grad_magnitude`, `grad_o` → `grad_orientation`, `grad_p` → `grad_product` and their `_this`, `_flat` and `_pca_` variants were expanded per 0.1.2's `mag`→`magnitude`, `or`→`orientation`, `prod`→`product`. The file therefore reads `grad_m_bins(i_scale,:) = [-inf, quantile(grad_magnitude_flat(:,i_scale), ...), inf]`. Expanding the bin names too would have rewritten the `save` literals; leaving the arrays short would have thrown away most of the file's readability. The header says which names are frozen and why. The names in the commented-out `save("cdfs.mat", "ea", "Na", ...)` at `:294` are frozen the same way (they are in 4.1.1's enumerated zone-3 list) and `ea`/`Na`/`eb`/`Nb`/`er`/`Nr`/`coeff` were left as found even though they are bare two-letter names.
-
-**Decision D — `+general/` is snake_case, so loop counters become `i_<thing>`, but a name that mirrors a frozen `ExpSettings` field keeps its camelCase.** `iLevel`, `iTrial`, `iSession`, `iFeature`, `iTex` became `i_level`, `i_trial`, `i_session`, `i_feature`, `i_texture`; `nLevels` and `nTrials` were **kept** camelCase in `compute_edge_props_exp_pca.m`, `fit_edge_model_with_exps.m` and `compute_nll_edge_model.m`, because they are `ExpSettings` field names and 0.1.6's recorded split (camelCase for anything mirroring a serialised field, snake_case for physical-quantity and scratch locals) is the same split these files already use. `num_*` → `n_*` was applied (`num_figs`→`n_figs`, `num_correct`→`n_correct`, `num_scales`→`n_scales`, `num_el`→`n_elements`).
-
-**Two convention-1 collisions, resolved differently, and the reasoning matters more than the names.** In `fit_edge_model_with_exps.m`:
-
-- `x` is a plotting abscissa in cell 1 (`x = (1:nLevels)'`) and the argument of an anonymous function in cell 3 (`arrayfun(@(x) isequal(x, tex), ...)`). One old name gets one new name, and no single name fits both roles, so **`x` was left alone — and `y` and `dy` were left with it**, so the plotting triple stays a triple rather than becoming `x`, `subj_accuracy`, `subj_accuracy_sd`. Recorded rather than silently skipped.
-- `iTex` (cell 3, the per-texture model fit) and `i_tex` (cell 4, the per-texture display loop) are two counters over the same `texture_list` in the same script workspace. Renaming `iTex` **onto** the existing `i_tex` is the trap 0.1.5's `iLevel` note warns about and would have failed the check outright, since the reverse rename rewrites the pre-existing `i_tex` too. Resolved as 0.1.5 prescribes, by naming what is different about each loop: `i_texture` for the fit, `i_texture_display` for the display.
-
-**Two names deliberately **not** made truthful, because doing so would erase a recorded bug.** `mean_subj_acc` in `fit_edge_model_with_exps.m:215` holds **model** accuracy, not subject accuracy — that is exactly B1.9. Renaming it to the truth would have made the bug invisible in the source and left B1.9's description referring to a name that no longer exists, so it, `model_acc`, `avg_subj_acc` and `var_exp` were all left as found (renaming only its siblings would have made the file look inconsistent for no gain), and the header says plainly what the variable actually contains and cites B1.9. This is the same principle as 0.1.5's refusal to rename `th`→`threshold` in `computeThreshold_edgeResponse.m`. Likewise `f = get(gca, 'Children')` is assigned live but read **only** by the commented-out `legend(...)` line below it, so it keeps its name — the mirror of 0.1.2's decision B.
-
-**Zone-2 names held everywhere they appeared.** `thresh`, `pad_val`, `pca_coeffs`, `edge_pixels`, `kernel_size`, `bg_size`, `target_radius`, `texture`, `normalize` were left exactly as found in these files. `thresh` and `pad_val` in `compute_nat_img_eff_coding_bins.m` are both assigned live and read only by commented-out code (`thresh` by T7.3, `pad_val` by nothing at all) — kept for the zone-2 reason, which settles them regardless. `lum`/`cont` in `fit_edge_model_with_exps.m:299-300` are **not** parameters, just two unused locals, so 0.1.6's decision A applies and they became `luminance`/`contrast`; nothing in that file has `'luminance'` or `'contrast'` as a string literal, which was checked before choosing.
-
-**The concrete vocabulary set here**, extending 0.1.1's, 0.1.3's and 0.1.6's tables:
-
-| meaning | name | notes |
-|---|---|---|
-| sensitivity index, everywhere in `fit_edge_model_with_exps.m` | `d_prime`, `d_primes`, `d_primes_model`, `d_prime_subj`, `d_prime_contributions` | were `dprime*`. Harmonised with 0.1.5's `d_prime`, so the repo has one spelling; the files themselves were internally consistent already, this only aligns them with `+experiment/+analysis/` |
-| the internal noise sd fitted by the edge-counting model | `noise_sd` | was `sig_n`. Not `sigma`, which 0.1.5 already uses for the edge-response template's own sd |
-| that model's decision variable | `edge_count_z` | was `d_n`. It is a z-score of an edge-pixel count, not a d' |
-| pooled response moments per level | `response_blank_means`, `response_blank_sds`, `response_target_means`, `response_target_sds` | were `r_b_means` etc. — exactly 0.1.5's names, reused rather than re-derived |
-| hit/false-alarm d' and the false-alarm rate | `d_prime_hit_false_alarm`, `false_alarm_rate` | were `dprime_hf`, `fa_rate` |
-| per-texture error rates and their binomial sd | `error_rates_model`, `error_rates_subj`, `error_rate_sd_subj` | were `errs_model`, `errs_subj`, `err_sd_subj` |
-| the fitted efficiency scalar and its residual | `efficiency_scalar`, `squared_error` | were `s`, `sqerr` |
-| a sample-optimised decision boundary | `overall_boundary` | was `overall_bd` |
-| patch normalisation arguments of `lib.ptch_norm` | `norm_mean`, `norm_contrast`, `norm_type` | were `m0`, `c0`, `ntype` — 4.1.1's named one-offs. Read off `+lib/ptch_norm.m:3-7`'s own docstring: desired mean (greylevels), desired contrast, normalisation type |
-| a patch's top-left corner | `patch_row_start`, `patch_col_start` | were `patch_x`, `patch_y`, which were a lie: the first indexes rows and the second columns. Exactly the misnaming class this pass exists to fix, and the same swap that B3.14 is about elsewhere |
-| sizes in `compute_nat_img_eff_coding_bins.m` | `patch_size`, `patch_padded_size`, `max_filter_size`, `source_image_size`, `n_elements` | were `patch_sz`, `patch_extra_sz`, `max_filter_sz`, `img_sz`, `num_el`. `sz` → `size` throughout |
-| kernel scale parameters | `kernel_sigma_list`, `kernel_sigma_max`, `kernel_n_sigma` | were `kernel_sd_list`, `kernel_sd_max`, `kernel_nsd` — 0.1.2's `kernel_size = [sigma, n_sigma]` spelling |
-| a source image and its path | `source_image_rgb`, `source_image_grey`, `source_image_otf`, `source_image_path` | were `img_rgb`, `img_grey`, `img_otf`, `name`, following 0.1.1's `source_image` |
-| the steerable filter pair | `filter_kernel` | was `filt`, 0.1.1's name |
-| a correlation matrix being displayed | `corr_raw`, `corr_pca` | were `r_raw`, `r_pca` |
-| the grid arrays an `arrayfun` sweeps over | `trial_grid`, `level_grid`, `session_grid` | were `Itrial`, `ILevel`, `ISession`. Deliberately not `i_*`: they are arrays of indices, not loop counters, and the `arrayfun`'s own arguments are the counters (`i_trial`, `i_level`, `i_session`) |
-
-**Header docs — all four rewritten to the exemplar shape**, with 0.1.6's rendering (`% NAME  Summary.`, space after `%`, `See also lib.FUNCTION`). **Three of the four are scripts, so the exemplar's `Inputs`/`Output` blocks were re-read as "what this reads from disk" and "what it writes to disk, plus what it plots"** — a script has no signature and no arguments, but it does have inputs and outputs, and the checklist's requirement is about units and provenance, not about argument lists. A `Cells` list was added to `fit_edge_model_with_exps.m`, which has four independent `%%` sections. This extension is recorded because tranche 0.1.8 is 27 more `+general/` scripts and should do the same rather than invent a third shape.
-
-**`compute_nll_edge_model.m` gained an indented body and a terminal `end`**, per binding convention 5; it had the indentation already but ended at the `if`'s `end` with no function `end` and, as it happens, no final newline either. The other three are scripts, so neither applies.
-
-**Line-length exceptions — thirteen, every one a commented-out (dead) line**, left un-reflowed for the same reason as every earlier tranche (rewrapping dead code invents wrapping that was never the author's and makes verbatim restoration harder for S3.16): `compute_edge_props_exp_pca.m` post-edit lines 51 (144 chars) and 52 (121), the full 14-experiment `exp_paths` list; `fit_edge_model_with_exps.m` lines 61 (144), 62 (121), 64 (144), 68 (119) — two more copies of that list plus the full `edge_feature_names` list — and 258 (120), the 13-element `legend(...)` call; `compute_nat_img_eff_coding_bins.m` line 144 (104), the commented `rgb(...)` accumulation; `compute_nll_edge_model.m` line 76 (114), the commented `cellfun`/`lib.new_edge` line. **Every live line in all four files is under 100 characters.** Getting there needed heavy `...` continuation with a four-space hanging indent — the `classify_normals` calls, the `arrayfun` call in `compute_edge_props_exp_pca.m`, and most of the `quantile`/`reshape` lines in `compute_nat_img_eff_coding_bins.m` — plus moving four inline comments onto their own line above the statement.
-
-**A consequence of leaving dead code byte-identical, spelled out because it recurs in every file here.** Live variables were renamed while the commented-out code that references them was left as found, so a dead block now names variables that no longer exist under those names — `% dprimes_model(iTex)=results.samp_d_b;`, `% filt=filters(:,:,[i_scale num_scales+i_scale]);`, `% thresh_px=grad_m_this>thresh;`, `%     n_bdry_pixels=edge_model.n_bdry_pixels;`. That is the precedent 0.1.2 set (splice dead code, do not retype it) and it is the right trade, but **S3.16 must apply this tranche's rename map to any block it revives**, not paste it back verbatim. Recorded once here rather than in each triage row.
-
-**Line endings: LF, this directory's own convention, preserved**; all four pre-edit files were 100 % LF (zero CR bytes) and still are, checked before and after. No tabs before or after. All trailing whitespace stripped, including inside the dead blocks (7, 2, 13 and 7 lines respectively carried it) — the one change earlier tranches allow to a preserved dead block, alongside leading indentation.
-
-**Contents.m — deferred to tranche 0.1.8, deliberately**, exactly as 0.1.1 deferred `+lib/Contents.m` to 0.1.3: this tranche cleans 4 of `+general/`'s 40 files, and a `Contents.m` listing four of them would be stale immediately. **Tranche 0.1.8, the last `+general/` tranche, writes the one `+general/Contents.m` covering the whole package**, and should note which files are `_`-prefixed and out of scope.
-
-**Commented-out code — triaged below in section 4.1.4 (T7.1–T7.18).** Eighteen blocks and fragment clusters. Five were in the survey's sizing table (`fit_edge_model_with_exps.m:115-147` and `:159-186`, `compute_edge_props_exp_pca.m:29-41`, `compute_nat_img_eff_coding_bins.m:170-175`, `compute_nll_edge_model.m:44-48`); the rest were found on first read, per the triage-at-read-time rule. Two verdicts are *superseded*, one is *scaffolding*, two are *unfinished*, the rest *alternative*; nothing is *unknown*, because in every case the live code beside the block says plainly what it replaced.
-
-**Bugs found: two new, recorded in section 0.4 and not fixed** — 🔴 **B1.11** (`compute_nat_img_eff_coding_bins.m` draws patch start indices in border-cropped coordinates and uses them as full-image indices, so the gradient-border margin is enforced at only the bottom and right edges) and 🟡 **B3.19** (`compute_nll_edge_model`'s `p_c` and `responses` are overwritten each experiment iteration, and `p_c`/`d_all`/`responses` are unassigned on the `sig_n <= 0` branch). B1.11 is filed at severity 1 on the rubric — silent, on a path that has been run — with the honest caveat that the *size* of the effect is unverified.
-
-Re-confirmed by reading and cited in the relevant files' headers rather than re-filed: B1.2 (the `10:-1:1` level order in `compute_edge_props_exp_pca.m:18`), B1.8 and B1.9 (both in `fit_edge_model_with_exps.m`), B1.10 (the 106 vs 60 ppd and 555 vs 550 nm mismatches), B2.2, B2.8, B2.9, B3.10, B3.11 and B3.15. Three things read and deliberately **not** filed: `compute_nll_edge_model`'s `subj_id == 0` branch adds `mean(p_c)` to a variable called `ll` and returns its negation as a "negative log likelihood", which is an accuracy score rather than a likelihood — that is a naming/documentation problem, now written into the header, not a defect, since the optimal observer has no data to be likely under; `+general/compute_nat_img_eff_coding_bins.m:183-184,186-188` size six different arrays with `size(grad_m,3)`, which is correct only because all six share that dimension, sloppy but not wrong; and `fit_edge_model_with_exps.m:56` hardcodes `nan(length(subj_list), 10)` where `nLevels` is in scope, likewise.
-
-**A note for tranche 0.1.8.** The remaining 27 `+general/` files include the four siblings of `compute_edge_props_exp_pca.m` — `compute_edge_props_exp{,_eq,_full,_raw}.m` — which section 4.1.4 already flags as near-identical copies carrying the same dead blocks at the same relative positions. **They share this file's `eval`-driven naming (decision A), its bare-`load` frozen names (decision B), and the `grad_m`/`grad_o`/`grad_p` vocabulary**, and three of them carry the B1.2 reversed level order. Clean them together and give their shared dead blocks one verdict, exactly as 0.1.6 handled the five `setUpExperiment` variants. Also: `+general/compute_nll_edge_model.m` is the only function in the package; everything else in 0.1.8 is a top-level script, most of them reading workspace variables they never define (B3.11).
-
-**Stage 2 not attempted** — this tranche's Stage 2 is item 0.2.4, pattern-check only, per section 2's recorded decision. The four patterns, surveyed across all four files: **`NOSEMI`/`NOPTS`** five sites, and **every one of them looks deliberate** — `exp_path = exp_paths{i_exp}` and `feature_name = field_names{3}` in `compute_edge_props_exp_pca.m`, `this_texture = texture_list(i_texture)` and `i_texture_display` in `fit_edge_model_with_exps.m` are the only progress reports these long loops print, and the two unsuppressed `var_exp = ...` lines at that file's end are how the headline numbers are read off an interactive run. Per the skill's warning, none should be "fixed" without asking; 0.2.4 should ask about the `var_exp` pair specifically. **`AGROW`/`SAGROW`** nine sites, all pre-existing: the three `grad_pca_*_bins(i_scale,:)` rows in `compute_edge_props_exp_pca.m` (not real growth — the arrays come in fully sized from the `load`, `checkcode` just cannot see that) and the six `grad_*_bins(i_scale,:)` rows in `compute_nat_img_eff_coding_bins.m` (real growth, six genuine preallocation targets, and the only true Stage 2 candidates in the tranche). **`find`** one site, `compute_nat_img_eff_coding_bins.m`'s `find(Na > cdf_array(i_cdf), 1)`, not convertible: the index itself is used to subscript a second array, `ea`. **Unused assignments** one, `fit_edge_model_with_exps.m`'s `d_primes_model = nan(n_textures, 1)` in cell 3, and it is **not** a deletion target — it is preallocation for the commented-out line in T7.16, i.e. evidence, not a leftover.
+Baseline: **pre-edit backup copies for all four** (two carry the uncommitted `colorbarpzn` repoint). All 4 passed first try (51/15/30/22 renames). Golden harness covers none of these 4. **Decision A** ("most dangerous thing in the tranche"): names reached via `eval()`/`evalin`/`assignin`/`feval`/`str2func`/`exist('...','var')` are invisible to `check_stage1` — grep for these before renaming anything in a new file. **Decision B:** bare `load(...)` with no output arg injects frozen names into the workspace, same as `save` literals. **Decision C:** bin-name/array-name mismatch kept deliberately (bins frozen via `save`, arrays expanded). **Decision D:** loop counters `i_<thing>`, but `nLevels`/`nTrials` kept camelCase (mirror `ExpSettings` fields). Two names deliberately not made truthful to avoid erasing bug evidence (`mean_subj_acc` re: B1.9). Line-length exceptions: 13. Commented-out code: T7.1–T7.18. Bugs found: **B1.11**, B3.19.
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h5 style="display:inline; margin:0; font-size:0.92em">Tranche 0.1.8 — <code>+general/</code> remainder (27 files, 1641 lines)</h5></summary>
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.9 — `+general/` remainder (27 files, 1641 lines)</h5></summary>
 
 <div style="margin-left:1.5em">
 
-**Done**, under **MATLAB 24.2.0.2923080 (R2024b) Update 6**. All 27 files named in the tranche table, confirmed against the file list and line counts in section 1 before starting: `RandBoundary.m` (62), `analyze_search_expts.m` (135), `analyze_shape_expts.m` (58), `analyze_shuffled_expt.m` (79), `cam_ability_vs_samples.m` (24), `check_camo_texture.m` (14), `compare_edge_energy_defs.m` (14), `compute_avg_acc_for_texture.m` (37), `compute_edge_group_measures.m` (30), `compute_edge_powers_camo.m` (45), `compute_edge_powers_camo_large.m` (45), `compute_edge_powers_pink_noise.m` (45), `compute_edge_props_exp.m` (110), `compute_edge_props_exp_eq.m` (111), `compute_edge_props_exp_full.m` (114), `compute_edge_props_exp_raw.m` (121), `compute_edge_props_pink_noise.m` (49), `compute_noise_colour.m` (125), `compute_texture_autocorrelation.m` (37), `fit_csf.m` (37), `fit_hyperexp_dist.m` (17), `flip_hard_easy.m` (15), `pick_edge_power_bins.m` (15), `plot_contour_props.m` (213), `plot_shape_exponent_exps.m` (8), `shuffle_unshuffle_expt.m` (51), `video_demo.m` (30) — 1641 lines, matching the table exactly. The ten `_`-prefixed files (`_changepower.m`, `_combine_edge_strength_and_spectrum.m`, `_compute_edge_measures_ideal.m`, `_compute_edge_powers_bark.m`, `_compute_edge_powers_spots.m`, `_compute_edge_strengths_multiscale.m`, `_compute_edges.m`, `_fit_edge_model.m`, `_fit_edge_model_naive_scaling.m`, `_fit_edge_model_old.m`) are pre-existing user work, out of scope, and untouched. Tranches 0.1.1–0.1.7's binding conventions were read in full before any file was touched and applied as written.
-
-**Baseline: HEAD for all 27** — `git status` at the start showed only the two out-of-scope `_fit_edge_model*.m` files and `README.md` modified; every one of this tranche's 27 files was clean against HEAD, so no pre-edit backup copy was needed for the check itself, though one was taken anyway (into a scratch directory) purely as the diff source for the checker sweep script below.
-
-**Verbatim checker output**, from a sweep script that builds each file's rename map and runs `check_stage1` (which itself calls `assert_rename_bijection`) against the HEAD/scratch-copy baseline:
-
-```
-24.2.0.2923080 (R2024b) Update 6
-check_stage1 RandBoundary.m                           1  (20 renames)
-check_stage1 analyze_search_expts.m                   1  (26 renames)
-check_stage1 analyze_shape_expts.m                    1  (12 renames)
-check_stage1 analyze_shuffled_expt.m                  1  (22 renames)
-check_stage1 cam_ability_vs_samples.m                 1  (4 renames)
-check_stage1 check_camo_texture.m                     1  (2 renames)
-check_stage1 compare_edge_energy_defs.m               1  (8 renames)
-check_stage1 compute_avg_acc_for_texture.m            1  (13 renames)
-check_stage1 compute_edge_group_measures.m            1  (3 renames)
-check_stage1 compute_edge_powers_camo.m               1  (10 renames)
-check_stage1 compute_edge_powers_camo_large.m         1  (10 renames)
-check_stage1 compute_edge_powers_pink_noise.m         1  (4 renames)
-check_stage1 compute_edge_props_exp.m                 1  (16 renames)
-check_stage1 compute_edge_props_exp_eq.m              1  (15 renames)
-check_stage1 compute_edge_props_exp_full.m            1  (11 renames)
-check_stage1 compute_edge_props_exp_raw.m             1  (15 renames)
-check_stage1 compute_edge_props_pink_noise.m          1  (4 renames)
-check_stage1 compute_noise_colour.m                   1  (22 renames)
-check_stage1 compute_texture_autocorrelation.m        1  (9 renames)
-check_stage1 fit_csf.m                                1  (11 renames)
-check_stage1 fit_hyperexp_dist.m                      1  (3 renames)
-check_stage1 flip_hard_easy.m                         1  (0 renames)
-check_stage1 pick_edge_power_bins.m                   1  (1 renames)
-check_stage1 plot_contour_props.m                     1  (7 renames)
-check_stage1 plot_shape_exponent_exps.m               1  (0 renames)
-check_stage1 shuffle_unshuffle_expt.m                 1  (14 renames)
-check_stage1 video_demo.m                             1  (4 renames)
-files checked : 27
-check_stage1 true : 27
-check_stage1 false: 0
-```
-
-All 27 passed on the first run except `analyze_search_expts.m` and `fit_csf.m`, both fixed within this tranche without escalation (see decisions A and A' below); no file was handed to `matlab-cleanup-escalation`. `checkcode -id` gives **identical sorted message-id lists before and after in all 27 files**, compared programmatically (script in `tools/`, not committed — a one-off sweep, not a repo artifact): 15 of the 27 are clean both before and after; the other 12 keep exactly the pre-existing `NOPTS`/`AGROW`/`SAGROW`/`FXSET`/`PFBNS`/`NBRAK2` counts. No lint introduced, none fixed. **The golden harness covers none of these 27 files** (same check as 0.1.7: grepped `tools/golden_harness.m` for `general.` and for each filename, no hits; section 2 already puts `+general/` in the pattern-check-only group, item 0.2.4), so no replay was attempted.
-
----
-
-**Decision A — a convention-1 collision inside a single rename map is a bijection violation, not just a check_stage1 failure, and the fix is to give the counter one name, not two.** `analyze_search_expts.m` reuses the bare loop counter `i` for two different roles: a per-location index (twice, cells 3 and 4) and a per-file index (cell 4's `for i = 1:numFiles`). Mapping both to different new names (`i_location` and `i_file`) makes `assert_rename_bijection` reject the map outright — two new names would share the old name `i`, which is a duplicate-old-name violation before `check_stage1` even runs its reverse-rename comparison. Resolved exactly as 0.1.7's decision A prescribes for this shape: kept `i_location` (the name fitting the majority of the uses and the first chronological use) for the per-file loop too, with a comment at that site explaining the counter is a file index there, not a location index. `fit_csf.m` hit the milder version of the same trap: the anonymous function's own bound parameter (`@(p) lib.csf_err(p, ...)`) was renamed to `params` in the file but the rename map's entry mapping the *new* name back to the old was simply missing from the sweep script (not a bijection violation, an incomplete map) — `check_stage1` caught it immediately as a real diff at the exact renamed token, fixed by adding the missing map entry. Both are recorded here because they are the same class of mistake (a rename introduced without its matching map entry) at two different points in the same day's work, and both were self-caught by the checker rather than needing escalation.
-
-**Decision B — `+general/`'s per-file line-ending convention is not always LF, and preserving it means checking each file, not assuming the package rule from 0.1.7.** 0.1.7 found its four files 100% LF and recorded that as "this directory's own convention." All 27 files in this tranche are, by contrast, 100% CRLF in their pre-edit form (checked: CR count equals line count in every backup copy) — a real per-file split within one package, not a contradiction of 0.1.7's note, which was scoped to its own four files. The editing tool used to write this tranche's files defaults to LF, so every file was written LF-only on the first pass; caught by re-checking CR counts against the backups after editing, and every file was converted back to CRLF (replacing every bare `\n` with `\r\n`, verified no `\r` existed beforehand so the replacement could not double up) before the final `check_stage1` sweep, which re-confirmed all 27 still pass — `canon`/`tree2str` is blind to the line-ending byte, exactly as it is to other whitespace, so this was invisible to the checker in both directions and had to be caught by direct byte inspection. **Rule for later tranches: check each file's own pre-edit line-ending byte-for-byte, do not assume a whole package shares one convention, and re-verify after editing since the write path itself can silently normalise it.**
-
-**The concrete vocabulary set here**, extending 0.1.1's through 0.1.7's tables: `perf` → `accuracy` (`analyze_shape_expts.m`, matching `SubjectExpFile.correct`'s own meaning); `hitRate`/`faRate`/`dPrime` (bare locals, not the frozen `SubjectExpFile.hitRate` etc. fields) → `hit_rate`/`false_alarm_rate`/`d_prime` (`analyze_search_expts.m`, `analyze_shuffled_expt.m`); `t`/`h`/`c` (target-present/hit/correct-rejection indicator arrays) → `target_present`/`hits`/`correct_rejection`, with a `hits` plural chosen specifically to avoid colliding with the frozen `.hit` struct field literal (`analyze_shuffled_expt.m`); `ep` → `edge_power` (`compute_avg_acc_for_texture.m`); `bd_strip`/`bd_pixels` → `mask_strip`/`boundary_edge_pixels`, following 0.1.1's convention 7 harmonisation of `lib.target_mask`'s fourth output (`compute_edge_props_pink_noise.m`); `Nsc`/`Nor`/`Na`/`Niter` → `n_scales`/`n_orientations`/`neighborhood_size`/`n_synthesis_iter`, exactly 0.1.1's/0.1.6's P-S knob names, applied to the four `+general/` scripts that synthesise a Portilla-Simoncelli texture (`compute_edge_powers_camo{,_large}.m`, `compute_noise_colour.m`, `compute_texture_autocorrelation.m`); `input_img`/`im0` → `source_image_path`/`source_image_grey`, matching 0.1.7's `source_image_*` family; `th`/`th_bin` → `theta`/`theta_bin` in `compute_noise_colour.m` (kept as one name across the frequency-domain and spatial-domain angle arrays — both are genuinely "an angle," unlike the `x`/`y`/`dy` case 0.1.7 left alone); `thislevel` → `this_level` throughout, harmonising the `compute_edge_props_exp*.m` family and `plot_contour_props.m` with 0.1.7's spelling.
-
-**The four `compute_edge_props_exp{,_eq,_full,_raw}.m` siblings were cleaned together, per 0.1.7's note for this tranche**, and share `compute_edge_props_exp_pca.m`'s `eval`-driven naming (decision A in 0.1.7), its bare-`load` frozen names, and its `grad_m`/`grad_o`/`grad_p` vocabulary — none of that was touched here either, for the same reason. Their differences, confirmed by reading all four side by side rather than assumed from the filenames: `_exp.m` and `_eq.m` build the level grid forward (`1:10`) and do **not** carry B1.2; `_full.m` and `_raw.m` build it reversed (`10:-1:1`) and do, re-confirmed rather than re-filed. `_full.m` combines across scales with a live `sum(input_array, 4)`, with the per-level `classify_normals` fit commented out (dead) below it — the same fragment that is live in the other three. `_raw.m` uniquely makes the "equispace the bins at each scale" step live (using the plain, non-PCA bins), where its siblings leave that step commented out or never do it. `_exp.m` and `_full.m` pass `pca_coeffs` into `lib.edge_props_stim` alongside the plain (non-PCA) `grad_m_bins`/`grad_o_bins`/`grad_p_bins` — an odd mix, consistent with B3.15 (the function computes the PCA rotation and discards it regardless of which bins are passed), not filed separately. One rename map, `exp_props_map`, was shared across all four in the sweep script, extended per-file only where a file's own live code actually used the extra names (`combined_dv`/`combined_dv_this_level`/`targets_this_level`/`feature_this_level` are live in `_eq.m` and `_raw.m` but only inside `_full.m`'s dead commented block, so `_full.m`'s map omits them and those four names stay unrenamed there, exactly matching the dead-code-splice-verbatim precedent).
-
-**Zone-2 and frozen names held everywhere they appeared.** `bg_size`, `target_radius`, `target_loc`, `target_or`, `kernel_size`, `texture`, `seed`, `n_edge`, `mask`/`mask_edge` were left exactly as found. `ExpSettings`, `SubjectExpFile`, `edge_powers`, `seed_energy`, `texture_list`, `cues_bd`, and the whole family of undefined-per-file workspace variables B3.11 already documents (`dens_bd`/`dens_tx`, `length_bd`/`length_tx`, `ep1_bd`/`ep2_bd`/`ep4_bd`/`ep1_tx`/`ep2_tx`/`ep4_tx`, `curv_bd`/`curv_tx`, `num_bd`/`num_tx`, `alphas`, `rlist`, `corr_lengths`) were all left alone — none of them are assigned anywhere in the file that reads them, matching B3.11's description exactly and confirmed file by file, not assumed from the name. `SubjectExpFile_ub`/`SubjectExpFile_unblocked`/`ExpSettings2`/`ExpSettings_shuffle` (local copies/variants of the two standard structs) were kept, per the established precedent of not inventing a third name for something that already reads as "the same struct, a variant" (0.1.7's `SubjectExpFile_ub` note).
-
-**Unused-but-zone-1 locals were renamed even though several files never actually use them**, since a dead assignment is still zone 1 unless it is dead specifically because only commented-out code reads it. `check_camo_texture.m`'s `bg_size`/`lum`/`cont` and `video_demo.m`'s `ml`/`cont` are set but never passed to the `lib.stimulus`/`lib.edge_energy` calls beside them (the calls hardcode literals or, in `video_demo.m`'s case, pass everything positionally — see B2.20 below); renamed to `luminance`/`contrast` per 0.1.6's decision A for exactly this shape, and the mismatch is called out in each file's header rather than silently fixed.
-
-**Header docs — all 27 rewritten to the exemplar shape**, `% NAME  Summary.` for scripts (matching 0.1.7's rendering) and the full MATLAB function-comment block for the one function-shaped file in this tranche's set that has one (none, actually — every file here is a script; `general.compute_nll_edge_model`, the package's only function, was tranche 0.1.7's). Scripts' `Inputs`/`Output` blocks describe workspace variables and files read/written, per 0.1.7's precedent; several also carry a `NOTE`/`BUG` paragraph documenting an unused local, a broken call, or a display-only defect (see below) so the defect is visible without re-deriving it from the diff.
-
-**Line-length exceptions — every one a commented-out (dead) line, left un-reflowed for the same reason as every earlier tranche.** Full inventory: `analyze_shape_expts.m` five lines (105-124 chars), the five `% accuracy_*_sd=std(...)` alternative-SD-estimator fragments (T8.2 below); `compare_edge_energy_defs.m` two lines (185, 173 chars), the two alternative-computation fragments at the end of its loop body; `compute_edge_props_exp_eq.m`/`_full.m`/`_raw.m` two lines each (144, 121 chars), the commented full 14-experiment `exp_paths` list kept for reference in each file (`_full.m` additionally keeps one 155-char dead `classify_normals` line, T8.9 below); `plot_contour_props.m` four lines (101 chars each), the commented `num_bd`/`ep1_bd`/`ep2_bd`/`ep4_bd` histogram alternatives. **Every live line in all 27 files is under 100 characters.** Getting there needed heavy `...` continuation with a four-space hanging indent throughout — the `arrayfun`/`classify_normals`/`histogram` calls in the four `compute_edge_props_exp*.m` siblings most of all, since renaming pushed several of their already-long lines over the limit — plus moving a handful of long inline comments onto their own line above the statement (`compute_edge_props_pink_noise.m`, `compute_texture_autocorrelation.m`, `compute_edge_powers_camo{,_large}.m`), and splitting one over-long paired `x = ...; y = ...;` assignment in `compute_noise_colour.m` into two lines (its two shorter siblings elsewhere in the same file were left as a paired line, per the skill's "keep it where it already reads well, but be consistent within a file" rule — here it did not fit, so it is the one exception, noted rather than silently inconsistent).
-
-**Line endings: CRLF, this tranche's own per-file convention, restored after a write-path normalisation slip** (see decision B above) **and reverified.** No tabs anywhere except one pre-existing tab inside a dead/commented line in `compute_edge_powers_pink_noise.m` (`% Niter = 25;\t% Number of iterations of synthesis loop`), confirmed present in the pre-edit backup and kept exactly, per the same "splice dead code verbatim" rule that keeps its renamed live siblings' old names inside their own dead blocks. All trailing whitespace stripped in every live line (verified with the `\r` stripped first, since a bare `[ \t]+$` check that does not account for CRLF wrongly flags every `\r`-terminated line — the check itself is worth recording for later tranches in the same boat). Every file ends with exactly one trailing newline.
-
-**Commented-out code — triaged below in section 4.1.4 (T8.1–T8.10).** Ten rows, several covering more than one fragment in the same file, all found on first read (none were in the survey's sizing table for this tranche's specific files). Four fragment-verdicts are *superseded*, eight are *alternative*, one is *scaffolding*, one is *unknown*; nothing is *unfinished* in this tranche — every dead fragment found here is either a complete earlier method or a debug leftover, not a sketch abandoned mid-thought.
-
-**Bugs found: four new, recorded in section 0.4 and not fixed** — 🟠 **B2.19** (`compare_edge_energy_defs.m` calls a function, `analysis.compute_dPrime_pCorrect`, that exists nowhere in the repo, so the script errors immediately if run), 🟠 **B2.20** (`video_demo.m`'s two `lib.stimulus` calls pass positional arguments against a name-value-only signature, so both error immediately if run), 🟠 **B2.21** (`shuffle_unshuffle_expt.m`'s first-cell loop reassigns its own loop variable, so the printed progress count is silently wrong by one every iteration — display-only, the loop itself and its data are unaffected), and 🟡 **B3.20** (`analyze_search_expts.m`'s detection cell and search cell write `SubjectExpFile.hitRate`/`.dPrime` under the same field names for a scalar vs. a 19-element vector; running both cells on the same struct without an intervening reload would silently overwrite one with the other, but the script's own cell structure suggests this is not how it is meant to be run — *unverified*).
-
-Re-confirmed by reading and cited in the relevant files' headers rather than re-filed: B1.2 (`compute_edge_props_exp_full.m`/`_raw.m`'s reversed level order, and `_exp.m`/`_eq.m`'s confirmed-absence of it), B1.5 (`compute_edge_group_measures.m`'s stale contour-group outputs from `lib.edge`), B3.11 (the ~15 top-level scripts reading undefined workspace variables — this tranche's files account for a large share of that count, enumerated above rather than left as a round number), B3.15 (`_exp.m`/`_full.m` passing `pca_coeffs` alongside non-PCA bins). One thing read and deliberately **not** filed: `compute_edge_powers_pink_noise.m` sets `n_samples` but its live loop runs `1:1e3` regardless, and computes into `edge_powers_new` without ever saving it — this reads as a deliberately cut-down quick-check variant of its two `compute_edge_powers_camo*.m` siblings (1000 samples, no growth preallocation, no persisted file) rather than a defect, and is described as such in its header rather than filed as a bug.
-
-**`parfor` loops checked, per the skill's standing instruction.** `compute_edge_powers_camo.m`/`_camo_large.m` write into `edge_powers(seed, :)`, sliced by the loop variable `seed` itself — safe, no reduction. `compute_noise_colour.m`'s two `parfor` loops write into `stim_fft(:, :, i_samp)` and, in the second cell, only call `plot(...)` with no output captured at all — safe. None of this tranche's `parfor` loops write into a reduction variable; all are sliced-output and safe to leave exactly as found.
+Baseline: HEAD for all 27. All 27 passed; 2 failed first pass, self-fixed without escalation. **Decision A:** a convention-1 collision inside one rename map is a bijection violation (two new names sharing one old name) — resolved by keeping one shared name (`i_location`) with an explanatory comment at the minority site. **Decision B:** line-ending convention checked per-file — this tranche's 27 files were 100% CRLF pre-edit; the editing tool silently wrote them all as LF, caught and reverted before final check. Vocabulary extended (analysis/accuracy terms, P-S knobs). Line-length exceptions: several, all dead. Commented-out code: T8.1–T8.10. Bugs found: **B2.19, B2.20, B2.21**, B3.20. `parfor` loops re-checked, all safe.
 
 </div>
 
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h5 style="display:inline; margin:0; font-size:0.92em">Tranche 0.1.9 — <code>+vis/</code> + <code>+tests/</code> (10 files, 484 lines)</h5></summary>
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.10 — `+vis/` + `+tests/` (10 files, 484 lines)</h5></summary>
 
 <div style="margin-left:1.5em">
 
-**Done**, under **MATLAB 24.2.0.2923080 (R2024b) Update 6**. All 10 files named in the tranche table: `+vis/edge_strength_dists.m` (113), `+vis/examplePatches.m` (54), `+vis/plot_edge_energy_hists.m` (23), `+vis/presentpatches.m` (41), `+vis/psychometrics_vs_angle.m` (37), `+vis/psychometrics_vs_dur.m` (39), `+vis/show_image.m` (26), `+vis/viewpatches.m` (52), `+tests/block_jumping.m` (53), `+tests/gaborSimilarity.m` (56) — matching the table (line counts above are pre-edit; the total, 484, matches section 1). Sections 4.1.1 and 4.1.3 (all prior tranches' entries, in full) were read before touching any file.
+Baseline: HEAD for all 10. Convention: per-file, not per-directory — 3 files pure camelCase (Walshe/Sebastian-authored), 3 pure snake_case, rest mixed-but-snake-majority (minority names converted up). No zone-2/zone-3 name touched. Line-length exceptions: none needed — all 8 over-100-char lines reflowed with `...` continuation. Line endings: LF for all 10, no CRLF issue. `Contents.m` written for both `+vis/` and `+tests/`. No `parfor` loops. Commented-out code: 5 blocks (2× `plot_edge_energy_hists.m`, `show_image.m`, 2× `viewpatches.m`) — scaffolding/alternative/alternative/scaffolding/superseded. Bugs found: **B2.22, B2.23, B2.24, B2.25**.
 
-**Baseline: HEAD for all 10.** `git status` at the start showed only the two pre-existing out-of-scope `+general/_fit_edge_model*.m` files and `README.md` modified (unrelated carried-forward work); every one of this tranche's 10 files was clean against HEAD. A pre-edit backup copy of each was taken into a scratch directory anyway, purely as the diff source for the `check_stage1` sweep script.
+</div>
 
-**Convention: per-file, not per-directory — `+vis/` and `+tests/` are genuinely mixed, unlike the directories in section 4.1.2's checklist.** Neither package appears in that checklist's camelCase/snake_case split. Reading each file first (per the skill's instruction to check actual convention rather than assume) showed two families: `examplePatches.m`, `presentpatches.m`, `viewpatches.m` (all R. C. Walshe, 2016) and `gaborSimilarity.m` (Steve Sebastian, 2016) are camelCase throughout, majority and all; `edge_strength_dists.m`, `plot_edge_energy_hists.m`, `show_image.m` are snake_case throughout. `psychometrics_vs_angle.m`/`_dur.m` and `block_jumping.m` are mixed but snake_case-majority (e.g. `exp_levels`, `exp_name`, `bg_size`, `target_radius`, `kernel_size`, `texture_params`, `seed`, `stim_target` outnumber the camelCase outliers), so the minority names were converted to match, the same "harmonise the minority to the file's own majority" rule tranche 0.1.4 used for `runCamouflageExperiment_search.m` (there applied in the opposite direction, snake_case-minority converted up to a camelCase-majority file). No cross-file vocabulary decision was needed since none of these ten files share a rename with another in this tranche.
+</details>
 
-**Zone-1 renames, by file:**
-- `edge_strength_dists.m` (script): `im`→`gif_frames`, `map`→`color_map`, `f`→`frame`, `k`→`i_frame` (frame counter for the rotating-view GIF). `az` (azimuth, used directly in `view([az, 30])`) and `hline` were already descriptive single words, left alone.
-- `examplePatches.m`: no renames — already camelCase and already descriptively named (`iCon`, `iSim`, `patchMeanPercent`, etc.). Header's own function name was wrong (said "PRESENTPATCHES", clearly copy-pasted from `presentpatches.m` and never updated) — fixed to `EXAMPLEPATCHES`, a comment-only change.
-- `plot_edge_energy_hists.m`: no renames.
-- `presentpatches.m`: bare loop counters `i`/`j` (10x10 contrast/similarity grid, same semantics as `examplePatches.m`'s `iCon`/`iSim`) →`iCon`/`iSim`, matching the sibling file's vocabulary for the identical grid shape.
-- `psychometrics_vs_angle.m`/`psychometrics_vs_dur.m`: loop counter `i`→`i_ppd`/`i_dur`; `a`→`threshold`, `aStd`→`threshold_std`, `meanPc`→`mean_pc`, `stdPc`→`std_pc` (outputs of the — broken, see bugs below — threshold fit). `luminance`/`contrast`, `exp_name`, `exp_levels`, `ppd`/`dur`, `ppd_values`/`dur_values`, `blue`/`red`, `color`, `x_pmf`/`y_pmf`, `thresholds` were already well-named snake_case; left alone.
-- `show_image.m`: no renames.
-- `viewpatches.m`: loop counter `i`→`i_patch`.
-- `block_jumping.m` (script): `eOld`→`edge_energy_old`, `eNew`→`edge_energy_new`, `bT`→`target_present`, `bBad`→`bad_order`, loop counters `i`/`j`→`i_trial`/`i_block` (indexing `seeds`, a trials x blocks array). `bg_size`, `target_radius`, `seed`, `kernel_size` are zone-2 parameter mirrors and keep those exact names per binding convention 3 (section 4.1.3, tranche 0.1.3's entry). `ml`/`cont`→`luminance`/`contrast`, **not** section 4.1.1's baseline `mean_lum`/`contrast_rms`** — following tranche 0.1.8's precedent for this exact shape (a bare local that is not itself a zone-2 parameter name but is passed toward one), applied for consistency with `+general/check_camo_texture.m` and `video_demo.m`. `block`, `col`, `texture_params`, `stim_target` were already adequately named; left alone.
-- `gaborSimilarity.m`: loop counter `vItr`→`iVal` (camelCase, matches file convention); `a`→`ampScale` (the amplitude-scaling factor used only in the `else` branch); `sOut`→`similarityOut`. `gaborParams`, `testTypeStr`, `valueRange`, `simArray`, `thisGabor`, `gabor`, `envelope` were already fine; left alone. Docstring typo `gavor`→`gabor` fixed (comment-only).
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Step 0.1.1 — function/file renames (not started)</h5></summary>
 
-No zone-2 or zone-3 name was touched in any file; none of these ten files reference a zone-3 frozen `save`/`load` name as a local variable requiring a mismatch note, except `seed_energy` (loaded bare by `edge_strength_dists.m` and `plot_edge_energy_hists.m`) and `ExpSettings` (loaded by `block_jumping.m`) — both already on the zone-3 list (section 4.1.1) and left untouched, per decision B (a bare-`load` name is frozen exactly like a `save` string).
+<div style="margin-left:1.5em">
 
-**`+vis/cropImage` (B2.15) callers, confirmed present in this tranche: `examplePatches.m:43` (post-edit), `presentpatches.m:31`, `viewpatches.m:39`.** All three pass `indColorChannels = 1` explicitly (intending a single colour channel) and, because of B3.2/B2.15's misspelled guard, silently get every channel instead. Not fixed (Stage 1 is behaviour-preserving); each call site now carries an inline comment citing B2.15, per this tranche's own reading of the bug.
+Not started. See 3.1.1 for candidate families surfaced by the fresh survey.
 
-**Line-length exceptions: none needed.** All eight lines originally over 100 characters (six in `edge_strength_dists.m`'s `histogram`/`scatter`/`scatter3` calls, one each in `examplePatches.m`, `plot_edge_energy_hists.m` x2, `presentpatches.m` x2, `psychometrics_vs_angle.m` x4, `psychometrics_vs_dur.m` x3, `viewpatches.m`, and six in `block_jumping.m`) were reflowed with `...` continuation and a 4-space hanging indent from the statement's own indent, per the skill's step 2b — none required a string-literal `horzcat`, so no documented exception was needed.
+</div>
 
-**Line endings: LF for all 10 files, matching the pre-edit baseline exactly** (verified byte-for-byte against `git show HEAD:<file>`, not just eyeballed) — unlike tranche 0.1.8, nothing here needed a CRLF restoration, because these files were never CRLF to begin with. No tabs. No trailing whitespace (checked with a Perl-regex trailing-space grep across all ten post-edit files). Every file ends with exactly one trailing newline.
+</details>
 
-**Commented-out code — five blocks/fragments, none previously in the survey's sizing table for this tranche's files (it lists none for `+vis/`/`+tests/` beyond the directory-level "+vis/ 12, +tests/ 0" line counts in section 1).**
-| location | lines | description | verdict |
-|---|---|---:|---|
-| `plot_edge_energy_hists.m` (pre-edit `:12`) | 1 | `%ylim([0 .024])`, a tighter y-axis range than the live auto-scaled one | **scaffolding** — a tuning attempt for a specific data range, no longer matching the data; delete once S3.16 reaches it |
-| `plot_edge_energy_hists.m` (pre-edit `:15-16`) | 2 | `%legend('background', 'background + target')` and `%legend boxoff` | **alternative** — a real, working way to label the two overlaid series, switched off (probably for a cleaner figure); convert to a documented option (a `bLegend` flag) or header prose, per S3.16 |
-| `show_image.m` (pre-edit `:15-18`) | 4 | a gamma-correction step (`stim_max = max(stim(:)); stim = stim/stim_max; stim = sqrt(stim); stim = stim*stim_max;`) between the two clipping-flag passes | **alternative** — a complete, would-run gamma correction the author tried before display and disabled; convert to a documented option or header prose |
-| `viewpatches.m` (pre-edit `:30`) | 1 | `% figure('Position', [100, 100, 21, 21]);` | **scaffolding** — a debug figure-sizing call, superseded by the implicit current-figure use below it |
-| `viewpatches.m` (pre-edit `:38`) | 1 | `% cropped = lib.cropImage(I, ImgStats.sampleCoords(patchNr(i), :), targetSize(1), 1, 1).*envelope;` | **superseded** — by the live line directly below it, which crops to a fixed `513` instead of `targetSize(1)` and drops the `.*envelope` multiply; the live line is what actually runs |
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">Steps 0.1.11, 0.1.12 — `+tinker/`, root (not started)</h5></summary>
 
-**Bugs found: four new, recorded in section 0.4 and not fixed** — 🟠 **B2.22** (`vis.examplePatches`'s `if bSave` branch references `L` and `targetNr`, neither a parameter nor a local of this function — apparently copy-pasted from `vis.presentpatches`, which does take them; errors immediately if called with `bSave` true), 🟠 **B2.23** (`vis.psychometrics_vs_angle` and `vis.psychometrics_vs_dur` both call `analysis.computeThresholdInBin`, which does not exist anywhere in this repo — no `+analysis/` package exists at all, only `+experiment/+analysis/`, and no function of that name exists there either; both scripts error immediately if run, filed as one item since it's the same missing function in both sibling files), 🟠 **B2.24** (`tests.block_jumping`'s recompute loop calls `lib.stimulus(texture_params, seed, bg_size, target_radius, 'center', 0, luminance, contrast, 'match', 'match')` — all positional, against `lib.stimulus`'s name-value-only `inputParser` signature; same bug shape as B2.20 in a different file, filed separately per the plan's re-filing rule), and 🟠 **B2.25** (`tests.gaborSimilarity` calls `stats.computeSceneSimilarityAmplitude`, which does not exist under that name — the backing file, `+stats/_computeSceneSimilarityAmplitude.m`, is `_`-prefixed and therefore not reachable as `stats.computeSceneSimilarityAmplitude`; errors immediately if run with any `testTypeStr`). All four are reachable (each is a directly callable script/function) and loud (immediate errors, no silent corruption), hence severity 2.
+<div style="margin-left:1.5em">
 
-**`Contents.m` written for both packages** (neither existed before): `+vis/Contents.m` and `+tests/Contents.m`, following `+general/Contents.m`'s shape (grouped by theme, each entry's known bugs noted inline). `+tests/Contents.m` also notes S3.5's plan to replace these ad-hoc scripts with a real assertion-based smoke test.
-
-**No `parfor` loops in this tranche's files** — nothing to check against the skill's standing instruction.
-
-**Checker output (verbatim), MATLAB 24.2.0.2923080 (R2024b) Update 6:**
-```
-+vis/edge_strength_dists.m : 1
-+vis/examplePatches.m : 1
-+vis/plot_edge_energy_hists.m : 1
-+vis/presentpatches.m : 1
-+vis/psychometrics_vs_angle.m : 1
-+vis/psychometrics_vs_dur.m : 1
-+vis/show_image.m : 1
-+vis/viewpatches.m : 1
-+tests/block_jumping.m : 1
-+tests/gaborSimilarity.m : 1
-```
+Not started. `+tinker/` still carries its full abbreviation set (`XX`/`YY`, `mnv`, `grad`, `haar`, `filt`, `wn`, `wnf`, `N_b`) and 55 lines of untriaged commented-out code. Root's 5 files (`config.m`, `setup.m`, `edge_power_demo.m`, `test.m`, `test_Erlang.m`) are the config file and user-facing driver — per the skill, these go late and get the strongest model.
 
 </div>
 
@@ -1234,219 +529,161 @@ No zone-2 or zone-3 name was touched in any file; none of these ten files refere
 </details>
 
 <details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h4 style="display:inline; margin:0; font-size:0.98em">4.1.4 Commented-out code — triage verdicts</h4></summary>
+<summary><h4 style="display:inline; margin:0; font-size:0.98em">3.1.4 Commented-out code — triage verdicts</h4></summary>
 
 <div style="margin-left:1.5em">
 
-**Sizing pass (survey).** 780 commented-out code lines across 81 of the 164 in-scope files — full totals in section 1. Below are the **37 contiguous blocks of 5 or more dead-code lines**, which is the actual triage worklist; the remaining ~230 lines are scattered one- and two-line fragments, triaged in passing when their file is read. A *block* here is a run of full-line comments allowing at most two non-comment lines of interruption, trimmed to start and end on a dead-code line; `lines` is that span and `count` is the number of dead-code lines inside it, the remainder being prose or bare `%` interleaved in the dead region. The classification is heuristic (MATLAB statement syntax, with each file's leading help block always treated as prose) and is good to roughly ±10 %, most likely a slight undercount. **Nothing here has been judged.**
+37 contiguous ≥5-line blocks (out of 780 total dead-code lines pre-cleanup), one row per block, filled in as each tranche reached the file it's in. Acting on a verdict is Stage 3 (S1.16), never done here.
 
-| file | lines | dead lines | tranche |
-|---|---|---:|---|
-| `+lib/edge_props_stim.m` | 275-534 | 160 | 2 |
-| `+lib/edge_props_stim.m` | 70-94 | 20 | 2 |
-| `+general/compute_edge_powers_pink_noise.m` | 11-34 | 19 | 8 |
-| `+general/compute_noise_colour.m` | 104-123 | 18 | 8 |
-| `+general/fit_edge_model_with_exps.m` | 159-186 | 18 | 7 |
-| `+general/compute_edge_props_exp_full.m` | 72-89 | 17 | 8 |
-| `+general/fit_edge_model_with_exps.m` | 115-147 | 17 | 7 |
-| `+lib/edge.m` | 115-134 | 16 | 1 |
-| `+general/plot_contour_props.m` | 82-122 | 15 | 8 |
-| `+general/compute_edge_props_exp.m` | 26-38 | 13 | 8 |
-| `+general/compute_edge_props_exp_eq.m` | 27-39 | 13 | 8 |
-| `+general/compute_edge_props_exp_full.m` | 27-39 | 13 | 8 |
-| `+general/compute_edge_props_exp_pca.m` | 29-41 | 13 | 7 |
-| `+general/compute_edge_props_exp_raw.m` | 34-46 | 13 | 8 |
-| `+lib/edge_measures.m` | 39-51 | 13 | 1 |
-| `test.m` | 4-17 | 13 | 11 |
-| `+experiment/setUpExperiment.m` | 52-64 | 11 | 6 |
-| `+experiment/saveCurrentLevel.m` | 24-33 | 10 | 6 |
-| `+lib/target_mask.m` | 52-61 | 8 | 1 |
-| `+lib/edge_props_stim.m` | 112-118 | 7 | 2 |
-| `+experiment/+analysis/computeNegLogLikelihood.m` | 24-32 | 6 | 5 |
-| `+general/compute_nat_img_eff_coding_bins.m` | 170-175 | 6 | 7 |
-| `+lib/csf_err.m` | 15-20 | 6 | 3 |
-| `+lib/edge_props_stim.m` | 134-139 | 6 | 2 |
-| `+lib/steerable_filter.m` | 23-30 | 6 | 1 |
-| `+tinker/whitened_pn_stim_edge_energy.m` | 42-48 | 6 | 10 |
-| `+tinker/whitening_tinker.m` | 21-28 | 6 | 10 |
-| `+experiment/+analysis/computeNegLogLikelihood_edgeResponse.m` | 50-54 | 5 | 5 |
-| `+experiment/+main/runCamouflageExperiment_search.m` | 47-51 | 5 | 4 |
-| `+experiment/setUpExperiment.m` | 71-77 | 5 | 6 |
-| `+general/compute_edge_props_exp.m` | 4-13 | 5 | 8 |
-| `+general/compute_edge_props_exp_eq.m` | 5-14 | 5 | 8 |
-| `+general/compute_edge_props_exp_full.m` | 5-14 | 5 | 8 |
-| `+general/compute_nll_edge_model.m` | 44-48 | 5 | 7 |
-| `+general/plot_contour_props.m` | 7-17 | 5 | 8 |
-| `+tinker/pink_noise_seed_multiple_energies.m` | 27-39 | 5 | 10 |
-| `+tinker/whitening_tinker.m` | 5-12 | 5 | 10 |
-
-Two things to know before triaging these. **`+lib/edge_props_stim.m:275-534` is one single continuous dead region**, not several: line 271 is a live `%% edge contour properties` section header, 272-274 are commented prose, and there is no live code anywhere between 275 and 534. It is the per-contour length/position/orientation/curvature half of the ideal-observer statistic, and it is why 16 to 30 of that function's 30 declared outputs are never assigned. **The five `compute_edge_props_exp*.m` files carry near-identical blocks at the same relative positions** (rows 10-14 and 31-33 above), which is a strong hint that they are copies of one another; triage them together and give them the same verdict, or you will delete a block from one file and keep it in its twin.
-
-**Triage.** One row per block, added as each Stage 1 tranche reaches the file it is in, not deferred to a separate pass. Filled in by reading the surrounding code, **not the git history** — the history in this repo was not written with this question in mind, and a commit message saying "cleanup" tells you nothing. Verdicts: *superseded* (the live code beside it does the same job better — name that live code) → delete; *scaffolding* (a stray debug print, plot, timer, or `keyboard`) → delete, or promote to a real debug flag if genuinely useful; *alternative* (a method, parameter set, dataset, or path the author switched away from and could switch back to) → keep, but convert it into a documented option or a note in the header docs; *unfinished* (a sketch never completed) → keep, rewritten as a prose TODO; *unknown* (purpose not recoverable from the surrounding code) → leave exactly as is.
-
-**Unknown is the default whenever the evidence runs out.** An honest *unknown* costs a few commented lines; a wrong *superseded* destroys the only copy of code that was written commented-out and so was never live, meaning it is nowhere in the history to recover from. This repo makes that risk concrete: much of `+general/` and `+tinker/` is exploratory work whose alternatives were never committed in live form.
-
-Acting on a verdict — deleting or converting — is Stage 3 (S3.16), never done here. Note that `check_stage1` **cannot see a commented-out block disappear**, because `canon` strips comments before comparing; triaging inside the same tranche that touches the file is what closes that gap, by judging each block at the one moment nothing has had a chance to make it vanish unassessed.
-
-Line numbers in the `file:lines` column are **pre-edit**, matching the sizing table above, so that a row can still be found in `git show` of the commit before its tranche.
-
-| block | file:lines | tranche | what the surrounding code says it was for | verdict |
-|---|---|---|---|---|
-| T1.1 | `+lib/edge.m:115-134` | 1 | A complete, working computation that splits the edge vector into runs of constant sign — "contour groups" — and returns each group's length and mean squared edge. Nothing in the live code does this. It is not abandoned downstream: `+general/compute_edge_group_measures.m:20` still destructures `lib.edge`'s outputs 3 and 4 as `l_groups, e_groups` (that is B1.5), and `lib.edge_response(l, e, th, n)` consumes exactly that pair of vectors. So the author switched the function's outputs 3 and 4 to a field and an angle grid and left the group code commented, but the model chain was never switched with it. | **alternative** — a real method the author switched away from and that a live caller still expects. Keep. S3.16 converts it, and S3.4 should decide whether the group statistic is part of the canonical edge measure before anything is deleted. |
-| T1.2 | `+lib/edge_measures.m:17` | 1 | `all_edges=edge(stim,'canny',[.2 .3]); % threshold for foliage` — a Canny detector with a hand-tuned threshold, sitting directly above the live `edge(stim,'zerocross',1e-3,edge_kernel)` on the next line, which carries the same trailing comment. Two detectors for one job; the author kept the zero-crossing one. | **alternative** — a different method with its own tuning. Convert to a documented `'method'` option, or record the switch and its threshold in the header. |
-| T1.3 | `+lib/edge_measures.m:30,33` | 1 | `d_n=(n_bdry_edges-n_bdry*txtr_edge_density)/sqrt(...)` and `response=d_n;`, under a live section header `%% compute edge density d'`. It references `n_bdry_edges`, `n_bdry` and `sig_n`, none of which exist in the function — the live code computes `n_bdry_edge_pixels` and `txtr_edge_density` but never combines them. This is the d' the section header promises and the function never delivers. | **unfinished** — a sketch that was never completed and cannot run as written. Keep, rewritten as a prose TODO naming the two live quantities it would combine. |
-| T1.4 | `+lib/edge_measures.m:35,39-51` | 1 | A per-contour loop computing each contour's length and mean squared edge, using `lib.contour_props`, `stim_grad_x`, `stim_grad_y` and `stim_std`. None of those four exist in this function — no gradient is ever computed here — so the block was pasted in from a context that had them (it is close kin to T1.1) and never wired up. | **unfinished** — keep, as a prose TODO. Do not treat it as superseded by T1.1: they compute over different contour sets (all image contours here, boundary groups there). |
-| T1.5 | `+lib/target_mask.m:51-56` | 1 | Explicitly labelled "check if boundary point (old method)": an 8-neighbour test inside the pixel loop, setting `mask_edge_old`. The live line 65, `mask_edge=bwperim(mask,4)|bwperim(~mask,4)`, computes the same boundary with a library call and works for both shape branches. | **superseded** by `+lib/target_mask.m:65`. Delete. |
-| T1.6 | `+lib/target_mask.m:58-61` | 1 | Labelled "new method" by the author: a 3×3 `unique` test, again per pixel. Same job as T1.5 and same job as the live `bwperim` pair, which is what actually shipped — so the author's "new method" was itself superseded before it went live. | **superseded** by `+lib/target_mask.m:65`. Delete. |
-| T1.7 | `+lib/target_mask.m:74,80` | 1 | A commented `if mask_edge(i,j)` / `end` wrapping the normal-vector assignment in the circular branch. With it commented out, the branch fills a unit normal at *every* interior pixel rather than only on the boundary; the noisy branch does mask to the boundary (`:93`). Every caller indexes the normals by `mask_edge` anyway, so the difference is invisible in output and costs only time. Whether it was commented out for speed, for debugging, or by accident cannot be told from the code. | **unknown** — the evidence runs out. Leave exactly as is. The resulting circular-vs-noisy asymmetry is documented in the file's header instead. |
-| T1.8 | `+lib/target_mask.m:84-85` | 1 | `imgradientxy(mask)` with a sign flip on the x component, directly above the live `imgradient(~mask)` plus `cosd`/`sind` at `:86-88`. Same normals, obtained from the gradient direction instead of its components; the live version avoids the manual sign flip. | **superseded** by `+lib/target_mask.m:86-88`. Delete. |
-| T1.9 | `+lib/target_mask.m:90-92` | 1 | A third route to the same normals, `lib.steerable_grad(~mask,[1 3])` followed by `vecnorm` normalisation. Note the call is positional and would error today for the reason in B2.3, so it is not even revivable as written. | **superseded** by `+lib/target_mask.m:86-88`. Delete. |
-| T1.10 | `+lib/target_mask.m:6,15` | 1 | A commented `'seed'` name-value parameter and its retrieval. The function's only randomness comes from `lib.create_pink_noise_line`, and the live design seeds the whole stimulus once in `lib.stimulus` (`rng('default'); rng(seed)`) before calling here — so a second seed on this function would be at best redundant and at worst would break the one-seed-one-stimulus property S3.1 depends on. | **superseded** by the seeding at `+lib/stimulus.m:82-83`. Delete. |
-| T1.11 | `+lib/steerable_filter.m:21-24` | 1 (the sizing table says 3; the file is in tranche 1's list, so it was triaged here) | Normalising the two kernels by their L2 norm, with the author's own reason attached — "so that larger filter responses aren't bigger simply due to size". That is a real alternative normalisation convention, and the live code instead normalises the *response* in `lib.steerable_grad`, which is not the same thing. | **alternative** — the reasoning is already moved into the file's header by this tranche; S3.16 should delete the code and keep the prose, or promote it to an option. |
-| T1.12 | `+lib/steerable_filter.m:26-30` | 1 | Five lines that gamma-correct and `image()` one kernel page to look at it. | **scaffolding** — delete, or promote to a `bPlot` flag if anyone actually wants to see the kernel. |
-| T1.13 | `+lib/steerable_grad.m:47-50` | 1 | An earlier version of the paste-the-valid-region step, padding by `kernel_size(1)*kernel_size(2)`. The live code at `:35-45` derives the paste indices from the actual kernel's row and column counts, which is correct for a non-square kernel and for an even width; the commented version assumes the radius formula and is wrong whenever a `'filter'` is passed in directly instead of a `kernel_size`. | **superseded** by `+lib/steerable_grad.m:35-45`. Delete. |
-| T1.14 | `+lib/steerable_grad.m:64` | 1 | `% stim_sd=std(stim(:));` — normalise by the image's global sd instead of the per-pixel local sd on the line above. That is a materially different model of contrast normalisation, and it is exactly the axis B1.1 turns on. | **alternative** — keep. Do not delete this one until S3.4 has picked a canonical edge-power definition; it is evidence about what the author was weighing. |
-| T1.15 | `+lib/edge_vector_ideal.m:51-54` | 1 | A `scatteredInterpolant` nearest-neighbour theta field over the whole image, then masked to the edge. The live `knnsearch` at `:50` plus the loop at `:55-57` assigns theta only at edge pixels — same result where it matters, without interpolating 65k pixels. | **superseded** by `+lib/edge_vector_ideal.m:50,55-57`. Delete. |
-| T1.16 | `+lib/edge_vector_ideal.m:73` | 1 | `% th_edge=th_edge(unique_idx_1,:);` — deduplicate thetas by keeping the first row of each. `unique_idx_1` exists nowhere in the file, and the live `unique` + `groupsummary` pair at `:79-80` deduplicates by *averaging* the degenerate thetas instead, which is the better answer and is what `lib.edge` also does. | **superseded** by `+lib/edge_vector_ideal.m:79-80`. Delete. |
-| T1.17 | `+lib/edge_response.m:8-9` | 1 | Two lines. `e_sup(isinf(e_sup))=e_tot(isinf(e_sup))-log(1+k);` patches infinities in the suppressed powers, but `e_tot` and `k` exist nowhere in the file, so it cannot be switched back on. `r=mean(e_sup);` is a complete earlier pooling rule — an unweighted mean, against the live length-weighted sum divided by `numel(e)+n`. | **unfinished** for the `e_sup(isinf(...))` line; **alternative** for `r=mean(e_sup)`. Keep both: TODO prose for the first, a header note for the second recording that pooling was changed from an unweighted mean to a length-weighted, count-offset sum. |
-| T1.18 | `+lib/edge_shape.m:44` | 1 | `%th_lags=th_lags(1:end-1);` — trim the last lag. The live code sizes `n_corr=floor(n_th/2)+1` and allocates `edge_autocorr` to exactly that length, so trimming `th_lags` alone would leave the two vectors mismatched. The off-by-one this line was reaching for is already handled by the sizing. | **superseded** by `+lib/edge_shape.m:42,45`. Delete. |
-| T1.19 | `+lib/edge_energy.m:78` | 1 | `%e=rms(edge_normal(:));` directly under the live `e=rms(edge_normal(:))/rms(edge_mag(:))` — the same measure without the normalisation by gradient magnitude. | **alternative** — a normalised/unnormalised pair, the same choice as B1.1 in miniature. Convert to a note in the header rather than deleting silently. |
-| T1.20 | `+lib/stimulus.m:78-79` | 1 | `seed_struct=rng('shuffle'); seed=seed_struct.Seed;` above the live `seed=randi(intmax)`. Both produce an unpredictable seed; only the live one produces a seed drawn from the *current* stream, and `rng('shuffle')` is precisely the pattern the plan's harness rules warn about. | **superseded** by `+lib/stimulus.m:80`. Delete. |
-| T1.21 | `+lib/stimulus.m:124` and `:181` | 1 | `% texture_bg=struct;` and `% texture=struct;`, each immediately before the line that writes `.stats` into that struct. Reinstating either would wipe `.type` and `.img`, which the following lines and the later branches still read — `:186` branches on `texture_bg.type`. So the author tried clearing the struct and the surrounding code depends on not clearing it. | **superseded** by the live `texture_bg.stats = ...` / `texture.stats = ...` lines, which deliberately preserve the other fields. Delete. |
-| T1.22 | `+lib/compute_pClipped.m:8` | 1 | `%fprintf('%f of boundary ribbon clipped\n', pClipped);`, the entire content of an otherwise empty `else` branch: print the clipping fraction when it is below the 1 % warning threshold. | **scaffolding** — delete, together with the now-empty `else`, or promote to a verbosity flag. Note the message text is the same one B2.14 is about, so fix that wording at the same time. |
-| T2.1 | `+lib/edge_props_stim.m:52` and `:158-159` | 2 | Two one-liners for the same idea, in two incompatible places: `% grad_mag_bins(:,1)=grad_hist_thresh;` would push the lowest histogram bin edge up to the threshold, and `% grad_mag(grad_mag<grad_hist_thresh)=0;` would instead zero sub-threshold gradients before histogramming. Neither can run as written — `grad_mag_bins` and `grad_mag` are not variables in this function (the locals are `grad_m_bins` and `grad_mag_a`/`grad_mag_b`). Together they are the whole reason the `'grad_hist_thresh'` parameter is retrieved at `:49` and never used, which is the `NASGU` `checkcode` flags there. | **unfinished** — two sketches of one feature, neither completed. Keep, rewritten as a single prose TODO that names the live variables each would have to act on and records that the parameter is dead until one of them is finished. |
-| T2.2 | `+lib/edge_props_stim.m:70-72` and `:75-94` | 2 | `:75-94` is the earlier form of the live gradient loop at `:96-109`: it allocates `grads` 5-D with a trailing region dimension and NaN-masks the cropped gradient twice — once outside the boundary ribbon (region a) and once inside it (region b). The live loop dropped that dimension, but the live histogram loop at `:161-162` still reads `grad_mags(:,:,i_scale,2)`. **That missing dimension is exactly B2.2**, so this is not superseded: the live code still depends on it. `:70-72` belongs to the same era — `grad_mag_bins{5}=[-inf inf]` and its two siblings use cell indexing against a local that is now a matrix, and would collapse the coarsest scale to one bin for `'tex'` stimuli. | **alternative** for `:75-94` — the working form of what the live code assumes, and the most likely basis of the B2.2 fix. Keep; do not delete until B2.2 is fixed, and note that it passes no `'normalize'` on either branch where the live camo branch passes `'normalize', false`, so reviving it verbatim also changes the normalisation (S3.4's question). **unknown** for `:70-72` — the effect is clear (neutralise the sigma-16 histogram for texture stimuli) but *why* only scale 5 is not recoverable from the surrounding code. Leave exactly as is. |
-| T2.3 | `+lib/edge_props_stim.m:112-118` | 2 | The PCA rotation written for the 5-D `grads` layout of T2.2 — `permute(grads,[1 2 5 4 3])`, flatten, multiply, unflatten — ending with `grads=grads_pca;`. The live block at `:121-131` does the same job for the current 4-D layout but **omits that final assignment**, which is B3.15. | **alternative** — it is the version that matches T2.2's layout, and it is the evidence for what the live block's missing last line should be. Keep until B2.2 and B3.15 are both settled; S3.16 should then convert it into a header note rather than delete it silently. |
-| T2.4 | `+lib/edge_props_stim.m:134-139` and `:165-166` | 2 | `:134-139` is a third PCA variant, `reshape(grads,stim_sz^2,2*num_scales)` with no `permute`, so the ten feature columns come out component-fastest; the live block at `:121-131` permutes first and so feeds them scale-fastest, which its own comment spells out. The two are not better and worse, they assume **different `pca_coeffs` column orders**. Its own `% grads=grads_pca;` is commented out inside the dead block, so it was never finished either. `:165-166` recomputes `N_a`/`N_b` per scale as `nnz(~isnan(grad_mag_a))`, against the live `:63-64` which counts boundary-ribbon pixels once for all scales — so the live denominators include the NaN border that grows with kernel size. | **alternative**, both. Keep. Which feature ordering matches how `pca_coeffs` was computed, and whether the LLR denominator should be per-scale or fixed, are open method questions for S3.4/S3.16, not cleanup decisions. Neither is filed as a bug: the author clearly weighed both, and the evidence does not say which side is right. |
-| T2.5 | `+lib/edge_props_stim.m:275-300` | 2 | Opening of the single 260-line dead region (`:271` is a live section header and there is no live code anywhere from `:275` to the end of file). Detects edge pixels with `lib.detect_edge_pixels`, splits them into region a/b by the boundary ribbon, and traces them into contours with `lib.trace_contours`. Both helpers exist in `+lib/` and both are otherwise uncalled. | **alternative** — a working entry point to a method the author switched off wholesale, whose helpers are still shipped. Keep. |
-| T2.6 | `+lib/edge_props_stim.m:303-399` | 2 | The per-contour property loop: length in pixels, distance from the true target boundary, edge power at each of the five scales, cosine alignment with the target normal, and curvature sd. It is largely complete, but `:328` uses `target_center` and `target_radius`, neither of which is ever defined in this function, so it **cannot be revived verbatim**. It also contains the author's own nested deactivations at `:316-318` (true arc length, replaced by pixel count with the reason written down), `:333-344` (contour tangent and normal) and `:346-349` (absolute orientation, "not used in camouflage"). | **alternative** with a caveat — the method is recoverable but the position term is not, so it is partly **unfinished**. Keep both halves; S3.16 must not treat "it's all one block" as licence to revive it as-is. The three nested deactivations are themselves *alternative*/*scaffolding* and already carry the author's reasons, which should move into header prose. |
-| T2.7 | `+lib/edge_props_stim.m:401-534` | 2 | The summary half: placeholder structs when a region has no contours, the edge-pixel-count LLR, the contour-count LLR, and same/different LLRs for the exponential distributions of position, length, orientation alignment, curvature and the five edge powers. **This is the code that would assign the fifteen never-assigned outputs in the live signature** (`npix_llr` … `ep16_llr`), which is why `checkcode` reports fifteen `STOUT` messages. The interleaved `% contour_props_summary.*_mean=...` lines at `:419-433`, `:450`, `:452-453`, `:460` and `:470-474` are a *second*, earlier output convention (a summary struct) that the flat output list replaced. | **alternative** for the LLR computations — they are the declared-but-unfilled half of this function's contract and cannot be deleted without a signature change, which is Stage 3 anyway. Keep. **superseded** for the `contour_props_summary` fragments, by the flat `*_llr`/`*_sum` output list in the live signature. |
-| T2.8 | `+lib/edge_props_stim.m` — whole-file note | 2 | Recorded so a later reader does not re-derive it: `test.m:40` and `+general/compute_edge_props_pink_noise.m:22,35` call this function expecting **two** outputs named `contour_props`/`mean_contour_props`, a signature that no version in the tree has. Those call sites predate even the dead block. | — (not a block; context for T2.5–T2.7.) Neither call site is in this tranche; they belong to tranches 11 and 8. |
-| T3.1 | `+lib/csf_err.m:15-20` | 3 | `sz=size(z); for i=1:sz(2); if z(i)<=0; z(i)=10^-20; end; end` sits right after `z=z/max(z)` and right before `e=sum((log(z)-log(z0)).^2)`. It clamps non-positive model ATF values to a tiny positive number before the fit takes their log — a guard against `log(0)=-Inf` or a complex log of a negative value that the live code does not have. Whether the live code actually needs it (i.e. whether `lib.csf_floating`'s output can go non-positive over the frequency ranges this is fit against) is not answerable from the surrounding code alone. | **unfinished** — a defensive clamp the author sketched and never turned on. Keep, rewritten as a prose TODO naming the two live variables (`atf`, the normalised ATF, and the fit target `human_atf`) it would guard. |
-| T3.2 | `+lib/csf_spatial_filter.m` (post-edit line 34, pre-edit last line) | 3 | `h=h(128-50:128+50,128-50:128+50);` directly under the live `h=fftshift(ifft2(ifftshift(csf_fil)));`. Crops the 256x256 spatial filter down to a 101x101 window around its center; the live code keeps the full 256x256. | **alternative** — a smaller-output-size variant the author tried and left off. Keep. |
-| T3.3 | `+lib/subplot_tight.m:49-50` | 3 | `% h_subplot=subplot(m,n,p,varargin{:},'Position',pos_vec);` directly above the live `h_subplot=subplot('Position',pos_vec,varargin{:});`, with the author's own explanation on the next commented line: `subplot` ignores `'Position'` when the same `(m,n,p)` triple as an existing axes is passed. | **superseded** by the live line just below, reason already given inline by the author. Keep as documentation of why the call is shaped this way; nothing to convert beyond what the comment already says. |
-| T3.4 | `+lib/autocorr.m:12` (pre-edit) | 3 | `% c=corrcoef(stim(:),stim_shifted(:));` directly above the live `r(i,j)=dot(stim(:),stim_shifted(:));`. `corrcoef` returns a normalised correlation coefficient (mean-subtracted, scaled by variance); `dot` is a raw, unnormalised energy product — a materially different statistic, and the commented line's own result (`c`) is never read even where it is live. | **alternative** — a normalisation choice the author moved away from, same axis as the edge-power normalisation questions (B1.1/S3.4) in miniature. Keep, note added inline. |
-| T3.5 | `+lib/detect_edge_pixels.m:7` (pre-edit) | 3 | `% edge_detection_filter=lib.diff_of_gaussians_filter(2,4,2);` directly above the live `edge_detection_filter=lib.laplacian_of_gaussian_filter(2,3);`, both feeding the same `addParameter` default. Two edge-detection filter shapes for the same job; the author kept the Laplacian-of-Gaussian one. | **alternative** — a different filter with its own parameters. Convert to a documented filter-choice option, or record the switch in the header, per S3.16. |
-| T3.6 | `+lib/embedImageinCenter.m:30` (pre-edit `if(~exist('tWin', 'var')) || isempty(tWin) ... end`) | 3 | `%     warning('If you are using an occluding target you need a window. Execution may crash if no window is supplied');` — the entire body of an `if` branch that otherwise does nothing when `target_window` is not supplied. A stray warning the author considered and left off; the branch is a no-op either way. | **scaffolding** — delete, or promote to a real warning, per S3.16. |
-| T4.1 | `+experiment/+main/displayLevelStart.m:39-45` (pre-edit) | 4 | A commented `if SessionSettings.bFovea ... else ... end` wrapping the draw order of the target outline and the fixation cross. The commented (foveal) branch would draw target then cross; the live, unconditional code below it — originally the `else` — draws target then cross **on top**, for every run regardless of `bFovea`. Not found by the survey's heuristic sizing pass (block is 7 lines, above its 5-line threshold, but was missed); found and triaged here on first read of the file, per the skill's rule that this is not a separate pass. | **alternative** — a real branch the author switched away from in favour of one fixed draw order. Keep; ties into S3.17's open `bFovea` question (`loadStimuliCamouflage.m:16` currently hardcodes `bFovea = 1`, so the commented branch is unreachable from the live entry point anyway). S3.16 should convert to a header note rather than delete. |
-| T4.2 | `+experiment/+main/giveFeedback.m:20,23,26` (pre-edit) | 4 | Three one-line `%sound(correctTone/incorrectTone/errorTone, sampleFreqHz)` calls, one per response branch, each directly under a live `Beeper(...)` call playing the same semantic tone. Below the 5-line block threshold; triaged in passing while reading the file. | **alternative** — the author switched from a synthesised tone played via `sound` to a fixed system beep via `Beeper` for all three branches; the three `*Tone` variables are still computed above (source of the pre-existing, unchanged `NASGU` lint) but only these commented lines would ever read them. Keep; S3.16 must decide together whether to delete the now-unused tone computation alongside the commented calls, or convert the switch into a header note and leave the computation as a documented option. |
-| T5.1 | `+experiment/+analysis/computeNegLogLikelihood.m:17-18,24-30,32-33,38,40` (pre-edit) | 5 | Three related fragments, all reachable within a couple of live lines of each other. `mu=p(1);`/`mu=0;` above the live `a=p(1)` sketch an earlier 4-parameter model (mu free) that the live 3-parameter model (mu fixed at 0 by every caller) replaced. `y_bm=...`/`yc=...`/`y=...`/`z=y-yc` plus `ll=sum(log(normcdf(z(response)/2)))+...` reference `response`, `blank_mean`, `y_t`, none of which exist in this function — an earlier per-trial-response likelihood, replaced by the live per-level summarized hit/correct-rejection binomial counts. `p_c=(p_h+p_cr)/2;` and `p_c=normcdf(d/2);` are two ways to get a combined "probability correct" that the live code never needs, since the binomial likelihood at the end uses `p_h`/`p_cr` directly. | **alternative**, all three. Keep; S3.16 should fold the mu-fixed-at-0 and per-trial-vs-summarized decisions into header prose — the same decision recurs at T5.3/T5.4 in this tranche's other files, so one shared note may cover all of them. |
-| T5.2 | `+experiment/+analysis/computeNegLogLikelihood_edgeResponse.m:50-54` (pre-edit) | 5 | "incorporating bias": `p_h=normcdf(d*(1-gamma)/2);`, `p_cr=normcdf(d*(1+gamma)/2);`, `p_c=(p_h+p_cr)/2;`, and a `ll=sum(log(binopdf(num_hits,num_targets,p_h)))+...` binomial likelihood using the per-level hit/correct-rejection split — a complete, bias-aware alternative to the live code two lines above, which instead computes a single bias-free `p_c=normcdf(d/2)` and a combined-correct likelihood (`bOpt` branch: `mean(p_c)`; else: `binopdf(num_hits+num_cr,nTrials,p_c)`). The bias term is named `gamma` here, never defined elsewhere in this file. | **alternative** — a real, complete method the author moved away from in favour of a simpler bias-free model for the edge-response variant. Keep; S3.16 should convert to a header note, and should decide whether `n_targets`/`n_blanks` (accepted as parameters, read only by this dead block) should be dropped from the signature at the same time — that is a signature change, so it can't happen here. |
-| T5.3 | `+experiment/+analysis/fitPsychometric.m:16-28` (pre-edit) | 3 | `n_levels=size(exp_values,2);` through a loop computing `mu_blanks(level)`/`mu_targets(level)` from raw `exp_values`/`bTargetPresent` — an earlier version of this function that computed `target_means` itself from per-trial data, before the API changed to receiving `target_means` already computed by the caller (every live caller, e.g. `computeThreshold_edgePower.m:57`, does this itself now). Not previously listed in section 4.1.4's sizing table (the table under-counts by its own admission); found on first read of this file. | **superseded** — by the live signature, which takes `target_means` as an input rather than computing it. Delete once S3.16 reaches it. |
-| T5.4 | `+experiment/+analysis/computeThreshold_edgePower.m:62-64,96-97` and `+experiment/+analysis/computeThreshold_texture_exponent.m:96-97` (pre-edit) | 5, 5 | Two one-line fragments per file: `blank_mean=mean(SubjectExpFile.edgePowers(~SubjectExpFile.bTargetPresent));` and `mu_init=blank_mean;`, both superseded by the live `mu=0;` a few lines later — the same mu-fixed-at-0 decision as T5.1, recorded a third and fourth time. Below the 5-line block threshold in both files; triaged in passing. | **superseded** — by the live `mu=0` in each file. Same underlying decision as T5.1; S3.16 should write one header note that covers all four sites (this pair, plus T5.1's `computeNegLogLikelihood.m` and `fitPsychometric.m`'s own `% mu=params(1);`) rather than four separate notes. |
-| T5.5 | `+experiment/+analysis/computeThreshold_edgeResponse.m:8,33,67-69` (pre-edit) | 3, 3 | `%     stim_n_groups=[];` and, inside the pooling loop, `%             stim_n_groups=[stim_n_groups; ExpSettings.stim_n_groups(:,:,idx)];` — an earlier plan to pool a third contour-count group alongside `stim_l_groups`/`stim_e_groups`, never finished (`ExpSettings.stim_n_groups` is never read live). Separately, `[alpha,beta] = experiment.analysis.fitPsychometric_edgeResponse(alpha_init, beta_init, stim_n_groups,stim_l_groups,stim_e_groups,bTarget,num_blanks,num_targets, num_hits, num_cr); mu=0; threshold=mu+a;` sketches a second-stage fit function that was never written (`fitPsychometric_edgeResponse` does not exist anywhere in the tree) — this is also the source of this file's one documented line-length exception (189 chars, left byte-identical). Both fragments are below the 5-line threshold; triaged in passing. | **unfinished**, both. Keep, rewritten as prose TODOs — the first naming `ExpSettings.stim_n_groups` as the data that was never wired up, the second naming the sketched `fitPsychometric_edgeResponse` two-stage fit. |
-| T6.1 | `+experiment/setUpExperiment.m:21,52-64` | 6 | `% nLevels=10;` plus the 11-line block that derived `edgePowerBlockEdges` here: take the mean of the stored edge powers, shrink a symmetric span around it by 10 % at a time until each of ten equal-width bins holds at least 80 samples, then `linspace` the span into bin edges. The live code instead `load`s `edgePowerBlockEdges` from the edge-power file at `:47`, and `+general/pick_edge_power_bins.m` is where the edges are now chosen by hand (S3.8 records that split). `nLevels` is commented out because with the edges loaded, the count follows from `size(edgePowerBlockEdges,1)`. | **alternative** — a complete, working automatic binning rule, with its own criterion (>=80 samples per bin) written down, that the author replaced with hand-picked edges loaded from disk. Keep. S3.16 should move the criterion into header prose or restore it as an option; S3.8 should know this is what the hand-picking replaced. |
-| T6.2 | `+experiment/setUpExperiment.m:26,29` | 6 | `% seed_energy_file='seed_energy_pn_gradbynorm';` in the pink-noise branch and `% seed_energy_file='edge_strengths_bark';` in the texture branch — a per-experiment filename that nothing in the live code reads. The live code derives its filename from `exp_type` instead (`:47`). The names refer to files that do not exist in the tree under either name. | **superseded** by the `exp_type`-derived path at `+experiment/setUpExperiment.m:47`. Delete. Note the two names are the only surviving record of what those files were called, so S3.16 should quote them in the commit message if it deletes them. |
-| T6.3 | `+experiment/setUpExperiment.m:71-77,81,84,90` | 6 | Five fragments of one abandoned structure: `%for iCondition = 1:nConditions` / `%end` wrapping the whole settings-file block, and an `if strcmp(exp_type,'pink_noise')` / `else` / `end` that would have written pink-noise experiments to a folder named with their luminance and contrast (`'_L0.5_C0.15'`) while everything else went to a plain `exp_files/<exp_type>`. The live code keeps only the `else` branch, unconditionally. Also `%subjectStr = ['ad'; 'cw'; 'es'; 'wg'];`, a hardcoded subject list from before `subjectStr` became a parameter. | **alternative** for the per-condition loop and the luminance/contrast-suffixed folder name — a real directory layout the author switched away from, and one that S3.1 (storing seeds rather than stimuli) may want back if several luminance/contrast settings are ever run side by side. Keep. **superseded** for the `subjectStr` literal, by the parameter of the same name. The same two fragments recur in all four `setUpExperiment_*` variants; give them one verdict, not five. |
-| T6.4 | `+experiment/saveCurrentLevel.m:24-33` | 6 | Five two-line assignments that would copy `seeds`, `stimuli`, `edgePowers`, `stimPosDeg` and `fixPosDeg` for the finished level out of `SessionSettings` and into `SubjectExpFile`, directly above the live line that does exactly that for `bTargetPresent`. `experiment.subjectExperimentFile` does not preallocate any of those five fields, so the block cannot run as written; and storing the stimuli per subject would multiply the already 100 GB `exp_files/` by the subject count, which is the problem S3.1 exists to solve. The dead per-trial threshold fitters (`_computeThreshold_trials.m` and friends) are what would have read them. | **alternative** — a per-subject record the author deliberately stopped keeping, and the reason those fitters are dead. Keep, and convert to a header note: it is evidence for S3.1's design question (what the experiment should actually persist), not stale code. Do not "restore" it. |
-| T6.5 | `+experiment/loadStimuliCamouflage.m:29-30,78-81,99` | 6 | Three fragments of one removal: two reads (`edgePowerBlockEdges`, `edgePowers`) near the top, and the matching pair of fields in the returned struct, commented out mid-argument-list at `:99`. Between them, `:78-81` is an older `targetSamples`: instead of the live target *outline*, it called `experiment.generate_camouflage_stimuli` to synthesise one example camouflage stimulus per level and gamma-corrected it, using an `ExpSettings.edgeEnergies` field and a `.condition` triple that no current settings struct has. So the display showed the subject an example target at each difficulty, and now shows a plain outline. | **alternative** for the `targetSamples` block — a real display alternative, unrevivable as written (its two fields are long gone) but a recorded design choice worth keeping as prose: the practice display was simplified from a per-level example to a fixed outline. **superseded** for the four edge-power fragments, by the live code's not needing edge powers at display time at all. Note the `:99` fragment is mid-argument-list and was moved to its own comment line above the `struct(` call by tranche 0.1.6, byte-identical, so the statement could be reflowed. |
-| T6.6 | `+experiment/generate_camouflage_stimuli.m:6,36,41,51-54` | 6 | Four fragments, all from the same rework. `% seeds=zeros(nTrials,nLevels,nSessions);` above the live `seeds=nan(nTrials*nSessions,nLevels)` — the old per-page shape, before seeds were drawn for all sessions at once and reshaped. `% seed=randsample(seeds_available,1);` and `% seed=randi([1 size(edge_powers,1)]);` inside the two branches of the generation loop, each directly above the live `seed=seeds(...)` lookup: the old design drew each seed inside the parallel loop; the live design draws them all up front, which is what makes the set reproducible and is why the `randsample` calls moved to `:16` and `:22`. `%else ... %break ... %end` at the end is the remains of a guard that gave up on a level when too few seeds fell in its band. | **superseded** for the three draw-inside-the-loop fragments, by the up-front sampling at `+experiment/generate_camouflage_stimuli.m:16,22` — that move is the whole point of the current design. **unfinished** for the `%else/%break` guard: the `if` it belonged to is gone, and what it should test (that `numel(seeds_available) >= nnz(bTarget(:,iLevel))`) is a real missing check — `randsample` errors unhelpfully when a level's band is too thin. Keep as a prose TODO naming that condition. |
-| T6.7 | `+experiment/generate_camouflage_stimuli_shape_exponent.m:2-5,19,22` | 6 | Four one-liners. `% texture.type='pink_noise';` and `% n_edge=1e4; kernel_sd=1;` are the local texture and edge-measurement parameters from before both were passed in or replaced. `%[~,~,~,bdry_ribbon]=lib.circular_mask(...)` is the `lib.circular_mask` call the live code replaced with `lib.stimulus`'s own `mask_strip` output — the only variant that made that switch, which is why it is the only one of the four generators that does not hit B2.9. `%[stim,seed]=lib.stimulus('texture',texture,'target_radius',...)` above the live six-output call, and `%edge=lib.edge_vector(stim,target_radius,n_edge,kernel_sd);` above the live `lib.edge` call, are the pre-rework two-output and `lib.edge_vector` forms. | **superseded**, all four, by the live lines immediately below each: `lib.stimulus`'s `mask_strip` output for the mask, the six-output call, and `lib.edge`. Worth recording in the S3.16 commit that the `lib.circular_mask`→`mask_strip` switch here is the fix the other three generators never got (B2.9), rather than deleting the evidence silently. |
-| T6.8 | `+experiment/setUpExperiment_shape_exponent.m:25,30-31` and `+experiment/setUpExperiment_texture_exponent.m` (live equivalent) | 6 | `%     kernel_size=[1 3];` plus the `global bdry_ribbon` / `lib.circular_mask` pair, commented out here but **live** in `setUpExperiment_texture_exponent.m:29-30`. So this is the same edit as T6.7, applied one level up: this variant stopped precomputing a global boundary ribbon when its generator started taking the mask from `lib.stimulus`, and its sibling never did. | **superseded** by the generator's own `mask_strip`, per T6.7 — and by S3.13, which deletes the never-read `global bdry_ribbon` everywhere. Delete. The pair of files is the clearest evidence in the repo for why S3.3's variant collapse is worth doing. |
-| T6.9 | `+experiment/setUpExperiment_search.m:12-16` | 6 | `% if strcmpi(exp_type,'detect')` / `% elseif strcmpi(exp_type,'search')` / `% ExpSettings.nSessions = 4;` / `% end` around the live, now unconditional `ExpSettings.nSessions = 19;`. In `'detect'` the session index doubles as the cued target location, so 19 is the location count; in `'search'` the target can be anywhere and 4 sessions sufficed. The author disabled the branch and left every run at 19. | **alternative** — a real per-paradigm setting the author switched away from, and one that is wrong for `'search'` as it stands (19 sessions x 120 trials of a 1200 x 1200 stimulus). Keep; S3.16 should restore it as a documented branch or record in the header why 19 is used for both. Not filed as a bug: nothing errors and nothing is silently wrong, the experiment is just longer than the commented version intended. |
-| T7.1 | `+general/compute_nat_img_eff_coding_bins.m:5` | 7 | `% rng(123,'twister');` at the top of the parameter block. The script draws every patch location with `randi` and nothing else seeds the stream, so with this line off no two runs sample the same patches and the shipped bin edges cannot be reproduced from the source. The author clearly had it on at some point and turned it off. | **alternative** — a reproducibility control the author switched away from. Keep; S3.16 should promote it to a real seed parameter (the same shape as S3.1's one-seed-one-stimulus property) rather than delete it, because "these bins are not reproducible" is a fact about the shipped `.mat` that should be written down either way. |
-| T7.2 | `+general/compute_nat_img_eff_coding_bins.m:9` (`%200;`) and `:110` | 7 | `thresh = 0; %200;` sets a gradient-magnitude threshold to zero with the previous value kept inline, and `% thresh_px=grad_m_this>thresh;` inside the scale loop is the only line that would ever read it — it computes a mask and then nothing uses the mask either, so even reinstating it does nothing. This is the whole reason `thresh` is a live but unread assignment. | **unfinished** — a thresholding step sketched and never wired to anything; the `%200` is the parameter value it was sketched at. Keep, rewritten as a prose TODO naming `grad_magnitude_this` (the live array it would mask) and recording 200 as the value the author was trying. Do not delete `thresh` itself: it is also a zone-2 parameter name elsewhere in the repo. |
-| T7.3 | `+general/compute_nat_img_eff_coding_bins.m:26` | 7 | `% load('vislab-common/data/nat_im_eff_coding.mat');` under a live `% load the PCA coefficients` heading. The first cell uses `pca_coeffs` at `:123`, about twenty lines *before* the second cell computes it at `:144` — that is B3.10. This commented load is the missing half of a deliberate two-pass workflow: run once to compute and save `pca_coeffs`, then uncomment this and run again so the PCA-basis quantities use it. | **alternative** — the only record of how this script is meant to be run. **Do not delete.** S3.16 should convert it into header prose (this tranche already did) or into a real `bSecondPass` option; B3.10 must be settled first, since the honest fix may be to split the script into two functions. |
-| T7.4 | `+general/compute_nat_img_eff_coding_bins.m:39-40` | 7 | `% grad_x=nan([patch_sz patch_sz num_scales n_patches]);` and the matching `grad_y`, immediately above the live `grad=nan([patch_sz patch_sz 2 num_scales n_patches]);` on the next line, which holds both components in one array along a new dimension 3. | **superseded** by `+general/compute_nat_img_eff_coding_bins.m:41`. Delete. |
-| T7.5 | `+general/compute_nat_img_eff_coding_bins.m:52` and `:74` | 7 | `% i_el=1; % current array element` and `% rgb(i_el:i_el+patch_sz^2-1,:)=reshape(permute(ptch_rgb,[2,1,3]),[],3); % store rgb values` — the running accumulation of per-patch RGB values into the preallocated `rgb`. With both off, `rgb` stays all-NaN, `ptch_rgb` is computed and thrown away, and the whole `%% PCA of RGB` cell at `:281-356` operates on NaNs. That is the second half of B3.10. | **alternative** — the collection step the last cell still depends on, switched off presumably because the colour analysis was set aside. Keep; it is the evidence for B3.10 and for why that cell cannot run. S3.16 must settle it together with the cell it feeds, not on its own. |
-| T7.6 | `+general/compute_nat_img_eff_coding_bins.m:93-96` and `:148` | 7 | Two places where the same idea is switched off. `:95-96` is labelled by the author "OR compute gradient using custom PCA filter": pick the x and y filters for this scale out of the `filters` stack built in the last cell and pass them to `lib.steerable_grad` as `'filter'`, instead of the live raw steerable filter. `:148` is `% pca_responses=grad_flat*pca_coeffs;`, which re-rotates the raw responses, against the live `:149` which instead reshapes the already-rotated `grad_pca`. The two are **not** equivalent: the live line uses whatever `pca_coeffs` was loaded at the start of the run, the commented one uses the `pca_coeffs` just computed four lines above. | **alternative**, both — an explicitly labelled fork in the method, tied to the two-pass workflow of T7.3. Keep. The file's own comment at `:244` ("these are not truly PCA filters, since due to the normalization by SD, it's not a linear operation") is the author's reason for hesitating, and belongs in the header prose S3.16 writes. |
-| T7.7 | `+general/compute_nat_img_eff_coding_bins.m:168-175` | 7 | Six lines of `figure; sgtitle('PCA responses')` plus a per-component `subplot`/`histogram`/`xlim`/`set(gca,'ytick',[])` loop over `scores`. A diagnostic look at the PCA component distributions; `scores` is returned by the live `pca` call and read by nothing else. Was in the survey's sizing table as rows `170-175`. | **scaffolding** — a diagnostic plot, not a method. Delete, or promote to a plot flag alongside the three live diagnostic figures this cell already draws. If S3.16 deletes it, note that `scores` then becomes an unused `pca` output and should be taken out of the destructuring at the same time. |
-| T7.8 | `+general/compute_nat_img_eff_coding_bins.m:270` and `:273` | 7 | `% filters_pca=nan([max_filter_sz max_filter_sz 2*num_scales]);` and, inside the display loop, `% filters_pca(:,:,i_scale)=sum(filters.*reshape(pca_coeffs(:,i_scale),[1 1 10]),3);` — building the rotated filters one component at a time with an explicit broadcast and sum. The live `:259-261` does the identical thing as one matrix product on the flattened stack. | **superseded** by `+general/compute_nat_img_eff_coding_bins.m:259-261`. Delete. |
-| T7.9 | `+general/compute_nat_img_eff_coding_bins.m:293-294` | 7 | The author's own note, `% NEEDS TO BE REWRITTEN NOW THAT GM ETC HAVE 5 SCALES`, and under it the `% save("cdfs.mat","ea","Na","eb","Nb","er","Nr","egm","Ngm","coeff");` it applies to. `egm`/`Ngm` are a gradient-magnitude cdf pair that no longer exists anywhere in the file — the five-scale rework replaced the single magnitude histogram with the per-scale `grad_m_bins` family. | **unfinished**, and unusually well documented as such by the author. Keep, rewritten as a prose TODO that says what `egm`/`Ngm` would now have to be (one cdf per scale). Note the nine names in that string are on 4.1.1's zone-3 frozen list, so if the save is ever revived the literals cannot simply be renamed. |
-| T7.10 | `+general/compute_edge_props_exp_pca.m:2-3,5` and `+general/fit_edge_model_with_exps.m:2-3,5-6` | 7 | The same dead fragment in both files: the full 14-experiment `exp_paths` list (and, in `fit_edge_model_with_exps.m`, a second 13-experiment copy of it that drops `'natural/bark_recast'`), commented out above a live `exp_paths={'pink_noise'};`. Plus `% filepaths={'all'};` in the first file, an even older spelling of the variable, which the live code no longer uses under that name. | **alternative** — the author narrowed a whole-experiment sweep to one experiment for a quick run and kept the full list to switch back to. Keep, in both files, with one shared verdict. S3.16 should promote it to a documented option (one list, commented at one place, or a real parameter) rather than leave three near-copies drifting; the 14-vs-13 difference is itself evidence that they already have. |
-| T7.11 | `+general/compute_edge_props_exp_pca.m:29-41,54,59,62,68,93` and `+general/fit_edge_model_with_exps.m:9-10,196` | 7 | One retired feature set, showing up in seven places across the two files. In `compute_edge_props_exp_pca.m`: the full 30-output destructuring of `lib.edge_props_stim` at `:29-41`, including the contour statistics (`npix_llr`, `ncon_llr`, `len_llr`, `pos_llr`, `pos_sum`, `or_llr`, `or_sum`, `curv_llr`, `curv_sum`) and the five per-scale edge powers `ep_1 ... ep_16`, against the live call which takes only the fifteen gradient-histogram outputs; then the four `ep`-specific fragments (`:54` preallocation, `:59` the per-scale fill, `:62` the write into `edge_props`, `:68` the `'ep'` entry in `input_array_names`). In `fit_edge_model_with_exps.m`: the matching full `edge_feature_names` list at `:9-10` and the 13-handle `legend(...)` at `:196` that labelled the bars for it. `:93`, `% edge_props.(...)=sum(this_input_array,4);`, is the same era's simpler across-scale combination — a plain sum, against the live `classify_normals` optimal combination. Was in the survey's sizing table as `compute_edge_props_exp_pca.m:29-41`. | **alternative**, all of it, one verdict. This is the client side of `+lib/edge_props_stim.m`'s 260-line dead contour block (T2.5–T2.7) and of 0.1.2's decision B, and it is why fifteen of that function's outputs are declared and never assigned. Keep. **S3.16 must not act on this row before T2.5–T2.7 and B2.2 are settled** — deleting the caller's half of a contract while the callee's half is still under review is exactly how the evidence gets lost. The `sum` versus `classify_normals` fragment at `:93` is a separate method question for S3.4, not a cleanup decision. |
-| T7.12 | `+general/compute_edge_props_exp_pca.m:107` | 7 | `% xlim([0 4])` in the second cell's plotting block, directly under `figure; hold on`. A hardcoded axis range for one particular feature. | **scaffolding** — a plot tweak left behind. Delete, per S3.16. Note the cell it sits in cannot run at all (B3.11: it reads `edge_props_all_contours_b`/`_t`, which nothing ever assigns), so nothing here is worth preserving on its own. |
-| T7.13 | `+general/fit_edge_model_with_exps.m:18` | 7 | A bare `% figure;` between the figure-count bookkeeping at `:17` and the experiment loop. The live code instead opens its figures by explicit number, `figure(num_figs+1)` and `figure(num_figs+2)`, which is what makes the script re-runnable without clobbering existing figures — the job this line did worse. | **superseded** by `+general/fit_edge_model_with_exps.m:58,103`. Delete. |
-| T7.14 | `+general/fit_edge_model_with_exps.m:114-172` | 7 | The bar-colour block, and the largest dead region in the tranche — the survey's sizing table has it as two rows, `115-147` (17 lines) and `159-186` (18), but `159-172` belongs here and `175-186` is T7.15. It is a full colour scheme for the retired 12-or-13-feature bar stack of T7.11 — blues for the five edge powers, red for curvature, yellow for orientation alignment, orange for position, greens for the contour counts — with only the last three assignments (`bar_h(1..3).CData`, three greys) left live for the three features that survive. Below it, `:159-172` are two further complete palettes (a red ramp and a green/blue ramp) the author tried instead. | **alternative** — three palettes for a feature set that no longer exists, plus the live one. Keep, but it is the clearest S3.16 candidate in these files: the right conversion is a single documented colour table keyed by feature name, which would make the live three and the dead nine the same mechanism. Tie it to T7.11's verdict — if the retired features come back, the palette must come with them. |
-| T7.15 | `+general/fit_edge_model_with_exps.m:175-186` | 7 | Two matched `figure(3)`/`figure(4)` blocks that `imagesc` the mean across levels of `feature_corrs_blank` and `feature_corrs_target` with a signed colourmap. Both arrays are computed **live** at `:45-46` and read by nothing else, so this block is the only consumer of two live computations. | **alternative** — a real diagnostic display the author switched off, not scaffolding: it visualises a quantity the live code still goes to the trouble of computing. Keep. **Two things S3.16 must know about this block.** It carries a live, uncommitted `colorbarpzn(...)` → `vislab.lib.colorbarpzn(...)` repoint that is someone else's in-progress work, not this cleanup's (see tranche 0.1.7's baseline note) — so it is dead code that is still being maintained, which is itself an argument for restoring it rather than deleting it. And deleting it would orphan `feature_corrs_blank`/`feature_corrs_target`, which would then have to go too. |
-| T7.16 | `+general/fit_edge_model_with_exps.m:204,218,285` | 7 | Three unrelated one-liners in the same file's analysis half. `% dprimes{i_exp,2}=dprimes{i_exp,2}*s;` is the post-hoc rescaling of the model d' by the fitted efficiency scalar — **this is the second half of B1.8**: with it off, and with `'eff',0.34` silently discarded by `classify_normals`, the curve the script plots as the model is the unattenuated ideal observer. `% var_exp=1-sqerr/numel(vertcat(dprimes{:,2}))` is a third variance-explained formula, normalising by element count rather than by variance, sitting between the two live ones. `% dprimes_model(iTex)=results.samp_d_b;` in cell 3 would fill the `dprimes_model` array that cell preallocates and never writes, which is that cell's `NASGU`. | **alternative**, all three. **The first one must not be deleted until B1.8 is fixed** — it is the only record in the source that the rescaling was ever intended, and B1.8's whole description turns on it. The third is likewise the reason its preallocation is not a Stage 2 deletion target. |
-| T7.17 | `+general/compute_nll_edge_model.m:13,16` | 7 | Two fragments at the top of the experiment loop. `%     n_bdry_pixels=edge_model.n_bdry_pixels;` would take the boundary length from the struct instead of from the function's third argument, which is how the live signature gets it. `%         responses=cellfun(@(stim) lib.new_edge(stim,'bdry_strip',bdry_strip,'sig_n',sig_n),stimuli);` would compute the responses by actually running an edge detector over each stimulus, against the live closed-form Gaussian approximation on the line below it. `lib.new_edge` does not exist anywhere in the tree (B2.9) and `stimuli` is not a variable here, so it is not revivable as written. | **alternative**, both. The first is an API choice (read it from the struct, or pass it in) and should become a header note. The second is the substantive one: it records that the model's decision variable was once measured per stimulus and is now predicted analytically — a real modelling decision worth a paragraph in the header rather than a deletion, and one that S3.4 should know about when it settles what an edge measure is. |
-| T7.18 | `+general/compute_nll_edge_model.m:43-48` | 7 | "incorporating bias": `p_h=normcdf(d*(1-gamma)/2);`, `p_cr=normcdf(d*(1+gamma)/2);`, `p_c=(p_h+p_cr)/2;` and a two-term binomial likelihood over hits and correct rejections separately — a complete bias-aware alternative to the live bias-free `p_c=normcdf(d/2)` and single binomial above it. `gamma`, `num_hits`, `num_targets`, `num_cr` and `num_blanks` exist nowhere in this function. Was in the survey's sizing table as `:44-48`. | **alternative** — and note it is **the same block, near enough verbatim, as T5.2** in `+experiment/+analysis/computeNegLogLikelihood_edgeResponse.m`, which 0.1.5 triaged identically. Two copies of one abandoned bias model in two packages. Keep; S3.16 should write one note covering both sites and should not "fix" one without the other. |
-| T8.1 | `+general/RandBoundary.m:23-26,43` (pre-edit) | 8 | Two unrelated fragments. `% ramp=zeros(szf,1); ramp(2)=0; ramp(4)=8; ramp(6)=8;` sits directly above the live `ramp = randn(n_freq, 1);` — a deterministic three-component test spectrum, kept as a worked example of what `ramp` should look like, versus the live random one. `% figure; plot(a,r,'o');` under the boundary-radius computation would show the radius-vs-angle curve before it gets rasterised into the image. | **alternative** for the deterministic ramp — a real test input the author could switch back to; convert to header prose or a documented option. **scaffolding** for the plot — a debug view of an intermediate quantity, left behind; delete, or promote to a plot flag. |
-| T8.2 | `+general/analyze_shape_expts.m:15,18,25,28,35,38,45,48,55,58` (pre-edit) | 8 | Ten one-liners, two per exponent condition (five conditions). `% accuracy_X_sd=std(squeeze(mean(SubjectExpFile.correct,1)),0,2)'/sqrt(size(SubjectExpFile.correct,3));` is an alternative standard-error estimate — the empirical spread of per-session means — against the live binomial-variance formula `sqrt(p(1-p)/n)`, which assumes independent Bernoulli trials rather than measuring session-to-session variability directly. `% plot(exponents_X,accuracy_X,'-oX');` is a bare line-and-marker plot of the same series, directly above the live `errorbar(...)` call that plots the same accuracy points with the error bars this dead line lacks. | **alternative** for the ten SD-estimator lines — a real, different variance estimator the author could switch to, worth a header note on the two candidate assumptions. **superseded** for the five bare-plot lines — by the live `errorbar` calls immediately below each, which draw the identical series plus error bars. |
-| T8.3 | `+general/analyze_search_expts.m:107` (pre-edit) | 8 | `% centers = Stimulus.spotCenters;` under "plotting variables", directly above the live `radius = Stimulus.spotLength / 2;`. The live `centers` this cell actually uses is left over from cell 2's `fliplr(Stimulus.spotCenters)` (see that cell's own "x and y seem to be flipped" comment); this commented line would instead read the un-flipped centers straight from `Stimulus`, making the cell runnable on its own without depending on cell 2 having executed first — at the cost of dropping the x/y flip. | **alternative** — a real, self-sufficient alternative source for `centers` that trades a dependency on an earlier cell for an unresolved coordinate-order question. Keep; convert to a header note about the two ways this cell can obtain `centers` and what changes between them. |
-| T8.4 | `+general/compare_edge_energy_defs.m:6-7` (pre-edit) | 8 | `%[~,opt_acc]=analysis.optimal_discrim(...)` and `%dPrime=analysis.compute_dPrime(...)`, both built from the same `seed_energy.(...)` field-name construction as the live call, but to two other functions in the same (non-existent, see B2.19) `analysis` package. | **alternative** — two other scoring functions the author considered instead of `compute_dPrime_pCorrect`, kept for reference. Neither is any more revivable than the live call, since the whole `analysis` package this file expects does not exist in this repo. |
-| T8.5 | `+general/compute_edge_group_measures.m:12,21,29` (pre-edit) | 8 | `% stim_n_groups=nan(nTrials,nLevels,nSessions);`, `% stim_n_groups(iTrial,iLevel,iSession)=n_groups;` and `% ExpSettings.stim_n_groups=stim_n_groups;` — a third contour-count output, alongside the live `stim_l_groups`/`stim_e_groups`, from the same `[~,~,l_groups,e_groups]=lib.edge(stim)` call this file's header already documents as B1.5 (`lib.edge` no longer returns contour-group data at all). | **superseded** — not by a better live alternative, but by `lib.edge`'s own upstream removal of contour-group computation (its dead block at `edge.m:114-134`); this fragment cannot be revived without reviving that one first, which is exactly what B1.5 already says. |
-| T8.6 | `+general/compute_edge_powers_pink_noise.m:11-18,23-34` (pre-edit) | 8 | Two dead blocks. The first (`if exist(...)==2 ... end`, 7 lines) is the identical append-to-existing-`.mat` logic that is **live** in this file's two siblings, `compute_edge_powers_camo{,_large}.m` — here it is commented out, and the live code below it unconditionally overwrites `edge_powers_new` instead. The second (12 lines) is the full Portilla-Simoncelli synthesis block, also identical to its live siblings, replaced here by the one live line `texture.type='pink_noise';`. | **alternative**, both — this file is a cut-down pink-noise-only variant of its two siblings with the shared logic disabled rather than removed, exactly as this tranche's header note for the file already describes. Keep; S3.16 should fold the three files into one parametrised script rather than three copies with different lines commented out. |
-| T8.7 | `+general/compute_edge_props_exp.m:10-13`, `_eq.m:11-14`, `_full.m:11-14`, `_raw.m:12-14` (pre-edit; shared) | 8 | The same three-line fragment in all four sibling files: `% grad_m_bins=repmat([-inf linspace(grad_m_bins(3,2),grad_m_bins(3,end-1),n_bins-1) inf],[5 1]);` and its `grad_o_bins`/`grad_p_bins` counterparts — collapse the per-scale bins to one equispaced set copied across all five scales, using only the middle scale's range. `_raw.m` alone makes a related but different idea live just below: a **per-scale** equispacing loop (`for i_scale=1:size(grad_m_bins,1)`) that respaces each scale's own bins rather than copying the middle scale to all five. | **alternative**, all four copies, one verdict per T7.10's precedent for a fragment repeated across files. Keep; S3.16 should promote it to a documented bin-construction option (all-scales-from-middle vs. per-scale) rather than four drifting copies, and should note `_raw.m`'s live per-scale version is a different method, not a finished version of this one. |
-| T8.8 | `+general/compute_noise_colour.m:13-14,78,103-123` (pre-edit) | 8 | Three fragments. `% texture.type='pink_noise'; % texture.alpha=8;` above the live Portilla-Simoncelli texture block is an alternative texture source for the whole script. The 21-line "% separate by orientation" block in cell 2 (`figure(2)`, `th=atan(u./v)`, the `for i=1:n_ang` loop) is a near-verbatim copy of the block that is **live** earlier in cell 1, re-disabled here rather than re-run. `% d=sqrt(x.^2+y.^2);` sits directly above the live `[th,d]=cart2pol(x,y);`, an equivalent way to get the same radial distance without the angle `cart2pol` also returns. | **alternative** for the texture-source pair — a real input the script could be pointed at instead. **superseded** for the duplicated orientation block and the `d=sqrt` line — both by a live computation of the identical quantity earlier in the same file. |
-| T8.9 | `+general/compute_edge_props_exp_full.m:72-89` (pre-edit) | 8 | The full per-level `classify_normals` loop — `comb_dv`/`comb_dv_thislevel` preallocation, the `for iLevel=1:nLevels` fit loop, and the `classify_normals(...)` call itself — commented out directly above the live `edge_props.(...)=sum(this_input_array,4);`. This is the one sibling of `compute_edge_props_exp{,_eq,_raw}.m` where the optimal per-level combination was replaced by a plain cross-scale sum. | **superseded** — by the live `sum(input_array, 4)` immediately below, which is this file's whole point of difference from its three siblings. Keep for now only because S3.16 should decide, together with T7.11's parallel question in `compute_edge_props_exp_pca.m`, whether the sum or the `classify_normals` fit is the intended combination rule before deleting either. |
-| T8.10 | `+general/compute_texture_autocorrelation.m:1-2,28` (pre-edit) | 8 | `% texture.type='pink_noise'; % texture.alpha=1;` above the live Portilla-Simoncelli block, the same texture-source alternative as T8.8. `% r=fftshift(r);` directly under the live `r=lib.autocorr(stim,50);` — `lib.autocorr`'s own docs were not read closely enough during this tranche to say whether its output is already zero-centred or needs an `fftshift` for the `contour`/`regionprops` calls that follow to make sense; the live code runs without it and the figures this script produces were not checked against it. | **alternative** for the texture-source pair, same reasoning as T8.8. **unknown** for the `fftshift` line — the evidence needed to say whether it was dropped because it was wrong or because it was already unnecessary was not established this tranche; left exactly as found. |
-
-</div>
-
-</details>
-
-</div>
-
-</details>
-
-<details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h3 style="display:inline; margin:0; font-size:1.05em">4.2 Stage 2 — coverage gaps and work log</h3></summary>
-
-<div style="margin-left:1.5em">
-
-**Coverage gaps, decided at survey time rather than discovered later.** The runtime golden harness can only reach the `+lib/` core chain and the three psychometric functions, for the reasons set out in section 2. Every other tranche is therefore **pattern-check only**, and this is a recorded decision: `+general/`, `+tinker/`, `+vis/` and `+tests/` are top-level scripts with no callable entry point; `+experiment/+main/` is hardware-bound; `+experiment/` top level writes into `exp_files/`; and the non-psychometric half of `+experiment/+analysis/` needs loaded session `.mat` files. Restructuring any of them into functions is itself Stage 3 (S3.7), so it cannot be used to make Stage 2 verifiable here.
-
-**Per-tranche work log.** Each entry records either the fix (which pattern, how it was rewritten, how it was verified, and the golden-replay result) or an explicit "no Stage 2 edits" that names all four patterns and says why each has no target in this tranche. A documented negative is the evidence the tranche was actually examined.
-
-*Not started.*
-
-</div>
-
-</details>
-
-<details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h3 style="display:inline; margin:0; font-size:1.05em">4.3 Stage 3 — work log</h3></summary>
-
-<div style="margin-left:1.5em">
-
-Fills in as each Stage 3 item from section 0.3 is actually done, one item per invocation (`matlab-cleanup-stage3` or `-stage3-mechanical`, per the item's own tag in section 0.3), never a batch. Commented-out code was already triaged in Stage 1 (section 4.1.4), so this log records only what was actually deleted or converted as a result, citing the verdict row it acted on.
-
-*Not started.*
-
-</div>
-
-</details>
-
-<details style="margin:0.7em 0 0.7em 1.5em">
-<summary><h3 style="display:inline; margin:0; font-size:1.05em">4.4 Stage 4 — bug work log and severity crosswalk</h3></summary>
-
-<div style="margin-left:1.5em">
-
-Bugs discovered while doing Stage 1/2/3 are recorded in section 0.4 as they are found, each with its `B<severity>.<n>` id and emoji; their fixes, done last and in that order, get logged here — what was wrong, the fix, and how it was verified (call-site search, not a mechanical check). If a severity turns out to have been misjudged once the bug is looked at properly, say so here and re-file it in 0.4 under the correct severity's next `n`: it gets a new id, the old one is not reused, and nothing else in the list is renumbered.
-
-*No fixes started.*
-
-**Crosswalk from the old `CODEBASE.md` severity scheme.** That document used S1 (silently wrong) / S2 (crashes on a live path) / S3 (crashes on a dead path) / S4 (cosmetic or latent), and numbered its findings B1–B24 in a single sequence. Those ids do **not** match the ids in section 0.4 — old B1 and new B1.1 happen to be the same bug, but old B2 is new B2.1 while old B3 is new B1.2, and so on. Use this table to resolve any older note or commit message. Several old entries bundled two or three distinct bugs and have been split; a few have been re-severitied, with the reason given in the new entry.
-
-| Old id | Old severity | New id(s) | Note |
+| block | file:lines | tranche | verdict |
 |---|---|---|---|
-| B1 | S1 | B1.1 | — |
-| B2 | S1 | B2.1 | Re-severitied: it errors rather than producing wrong numbers |
-| B3 | S1 | B1.2 | — |
-| B4 | S1 | B2.2, plus the debug leftovers to S3.13 | Split; re-severitied, since it errors out |
-| B5 | S1 | B1.3 | — |
-| B6 | S1 | B1.4 | — |
-| B7 | S1 | B1.5 | — |
-| B8 | S1 | B1.6 | — |
-| B9 | S1 | B1.7 | — |
-| B10 | S1 | B1.8 (the `'eff'` half) and B3.12 (the `_`-prefixed `'type','samp'`/`'bplot'` half) | Split |
-| B11 | S1 | B1.9 | — |
-| B12 | S1 | B3.4 | Re-severitied: the file is dead today, so it is latent |
-| B13 | S2 | B2.3 | — |
-| B14 | S2 | B2.4 | — |
-| B15 | S2 | B2.5 | — |
-| B16 | S2 | B2.6 | — |
-| B17 | S2 | B2.7 | — |
-| B18 | S2 | B2.8 | — |
-| B19 | S3 | B2.9 | Re-measured against in-scope files only: 15 names, 41 sites, and one of them (`stats.computeSceneSimilarityAmplitude`) is new damage from the `_` rename |
-| B20 | S3 | B2.11 (the `computeBootstrappedThreshold` half) and B3.12 (the `+stats` half) | Split |
-| B21 | S3 | B3.3 | — |
-| B22 | S3 | B3.10 and B3.12 | Split by whether the file is in scope |
-| B23 | S3 | B3.9 | — |
-| B24 | S3 | B3.11, plus `_changepower.m` to B3.12 | Split |
-| S4 bullet list | S4 | B3.1, B3.2, B3.5, B3.6, B3.7, B3.8, B1.10, and S3.13/S3.18 for the non-bugs | The `ppd = 106` bullet was promoted to severity 1; the `nanmean` and `checkcode` bullets became Stage 2 work and section 1 measurements respectively |
+| T1.1 | `+lib/edge.m:115-134` | 0.1.2 | **alternative** — contour-group computation; B1.5's live caller still expects it |
+| T1.2 | `+lib/edge_measures.m:17` | 0.1.2 | **alternative** — Canny vs zero-crossing detector |
+| T1.3 | `+lib/edge_measures.m:30,33` | 0.1.2 | **unfinished** — d' sketch, undefined vars |
+| T1.4 | `+lib/edge_measures.m:35,39-51` | 0.1.2 | **unfinished** — per-contour loop, undefined vars |
+| T1.5 | `+lib/target_mask.m:51-56` | 0.1.2 | **superseded** by `bwperim` at `:65` |
+| T1.6 | `+lib/target_mask.m:58-61` | 0.1.2 | **superseded** by `bwperim` at `:65` |
+| T1.7 | `+lib/target_mask.m:74,80` | 0.1.2 | **unknown** |
+| T1.8 | `+lib/target_mask.m:84-85` | 0.1.2 | **superseded** by `:86-88` |
+| T1.9 | `+lib/target_mask.m:90-92` | 0.1.2 | **superseded** by `:86-88` (also positionally broken, B2.3) |
+| T1.10 | `+lib/target_mask.m:6,15` | 0.1.2 | **superseded** by seeding at `stimulus.m:82-83` |
+| T1.11 | `+lib/steerable_filter.m:21-24` | 0.1.2 | **alternative** — L2-norm kernel normalization |
+| T1.12 | `+lib/steerable_filter.m:26-30` | 0.1.2 | **scaffolding** — kernel visualization |
+| T1.13 | `+lib/steerable_grad.m:47-50` | 0.1.2 | **superseded** by `:35-45` |
+| T1.14 | `+lib/steerable_grad.m:64` | 0.1.2 | **alternative** — global-sd normalization, ties to B1.1/S1.4 |
+| T1.15 | `+lib/edge_vector_ideal.m:51-54` | 0.1.2 | **superseded** by `:50,55-57` |
+| T1.16 | `+lib/edge_vector_ideal.m:73` | 0.1.2 | **superseded** by `:79-80` |
+| T1.17 | `+lib/edge_response.m:8-9` | 0.1.2 | **unfinished** / **alternative** (unweighted-mean pooling) |
+| T1.18 | `+lib/edge_shape.m:44` | 0.1.2 | **superseded** by `:42,45` |
+| T1.19 | `+lib/edge_energy.m:78` | 0.1.2 | **alternative** — unnormalized measure |
+| T1.20 | `+lib/stimulus.m:78-79` | 0.1.2 | **superseded** by `:80` |
+| T1.21 | `+lib/stimulus.m:124,181` | 0.1.2 | **superseded** — struct-clearing would break later fields |
+| T1.22 | `+lib/compute_pClipped.m:8` | 0.1.2 | **scaffolding** — print statement, ties to B2.14 |
+| T2.1 | `+lib/edge_props_stim.m:52,158-159` | 0.1.3 | **unfinished** — two sketches of unused `grad_hist_thresh` |
+| T2.2 | `+lib/edge_props_stim.m:70-72,75-94` | 0.1.3 | **alternative** (`:75-94`, tied to B2.2) / **unknown** (`:70-72`) |
+| T2.3 | `+lib/edge_props_stim.m:112-118` | 0.1.3 | **alternative** — evidence for B3.15 |
+| T2.4 | `+lib/edge_props_stim.m:134-139,165-166` | 0.1.3 | **alternative**, both |
+| T2.5 | `+lib/edge_props_stim.m:275-300` | 0.1.3 | **alternative** — contour detection entry point |
+| T2.6 | `+lib/edge_props_stim.m:303-399` | 0.1.3 | **alternative** / partly **unfinished** |
+| T2.7 | `+lib/edge_props_stim.m:401-534` | 0.1.3 | **alternative** / **superseded** (older summary-struct fragments) |
+| T3.1 | `+lib/csf_err.m:15-20` | 0.1.4 | **unfinished** — defensive log-clamp |
+| T3.2 | `+lib/csf_spatial_filter.m` (last line) | 0.1.4 | **alternative** — cropped-window variant |
+| T3.3 | `+lib/subplot_tight.m:49-50` | 0.1.4 | **superseded**, reason already inline |
+| T3.4 | `+lib/autocorr.m:12` | 0.1.4 | **alternative** — normalized-correlation vs raw dot |
+| T3.5 | `+lib/detect_edge_pixels.m:7` | 0.1.4 | **alternative** — DoG vs LoG filter |
+| T3.6 | `+lib/embedImageinCenter.m:30` | 0.1.4 | **scaffolding** — stray warning |
+| T4.1 | `+experiment/+main/displayLevelStart.m:39-45` | 0.1.5 | **alternative** — draw-order branch |
+| T4.2 | `+experiment/+main/giveFeedback.m:20,23,26` | 0.1.5 | **alternative** — `sound()` vs `Beeper()` |
+| T5.1 | `computeNegLogLikelihood.m:17-18,24-30,32-33,38,40` | 0.1.6 | **alternative** ×3 |
+| T5.2 | `computeNegLogLikelihood_edgeResponse.m:50-54` | 0.1.6 | **alternative** — bias-aware model, same as T7.18 |
+| T5.3 | `fitPsychometric.m:16-28` | 0.1.6 | **superseded** — old API computed `target_means` itself |
+| T5.4 | `computeThreshold_edgePower.m:62-64,96-97` + `computeThreshold_texture_exponent.m:96-97` | 0.1.6 | **superseded** — mu-fixed-at-0 decision |
+| T5.5 | `computeThreshold_edgeResponse.m:8,33,67-69` | 0.1.6 | **unfinished** ×2 |
+| T6.1 | `setUpExperiment.m:21,52-64` | 0.1.7 | **alternative** — automatic bin-edge rule |
+| T6.2 | `setUpExperiment.m:26,29` | 0.1.7 | **superseded** by exp_type-derived path |
+| T6.3 | `setUpExperiment.m:71-77,81,84,90` | 0.1.7 | **alternative** / **superseded** (hardcoded subject list) |
+| T6.4 | `saveCurrentLevel.m:24-33` | 0.1.7 | **alternative** — per-subject storage the author stopped keeping |
+| T6.5 | `loadStimuliCamouflage.m:29-30,78-81,99` | 0.1.7 | **alternative** / **superseded** (edge-power reads) |
+| T6.6 | `generate_camouflage_stimuli.m:6,36,41,51-54` | 0.1.7 | **superseded** ×3 / **unfinished** ×1 |
+| T6.7 | `generate_camouflage_stimuli_shape_exponent.m:2-5,19,22` | 0.1.7 | **superseded**, all 4 |
+| T6.8 | `setUpExperiment_shape_exponent.m:25,30-31` | 0.1.7 | **superseded**, ties to S2.3 |
+| T6.9 | `setUpExperiment_search.m:12-16` | 0.1.7 | **alternative** — per-paradigm session count |
+| T7.1 | `compute_nat_img_eff_coding_bins.m:5` | 0.1.8 | **alternative** — reproducibility seed, disabled |
+| T7.2 | `compute_nat_img_eff_coding_bins.m:9,110` | 0.1.8 | **unfinished** — thresholding step never wired |
+| T7.3 | `compute_nat_img_eff_coding_bins.m:26` | 0.1.8 | **alternative** — do-not-delete, ties to B3.10 |
+| T7.4 | `compute_nat_img_eff_coding_bins.m:39-40` | 0.1.8 | **superseded** by `:41` |
+| T7.5 | `compute_nat_img_eff_coding_bins.m:52,74` | 0.1.8 | **alternative** — RGB accumulation, ties to B3.10 |
+| T7.6 | `compute_nat_img_eff_coding_bins.m:93-96,148` | 0.1.8 | **alternative** ×2 — custom-PCA-filter method fork |
+| T7.7 | `compute_nat_img_eff_coding_bins.m:168-175` | 0.1.8 | **scaffolding** — diagnostic plot |
+| T7.8 | `compute_nat_img_eff_coding_bins.m:270,273` | 0.1.8 | **superseded** by `:259-261` |
+| T7.9 | `compute_nat_img_eff_coding_bins.m:293-294` | 0.1.8 | **unfinished**, well-documented (`egm`/`Ngm` cdf pair) |
+| T7.10 | `compute_edge_props_exp_pca.m:2-3,5` + `fit_edge_model_with_exps.m:2-3,5-6` | 0.1.8 | **alternative** — full 14-exp path list |
+| T7.11 | `compute_edge_props_exp_pca.m:29-41,54,59,62,68,93` + `fit_edge_model_with_exps.m:9-10,196` | 0.1.8 | **alternative** — retired contour-feature set; do not act before T2.5–T2.7/B2.2 settled |
+| T7.12 | `compute_edge_props_exp_pca.m:107` | 0.1.8 | **scaffolding** — plot axis tweak |
+| T7.13 | `fit_edge_model_with_exps.m:18` | 0.1.8 | **superseded** by `:58,103` |
+| T7.14 | `fit_edge_model_with_exps.m:114-172` | 0.1.8 | **alternative** — 3 retired colour palettes |
+| T7.15 | `fit_edge_model_with_exps.m:175-186` | 0.1.8 | **alternative** — live diagnostic display, carries the uncommitted `colorbarpzn` repoint |
+| T7.16 | `fit_edge_model_with_exps.m:204,218,285` | 0.1.8 | **alternative** ×3 — do not delete `:204` until B1.8 fixed |
+| T7.17 | `compute_nll_edge_model.m:13,16` | 0.1.8 | **alternative** ×2 |
+| T7.18 | `compute_nll_edge_model.m:43-48` | 0.1.8 | **alternative** — same block as T5.2 |
+| T8.1 | `RandBoundary.m:23-26,43` | 0.1.9 | **alternative** (deterministic ramp) / **scaffolding** (debug plot) |
+| T8.2 | `analyze_shape_expts.m:15,18,25,28,35,38,45,48,55,58` | 0.1.9 | **alternative** (SD estimator) / **superseded** (bare plot lines) |
+| T8.3 | `analyze_search_expts.m:107` | 0.1.9 | **alternative** — self-sufficient `centers` source |
+| T8.4 | `compare_edge_energy_defs.m:6-7` | 0.1.9 | **alternative** — two other non-existent scoring functions |
+| T8.5 | `compute_edge_group_measures.m:12,21,29` | 0.1.9 | **superseded** — by upstream removal in `lib.edge` (B1.5) |
+| T8.6 | `compute_edge_powers_pink_noise.m:11-18,23-34` | 0.1.9 | **alternative**, both |
+| T8.7 | shared fragment, `compute_edge_props_exp{,_eq,_full,_raw}.m` | 0.1.9 | **alternative**, all 4 copies, one verdict |
+| T8.8 | `compute_noise_colour.m:13-14,78,103-123` | 0.1.9 | **alternative** (texture source) / **superseded** (duplicated block) |
+| T8.9 | `compute_edge_props_exp_full.m:72-89` | 0.1.9 | **superseded** by live `sum(...)` — pending T7.11 |
+| T8.10 | `compute_texture_autocorrelation.m:1-2,28` | 0.1.9 | **alternative** / **unknown** (`fftshift` line) |
+| — | `plot_edge_energy_hists.m` ×2, `show_image.m`, `viewpatches.m` ×2 | 0.1.10 | scaffolding/alternative/alternative/scaffolding/superseded |
+
+`+tinker/`'s 55 dead-code lines (0.1.11, not started) are not yet triaged.
+
+</div>
+
+</details>
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">3.2 · Stage 2 · Tidying</h3></summary>
+
+<div style="margin-left:1.5em">
+
+Not started. Coverage gaps: most of `+general/`, `+tinker/`, `+experiment/` have no callable entry point for the golden harness (scripts, hardware-bound, or `.mat`-dependent) — decided as pattern-check-only, not an oversight.
+
+**Per-tranche work log:** empty — nothing done yet.
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">3.3 · Stage 3 · Structure</h3></summary>
+
+<div style="margin-left:1.5em">
+
+Not started. Commented-out code triaged in 3.1.4; nothing acted on yet.
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">3.4 · Stage 4 · Bugs</h3></summary>
+
+<div style="margin-left:1.5em">
+
+Not started — all 39 bugs recorded in 0.4, none fixed.
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">3.5 · Stage 5 · Speed</h3></summary>
+
+<div style="margin-left:1.5em">
+
+Not started — no timing data exists anywhere in the repo. Every item in 0.5 is Unprofiled.
+
+| item | re-triage | before | after | output check | kept? |
+|---|---|---|---|---|---|
+| | | | | | |
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h3 style="display:inline; margin:0; font-size:1.05em">3.6 · Stage 6 · Closing</h3></summary>
+
+<div style="margin-left:1.5em">
+
+Not started.
 
 </div>
 
