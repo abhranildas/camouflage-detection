@@ -27,7 +27,7 @@
 %     none (side effect: figures, and printed fit results in cell 3).
 %
 %   See also lib.stimulus, lib.edge_props_stim, lib.edge_measures,
-%   vislab.lib.otf_filter, experiment.analysis.computeThreshold_edgeResponse.
+%   vislab.lib.otf_filter, experiment.analysis.compute_threshold_edge_response.
 
 %% filter stimulus with OTF/CSF
 
@@ -120,7 +120,7 @@ title(edge_power)
 %% test new edge response based fitting
 % No semicolon: this cell exists to print the fitted threshold, exponent and sigma.
 [threshold, exponent, sigma] = ...
-    experiment.analysis.computeThreshold_edgeResponse('noise_colour/ecc_0', 'optimal', 1, 0)
+    experiment.analysis.compute_threshold_edge_response('noise_colour/ecc_0', 'optimal', 1, 0)
 
 %% classification image: collect stimuli
 

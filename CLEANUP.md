@@ -55,29 +55,29 @@ either, so they were already broken before the extraction — the local `+lib` d
   `mismatch_template`), and `contour_props` (a commented-out line in `edge_measures.m:43`, so inert).
   These callers are camo-exploratory (not on the live experiment path) and would already error if run.
 
-## 4. Stale hardcoded absolute paths — LEFT AS STALE (user's call; `computeBootstrappedThreshold` uses an outdated per-block data scheme)
-- `+experiment/+analysis/computeBootstrappedThreshold.m:37,41` — `/Users/steve/Dropbox/...` and
+## 4. Stale hardcoded absolute paths — LEFT AS STALE (user's call; `compute_bootstrapped_threshold` uses an outdated per-block data scheme)
+- `+experiment/+analysis/compute_bootstrapped_threshold.m:37,41` — `/Users/steve/Dropbox/...` and
   `C:\Users\sebastian\Dropbox\...`. Replace with `config.paths.exp_files` (the rest of `+analysis`
   already loads from relative `exp_files/...`).
 
 ## 5. Duplicates / orphans / bugs
 - **DONE:** removed `+experiment/occludingTarget.m` (dead, undefined `background`, unreferenced) and
-  `+experiment/saveCurrentSession.m` (buggy + orphaned, superseded by `saveCurrentLevel`). Removed the
+  `+experiment/saveCurrentSession.m` (buggy + orphaned, superseded by `save_current_level`). Removed the
   byte-identical duplicate `+experiment/subjectExperimentFile_alpha.m` and repointed its two callers
-  (`setUpExperiment_shape_exponent`, `setUpExperiment_texture_exponent`) to `experiment.subjectExperimentFile`.
+  (`set_up_experiment_shape_exponent`, `set_up_experiment_texture_exponent`) to `experiment.subject_experiment_file`.
 - `.asv` autosaves — already git-ignored (`*.asv` in `.gitignore`); not in the repo, nothing to do.
-- **Pending:** `gammaCorrect` exists **three** ways — `+experiment/gammaCorrect.m`, `lib.gammaCorrect`,
+- **Pending:** `gamma_correct` exists **three** ways — `+experiment/gamma_correct.m`, `lib.gammaCorrect`,
   and `vislab.lib.gamma_compress`/`gamma_expand`. Consolidate (touches experiment code; do with the +lib pass).
 
 ## 6. Copy-paste experiment-variant families (canonicalize with a parameter) — LEFT AS-IS (user's call)
 - `generate_camouflage_stimuli{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m`,
-  `sessionSettings{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m`,
-  `setUpExperiment{,_all,_diff_bg,_search,_shape_exponent,_texture_exponent}.m`. Heavy duplication;
+  `session_settings{,_all,_diff_bg,_shape_exponent,_texture_exponent}.m`,
+  `set_up_experiment{,_all,_diff_bg,_search,_shape_exponent,_texture_exponent}.m`. Heavy duplication;
   fold into one parameterized generator/settings/setup per family.
 
 ## 7. Data reconciliation
 - `data/edge_powers/natural/*.mat` (source/derivation) vs `vislab-common/data/edge_powers/*.mat` (deployed,
-  read by `experiment.setUpExperiment`). Keep one canonical location to avoid drift.
+  read by `experiment.set_up_experiment`). Keep one canonical location to avoid drift.
 
 ## 8. Optics constant
 - Some legacy scripts pass wavelength **555 nm** (`scratch.m`: `vislab.lib.otf_filter(stim,ppd,4,555)`); the
@@ -87,10 +87,10 @@ either, so they were already broken before the extraction — the local `+lib` d
 - camo's single-copy `+experiment` (`+main` runtime, `+analysis` offline, root stimulus/session code)
   is the **better template** for the shared harness than texseg's duplicated one. Unify the loop
   skeleton + intervals + session resume/save + **optional EyeLink** plug-in into `+psychframework`; keep
-  camo's dependency-injected `loadSessionStimuli` pattern; leave `runCamouflageExperiment_search.m`
+  camo's dependency-injected `loadSessionStimuli` pattern; leave `run_camouflage_experiment_search.m`
   as a standalone escape hatch.
-- **DONE:** `vislab/+psychframework` (shared session→level→trial loop) added; `runCamouflageExperiment.m`
+- **DONE:** `vislab/+psychframework` (shared session→level→trial loop) added; `run_camouflage_experiment.m`
   now delegates the loop/screen/teardown to it, wiring camo's interval functions + EyeLink lifecycle
   (session/level/trial pre/post hooks, gated by `S.bFovea`) as hooks. The superseded `runSession.m` and
   `runTrial.m` were **deleted** (commit `5301e73`). Parse-verified; not headless-testable (Psychtoolbox) —
-  PTB validation waived by the user. `runCamouflageExperiment_search.m` remains as a standalone escape hatch.
+  PTB validation waived by the user. `run_camouflage_experiment_search.m` remains as a standalone escape hatch.

@@ -27,12 +27,12 @@ function [stimuli, seeds, edgePowers, pClipped, bTargetPresent] = ...
 %     bTargetPresent - the source target-present flags, unchanged.
 %
 %   This function reads ExpSettings.nBlocks and ExpSettings.stimuliSeed, which
-%   only experiment.sessionSettings_texture_exponent emits; every other
+%   only experiment.session_settings_texture_exponent emits; every other
 %   generator writes .nLevels and .seeds. So the transform path of the base
-%   experiment.sessionSettings errors on any settings file it did not itself
+%   experiment.session_settings errors on any settings file it did not itself
 %   produce (B2.18, same root cause as B2.6).
 %
-%   See also experiment.SESSIONSETTINGS, experiment.GENERATE_CAMOUFLAGE_STIMULI.
+%   See also experiment.SESSION_SETTINGS, experiment.GENERATE_CAMOUFLAGE_STIMULI.
 
     load(['exp_files/' expNameStr '/exp_settings.mat']);
     luminance_old = ExpSettings.luminance;

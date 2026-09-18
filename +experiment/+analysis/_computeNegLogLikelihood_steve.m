@@ -1,8 +1,8 @@
 function nll = computeNegLogLikelihood_steve(x,variable,correct)
-%COMPUTENEGLOGLIKELIHOOD Negative log likelihood for the signal detection model
+%COMPUTE_NEG_LOG_LIKELIHOOD Negative log likelihood for the signal detection model
 %
 % Example: 
-%   nll = COMPUTENEGLOGLIKELIHOOD(x, contrast, correct);
+%   nll = COMPUTE_NEG_LOG_LIKELIHOOD(x, contrast, correct);
 % 
 % Output:
 %   nll:     negative log likelihood

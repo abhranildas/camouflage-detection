@@ -48,7 +48,7 @@ function [stimuli, seeds, edgePowers, pClipped] = ...
 %   The parfor is over levels rather than trials and writes only sliced
 %   outputs, so worker order cannot change any result.
 %
-%   See also experiment.SESSIONSETTINGS_SHAPE_EXPONENT,
+%   See also experiment.SESSION_SETTINGS_SHAPE_EXPONENT,
 %   experiment.GENERATE_CAMOUFLAGE_STIMULI, lib.STIMULUS, lib.EDGE.
 
 % texture.type='pink_noise';

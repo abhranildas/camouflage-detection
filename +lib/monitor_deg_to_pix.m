@@ -15,7 +15,7 @@ function position_px = monitor_deg_to_pix(position_deg, monitor_size, ppd)
 %
 %   v1.0, 1/19/2016, Steve Sebastian <sebastian@utexas.edu>
 %
-%   See also experiment.LOADSTIMULICAMOUFLAGE.
+%   See also experiment.LOAD_STIMULI_CAMOUFLAGE.
 
     %%
     % Point in the center is (0,0)

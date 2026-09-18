@@ -1,15 +1,15 @@
 % +analysis  (package namespace: experiment.analysis.*)
 % Psychometric fitting and threshold estimation for camouflage-detection
 % session data. The signal-detection model itself is
-% experiment.analysis.psychometricFun (a Weibull d' with an asymmetric
-% criterion), fit by experiment.analysis.fitPsychometric via
-% experiment.analysis.computeNegLogLikelihood. The computeThreshold_* family
+% experiment.analysis.psychometric_fun (a Weibull d' with an asymmetric
+% criterion), fit by experiment.analysis.fit_psychometric via
+% experiment.analysis.compute_neg_log_likelihood. The compute_threshold_* family
 % wraps that fit for a specific experiment variant (edge power, edge
 % response, texture exponent), loading a subject's exp_files/ data and
 % optionally bootstrapping standard errors.
 %
 % Call functions as experiment.analysis.<function>. Requires the repo root
-% on the MATLAB path (see setup.m); the computeThreshold_* family also
+% on the MATLAB path (see setup.m); the compute_threshold_* family also
 % requires a completed exp_files/<expType>/ session tree.
 %
 % Several call sites in this package reference an "analysis.*" or

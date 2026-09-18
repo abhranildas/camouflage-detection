@@ -66,14 +66,14 @@ This is the clean, working entry point for understanding the core measurement. S
 ## Running an experiment (Psychtoolbox)
 
 ```matlab
-experiment.setUpExperiment(exp_type, subjectStr)               % once: pre-generate stimuli + subject files
-experiment.main.runCamouflageExperiment(subjectStr, exp_type)  % run / resume a session
-experiment.analysis.computeThreshold_edgePower(exp_type, subj, bPlot, bBootstrap)
+experiment.set_up_experiment(exp_type, subjectStr)               % once: pre-generate stimuli + subject files
+experiment.main.run_camouflage_experiment(subjectStr, exp_type)  % run / resume a session
+experiment.analysis.compute_threshold_edge_power(exp_type, subj, bPlot, bBootstrap)
 ```
 
 Subject data is written to `exp_files/<exp_type>/subject_out/<subject>.mat`.
 
-> `setUpExperiment` **does not run as committed** — it loads from a directory that does not exist. See item B2.1 in [`docs/repo-cleanup.md`](docs/repo-cleanup.md).
+> `set_up_experiment` **does not run as committed** — it loads from a directory that does not exist. See item B2.1 in [`docs/repo-cleanup.md`](docs/repo-cleanup.md).
 
 ## Repository layout
 
@@ -124,25 +124,25 @@ $$\mathrm{LLR} = \sum_{\text{bins}}\left[n_a\ln\frac{n_a}{N_a} + n_b\ln\frac{n_b
 ### The experiment call chain
 
 ```
-setUpExperiment → sessionSettings → generateTargetPresentMatrix
-                                  → generate_camouflage_stimuli   (picks seeds by edge-power bin)
-                                  → subjectExperimentFile
-runCamouflageExperiment → loadCurrentSession        (resume: lowest incomplete session)
-                        → vislab.psychframework.run_experiment
-                             hooks → loadStimuliCamouflage (dependency-injected loader)
-                                   → displayLevelStart / fixationInterval
-                                     / stimulusInterval / responseInterval / giveFeedback
-                                   → saveCurrentLevel
-computeThreshold_edgePower → fitPsychometric → computeNegLogLikelihood → psychometricFun
+set_up_experiment → session_settings → generate_target_present_matrix
+                                     → generate_camouflage_stimuli   (picks seeds by edge-power bin)
+                                     → subject_experiment_file
+run_camouflage_experiment → load_current_session        (resume: lowest incomplete session)
+                          → vislab.psychframework.run_experiment
+                               hooks → load_stimuli_camouflage (dependency-injected loader)
+                                     → display_level_start / fixation_interval
+                                       / stimulus_interval / response_interval / give_feedback
+                                     → save_current_level
+compute_threshold_edge_power → fit_psychometric → compute_neg_log_likelihood → psychometric_fun
 ```
 
-The stimulus loader is injected as a function handle stored *in the settings struct* (`sessionSettings.m:37`, `loadSessionStimuli = @experiment.loadStimuliCamouflage`), which is what keeps the shared `vislab.psychframework` harness domain-agnostic.
+The stimulus loader is injected as a function handle stored *in the settings struct* (`session_settings.m:37`, `loadSessionStimuli = @experiment.load_stimuli_camouflage`), which is what keeps the shared `vislab.psychframework` harness domain-agnostic.
 
-**The psychometric model** (`+experiment/+analysis/psychometricFun.m:2-5`) is
+**The psychometric model** (`+experiment/+analysis/psychometric_fun.m:2-5`) is
 
 $$d'(x) = \left(\frac{|x-\mu|}{a}\right)^{b}\operatorname{sign}(x-\mu), \qquad p_{\text{hit}} = \Phi\!\left(\frac{d'(1-c)}{2}\right), \qquad p_{\text{cr}} = \Phi\!\left(\frac{d'(1+c)}{2}\right)$$
 
-with $a$ the threshold, $b$ the slope, $c$ the criterion bias, and $\mu$ fixed at 0 in the current fitter. It is fit by binomial negative log-likelihood over per-level counts. `computeThreshold_edgePower` is the current fitter; the per-trial and 2-parameter variants are `_`-prefixed and dead.
+with $a$ the threshold, $b$ the slope, $c$ the criterion bias, and $\mu$ fixed at 0 in the current fitter. It is fit by binomial negative log-likelihood over per-level counts. `compute_threshold_edge_power` is the current fitter; the per-trial and 2-parameter variants are `_`-prefixed and dead.
 
 ### The model in `+general/`
 
@@ -206,7 +206,7 @@ This repo is mid-migration onto the shared `vislab-common` library, aligning it 
 
 **Done:** `setup.m` + `config.m` added; the camouflage-domain code extracted into this repo's own `+lib` (56 functions) so the repo is self-contained; the redundant `edgecode/` removed; the Psychtoolbox harness unified onto `vislab.psychframework`; `Rs` donated to `vislab.nat_stat_bayes.dv_spatial`.
 
-**Not done:** the data paths (they point at a directory that was never created), the experiment-variant families, the triplicated `gammaCorrect`, adoption of `config()`, and runtime validation of the Psychtoolbox harness. All of these are tracked as items in the cleanup plan.
+**Not done:** the data paths (they point at a directory that was never created), the experiment-variant families, the triplicated `gamma_correct`, adoption of `config()`, and runtime validation of the Psychtoolbox harness. All of these are tracked as items in the cleanup plan.
 
 ## Documentation
 

@@ -1,14 +1,14 @@
 function [mu, a, b, c] = fitPsychometric_trials(mu_init, a_init, b_init, c_init, target_means, exp_values,response)
-%FITPSYCHOMETRIC Fit a cumulative Gaussian function using max likelihood
+%FIT_PSYCHOMETRIC Fit a cumulative Gaussian function using max likelihood
 %
 % Example: 
-%   [cT, b] = FITPSYCHOMETRIC(0.2, 1, contrast, correct);
+%   [cT, b] = FIT_PSYCHOMETRIC(0.2, 1, contrast, correct);
 % 
 % Output:
 %   cT:      model alpha (contrast where d' = 1) 
 %   b: 		 model beta (slope parameter)
 %
-%   See also COMPUTENEGLOGLIKELIHOOD.
+%   See also COMPUTE_NEG_LOG_LIKELIHOOD.
 %
 % v1.0, 1/5/2016, Jared Abrams, Steve Sebastian <sebastian@utexas.edu>
 

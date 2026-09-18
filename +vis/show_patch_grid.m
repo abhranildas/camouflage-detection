@@ -34,7 +34,7 @@ for iCon = 1:10
             cropped = lib.crop_image(I, ImgStats.sampleCoords(patchNr, :), ...
                 targetSizePix, 1, 1).*envelope;
 
-            cropped = experiment.gammaCorrect(cropped, 2, 14, 14);
+            cropped = experiment.gamma_correct(cropped, 2, 14, 14);
 
             colormap(gray(2^14)); image(cropped)
             axis image;

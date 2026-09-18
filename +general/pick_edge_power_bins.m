@@ -7,16 +7,16 @@
 % power, dimensionless) already in the workspace. Plots both histograms
 % on a log y-axis; the bin edges are then chosen by hand (e.g. via
 % `xline`, interactively) and written into `edgePowerBlockEdges` below —
-% this is the hand-picking step `experiment.setUpExperiment`'s own
+% this is the hand-picking step `experiment.set_up_experiment`'s own
 % commented-out automatic binning rule (T6.1) was replaced by.
 %
 % Inputs: workspace variable `edge_powers`, as above.
 % Output: one figure (blank/target edge-power histograms);
 %     `edgePowerBlockEdges` in the workspace, to be saved into the edge
-%     power file and consumed by `experiment.setUpExperiment`. Nothing is
+%     power file and consumed by `experiment.set_up_experiment`. Nothing is
 %     saved to disk by this script itself.
 %
-% See also experiment.setUpExperiment.
+% See also experiment.set_up_experiment.
 
 % load edge powers
 histogram(edge_powers(:, 1))
@@ -32,4 +32,4 @@ candidate_bin_edges = linspace(.759, .899, 10);
 edgePowerBlockEdges = [];
 
 % then save edge_powers and block edges in the edge power file
-% then run experiment.setUpExperiment
+% then run experiment.set_up_experiment

@@ -4,7 +4,7 @@
 %
 %     compute_avg_acc_for_texture
 %
-% Script, no arguments. Fits `experiment.analysis.computeThreshold_edgePower`
+% Script, no arguments. Fits `experiment.analysis.compute_threshold_edge_power`
 % per subject for one experiment type, evaluates the fitted psychometric
 % function at every stored target edge power, and converts d' to
 % proportion correct via `normcdf(d_prime/2)` (the two-alternative,
@@ -17,7 +17,7 @@
 %     title) and a printed pooled accuracy mean +/- sd (percent). Nothing
 %     is saved to disk.
 %
-% See also experiment.analysis.computeThreshold_edgePower, experiment.analysis.psychometricFun.
+% See also experiment.analysis.compute_threshold_edge_power, experiment.analysis.psychometric_fun.
 
 exp_name = 'pink_noise';
 
@@ -45,11 +45,11 @@ for i_subj = 1:length(subj_list)
 
     [~, subj_name] = fileparts(subj_list(i_subj).name)
     % compute pmf parameters
-    [threshold, slope, bias] = experiment.analysis.computeThreshold_edgePower(exp_name, ...
+    [threshold, slope, bias] = experiment.analysis.compute_threshold_edge_power(exp_name, ...
         subj_name, 1, 0);
     mu = 0;
     threshold_scale = threshold-mu;
-    [~, ~, ~, d_primes] = experiment.analysis.psychometricFun(edge_powers(:, 2), mu, ...
+    [~, ~, ~, d_primes] = experiment.analysis.psychometric_fun(edge_powers(:, 2), mu, ...
         threshold_scale, slope, bias);
     all_d_primes(:, i_subj) = d_primes;
     title(sprintf('%s: %s', exp_name, subj_name))

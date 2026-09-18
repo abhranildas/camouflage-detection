@@ -23,7 +23,7 @@
 % Output: one 3D figure (per-level accuracy, fitted curve, and threshold
 %     line for each duration, plus a threshold-vs-duration curve).
 %
-% See also experiment.analysis.computeThreshold_edgePower.
+% See also experiment.analysis.compute_threshold_edge_power.
 
 luminance = .5; contrast = .15;
 figure(1); hold on

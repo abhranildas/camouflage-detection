@@ -7,7 +7,7 @@
 % fits a thin-plate-spline surface to threshold vs. (luminance, contrast)
 % and plots it.
 %
-%   See also EXPERIMENT.ANALYSIS.COMPUTETHRESHOLDSVSSTATISTIC.
+%   See also EXPERIMENT.ANALYSIS.COMPUTE_THRESHOLDS_VS_STATISTIC.
 
 lum_cont = [
 .01 .05;

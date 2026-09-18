@@ -11,7 +11,7 @@ function spot_centers = find_spot_centers(centers, origin, spot_length, spot_dis
 %   Output
 %     spot_centers - centers, extended with every new spot center found.
 %
-%   See also ISMEMBER, experiment.SETUPEXPERIMENT_SEARCH.
+%   See also ISMEMBER, experiment.SET_UP_EXPERIMENT_SEARCH.
 
     for angle_deg = 0:360/n_directions:359.9
         candidate_center = [round(origin(1)+spot_distance*sin(angle_deg*pi/180)), ...

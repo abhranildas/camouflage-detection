@@ -16,9 +16,9 @@ function golden = golden_harness(mode, golden_file)
 %                lib.compute_p_clipped
 %     tranche 3  lib.create_pink_noise_square, lib.whiten, lib.autocorr,
 %                lib.csf_fitted
-%     tranche 5  experiment.analysis.psychometricFun,
-%                experiment.analysis.computeNegLogLikelihood,
-%                experiment.analysis.fitPsychometric
+%     tranche 5  experiment.analysis.psychometric_fun,
+%                experiment.analysis.compute_neg_log_likelihood,
+%                experiment.analysis.fit_psychometric
 %
 %   Not covered, by decision recorded in plan sections 2 and 4.2: every file
 %   in +general/, +tinker/, +vis/, +tests/, +experiment/+main/, the
@@ -135,20 +135,20 @@ if has_stats && has_ipt
     num_hits = [12, 16, 20, 24, 27];
     num_cr = [18, 20, 22, 25, 28];
 
-    [p_correct, p_hit, p_cr, d_prime] = experiment.analysis.psychometricFun( ...
+    [p_correct, p_hit, p_cr, d_prime] = experiment.analysis.psychometric_fun( ...
         target_means, 0, 0.3, 1.2, 0.1);
     golden.psychometricFun_pc = chk(p_correct);
     golden.psychometricFun_ph = chk(p_hit);
     golden.psychometricFun_pcr = chk(p_cr);
     golden.psychometricFun_d = chk(d_prime);
 
-    golden.computeNegLogLikelihood = chk(experiment.analysis.computeNegLogLikelihood( ...
+    golden.computeNegLogLikelihood = chk(experiment.analysis.compute_neg_log_likelihood( ...
         [0.3, 1.2, 0.1], target_means, num_blanks, num_targets, num_hits, num_cr));
     golden.computeNegLogLikelihood_out_of_range = chk( ...
-        experiment.analysis.computeNegLogLikelihood([-1, 1.2, 0.1], target_means, ...
+        experiment.analysis.compute_neg_log_likelihood([-1, 1.2, 0.1], target_means, ...
         num_blanks, num_targets, num_hits, num_cr));
 
-    [fit_a, fit_b, fit_c] = experiment.analysis.fitPsychometric(0.3, 1.2, 0.1, ...
+    [fit_a, fit_b, fit_c] = experiment.analysis.fit_psychometric(0.3, 1.2, 0.1, ...
         target_means, num_blanks, num_targets, num_hits, num_cr);
     golden.fitPsychometric = chk([fit_a, fit_b, fit_c]);
 else

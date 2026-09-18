@@ -52,7 +52,7 @@ function [mu, threshold, b, c, mu_sd, threshold_sd, b_sd, c_sd, sessions_complet
     threshold=mu+a;
     
     load(['vislab-common/data/edge_powers_' expTypeStr '.mat'],'edge_powers');
-    [~,~,~,y_blanks]=experiment.analysis.psychometricFun(edge_powers(:,1),mu,a,b,c);
+    [~,~,~,y_blanks]=experiment.analysis.psychometric_fun(edge_powers(:,1),mu,a,b,c);
     
     %% Figure properties
     if bPlot
@@ -93,7 +93,7 @@ function [mu, threshold, b, c, mu_sd, threshold_sd, b_sd, c_sd, sessions_complet
             num_cr_boot=sum(correct_reject_boot);
             
             pc_boot(iBoot,:)=mean(correct_boot);
-            [mu_boot(iBoot),a_boot(iBoot),b_boot(iBoot),c_boot(iBoot)]=experiment.analysis.fitPsychometric(mu,a,b,c,target_means_boot, num_blanks_boot,num_targets_boot, num_hits_boot, num_cr_boot);
+            [mu_boot(iBoot),a_boot(iBoot),b_boot(iBoot),c_boot(iBoot)]=experiment.analysis.fit_psychometric(mu,a,b,c,target_means_boot, num_blanks_boot,num_targets_boot, num_hits_boot, num_cr_boot);
         end
         threshold_boot=mu_boot+a_boot;
         mu_sd=std(mu_boot);

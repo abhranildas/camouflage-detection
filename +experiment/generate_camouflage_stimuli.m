@@ -48,7 +48,7 @@ function [stimuli, seeds, edgePowers, pClipped] = generate_camouflage_stimuli(te
 %   result. seeds is read and written back unchanged inside the loop, which is
 %   a leftover from when the seed was drawn there.
 %
-%   See also experiment.SESSIONSETTINGS, experiment.GENERATETARGETPRESENTMATRIX,
+%   See also experiment.SESSION_SETTINGS, experiment.GENERATE_TARGET_PRESENT_MATRIX,
 %   lib.STIMULUS, lib.COMPUTE_P_CLIPPED.
 
     load(['vislab-common/data/edge_powers/', exp_type, '.mat'], 'edge_powers')

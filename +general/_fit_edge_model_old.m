@@ -29,7 +29,7 @@ else
     end
 end
 xlimit=xlim; xlim([0 xlimit(2)])
-fplot(@(x) experiment.analysis.psychometricFun(x,0,1,1,0),xlim,'k');
+fplot(@(x) experiment.analysis.psychometric_fun(x,0,1,1,0),xlim,'k');
 xlabel("edge response d'"); ylabel('% correct')
 set(gca,'FontSize',13,'TickDir','out','box','off','ytick',[.5 .75 1],'yticklabel',[50 75 100]);
 
@@ -60,7 +60,7 @@ if(bBootstrap)
         num_cr_boot=sum(correct_reject_boot);
         
         pc_boot(iBoot,:)=mean(correct_boot);
-        [a_boot(iBoot),b_boot(iBoot),c_boot(iBoot)]=experiment.analysis.fitPsychometric(a,b,c,target_means_boot, num_blanks_boot,num_targets_boot, num_hits_boot, num_cr_boot);
+        [a_boot(iBoot),b_boot(iBoot),c_boot(iBoot)]=experiment.analysis.fit_psychometric(a,b,c,target_means_boot, num_blanks_boot,num_targets_boot, num_hits_boot, num_cr_boot);
     end
     threshold_boot=mu_boot+a_boot;
     mu_sd=std(mu_boot);
