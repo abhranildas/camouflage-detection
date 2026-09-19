@@ -87,7 +87,7 @@
 - [x] 🟡 **S3.5.** Add a real smoke test (seed→edge-power check, round-trip, minimal-arg call sweep, package-resolution sweep). Would have caught B2.1–B2.6, B2.9. Should run early despite its 🟡 tier — it's cheap insurance against every later tranche. **Done:** `tools/smoke_test.m`, 50 assertions, green on the current tree; found one new bug (B3.24).
 - [ ] 🟡 **S3.6.** Quarantine/delete the 29 `_`-prefixed dead files properly (currently only renamed in place); fix `+tests/gabor_similarity.m:42`'s broken call.
 - [ ] 🟡 **S3.10.** Rename zone-3 frozen `save`/`load` names, only with a migration script (~100GB of real data at risk).
-- [ ] 🟡 **S3.11.** Repoint `+lib/ptch_norm.m`/`watson_otf.m` to `vislab.lib.*`, delete local copies (resolves B3.3; signature differs, not drop-in).
+- [x] 🟡 **S3.11.** Repoint `+lib/ptch_norm.m`/`watson_otf.m` to `vislab.lib.*`, delete local copies (resolves B3.3; signature differs, not drop-in). **Done** — two call sites repointed (`csf_floating.m`, `compute_nat_img_eff_coding_bins.m`), both local files deleted. Details in 3.3.
 - [ ] 🟡 **S3.15.** Reorder statements wherever flagged (per-instance safety review).
 - [ ] 🟡 **S3.18.** Repo hygiene: gitignore `.claude/settings.local.json`, fix `.gitignore:2` `vislab_data/`→`vislab-common/`, clean stale MATLAB path entries (11 startup warnings).
 - [ ] 🟡 **S3.19 (new).** Unify `experiment.gamma_correct` with `vislab.lib.gamma_compress`, the remainder S1.14 declined to force. Both compute `out = white·(in/white)^(1/γ)`, but the shared one fixes `white = 255` and does not quantise, while every caller here needs an arbitrary output bit depth (`+vis/show_patch_grid.m` asks for 14) and a rounded integer pixel value. Routing the local one through it as written costs two compensating rescalings by 255 for a one-token power law — worse code, not better. The real fix is to give `vislab.lib.gamma_compress` an optional white-level argument (defaulting to 255, so backward-compatible) and then make the local function a genuine one-liner. 🟡 because the benefit is close to symbolic today: `vislab.lib.gamma_compress` has **zero live callers anywhere in the lab tree** (only `gamma_expand` is used, once, by `vislab.nat_stat_bayes.source_to_lms:69`), so nothing is actually diverging yet. It also needs a commit in a sibling repo and a signature decision the user should make, and it would put the experiment's live path behind a vislab-common dependency that `setup.m` only warns about when missing.
@@ -106,7 +106,7 @@
 
 **Description.** Bugs found anywhere during Stage 1/2/3, fixed here after Structure. **Rating:** 🔴 severity 1, silently wrong results on a run path · 🟠 severity 2, reachable but not silent · 🟡 severity 3, latent. Id `B<severity>.<n>`, never renumbered. **User launches each fix manually — never auto-dispatched.**
 
-**Status.** 63 of the 65 recorded bugs are unfixed; B3.9 closed as a side effect of tranche 0.1.1's filename/`function`-line rule, B2.1 as a side effect of S2.2, and one of B2.9's 15 dead references as a side effect of S1.14. Highest ids: B1.11, B2.29, B3.25.
+**Status.** 62 of the 65 recorded bugs are unfixed; B3.9 closed as a side effect of tranche 0.1.1's filename/`function`-line rule, B2.1 as a side effect of S2.2, one of B2.9's 15 dead references as a side effect of S1.14, and B3.3 as a side effect of S3.11. Highest ids: B1.11, B2.29, B3.25.
 
 **To-do.**
 
@@ -152,7 +152,7 @@
 - [ ] 🟠 **B2.29.** `+tinker/show_example_stimuli.m:27` calls `experiment.generate_camouflage_stimuli` with **8** positional arguments where the function takes 10. The two leading parameters, `texture` and `exp_type`, were added to the generator after this script was written, so every argument lands two positions early: `edge_energy_block_edges` arrives as `texture`, `n_trials` as `exp_type`, and the very first statement, `load(['vislab-common/data/edge_powers/', exp_type, '.mat'])`, errors on a numeric `exp_type`. The script is doubly stale — it also builds an 11-element `linspace` of *edges* where the generator wants an n_levels × 2 array of block limits, and its `experiment.show_image` at `:34` is one of B2.9's dead references. Found by S2.3's call-site sweep, which read every caller of all 15 variant-family files; the generator's signature is unchanged by that item, so this breakage is pre-existing, not introduced.
 - [ ] 🟡 **B3.1.** `lib.edge_props_stim.m:21,129` hardcodes 256×256/radius-64 mask regardless of input size.
 - [ ] 🟡 **B3.2.** `lib.crop_image.m:21` — `indColorChannel` missing trailing `s`, guard always true; `:33-35` swaps row/col for non-square patch.
-- [ ] 🟡 **B3.3.** `lib.ptch_norm.m:15-16` undefined var `m`, `ntype==2` branch broken. Resolved by S3.11.
+- [x] 🟡 **B3.3.** `lib.ptch_norm.m:15-16` undefined var `m`, `ntype==2` branch broken. **Closed as a side effect of S3.11**: the buggy local file was deleted and its one caller (`compute_nat_img_eff_coding_bins.m`, which used `ntype==3`, not the broken `ntype==2` branch) repointed to `vislab.lib.ptch_norm`, whose `norm_type==2` branch is correct and complete. No caller ever exercised the broken branch.
 - [ ] 🟡 **B3.4.** `compute_template_response_sigma.m:44` — comparison inside `size()`; `:42` loop bound possibly wrong dimension.
 - [ ] 🟡 **B3.5.** `lib.find_spot_centers.m:7` — `ismember(...,'row')` should be `'rows'`.
 - [ ] 🟡 **B3.6.** `lib.hyperexp_nll.m` fits hypoexponential, not hyperexponential — name/code mismatch. Second site, found in tranche 0.1.12: root `test_erlang.m` plots the same hypoexponential density (two *different* rates), while an Erlang is the equal-rate case. The file was not renamed (0.1.1 fixes filenames, not misnomers that are really this bug); its header now states plainly what it actually plots.
@@ -1611,6 +1611,29 @@ The variant-specific inputs of `session_settings` are name-value, not a union of
 **One deliberately out-of-scope sibling, noted rather than converted:** `+general/shuffle_unshuffle_exp.m:29,45` builds `ExpSettings2` field-by-field (`ExpSettings2.stimuli = ...`), so it never appears as a bare assignment target and the census never counted it. It is a shuffled sibling of the frozen `ExpSettings` name, the same shape as the `exp_settings_shuffle` this item did rename — but that one *was* a bare assignment (`ExpSettings_shuffle = ExpSettings;`) and this one is not, so converting `ExpSettings2` would be extending this item's scope on judgement rather than executing what was measured. Left exactly as spelled; a future pass can fold it in if it revisits this file.
 
 **Bugs found: none new.** No optimization and no structural opportunity was acted on or newly recorded — this item was itself one.
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">S3.11 &mdash; repoint <code>ptch_norm</code>/<code>watson_otf</code> to <code>vislab.lib.*</code> (2 files deleted, 2 call sites, 1 commit)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+**`watson_otf` was drop-in in every way that matters: same argument order and units, only the parameter names differ (`u,d,lambda`→`spatial_freq,pupil_diameter,wavelength`) and the math is identical.** The one call site, `+lib/csf_floating.m:23`, was repointed to `vislab.lib.watson_otf` unchanged in its arguments; the `See also` line was updated too.
+
+**`ptch_norm` was not drop-in — the signature and the `norm_type`/`ntype` numbering both differ.** The sibling adds an optional 5th argument (`n_channels`, default `size(patch, 3)`) and renumbers the normalization types: local `ntype` 1/2/3 map to sibling `norm_type` 1 (single-channel), 2 (mean+contrast, now correct), and **1 with `n_channels = 3`** respectively — the local `ntype==3` "mean for color image" (scale each RGB channel independently to the target mean) is exactly what sibling `norm_type==1` does per channel when `n_channels` is 3. The one call site, `+general/compute_nat_img_eff_coding_bins.m` (line 144 pre-edit, 148 post-edit), used `norm_type = 3` on a 3-channel RGB patch; it was changed to `norm_type = 1` with an explicit `n_channels = 3` and repointed to `vislab.lib.ptch_norm`, with a comment recording the mapping so a later reader doesn't mistake it for an unexplained behaviour change.
+
+**B3.3 closes as a side effect.** The local `ntype==2` branch (`lib.ptch_norm.m:15-16`, undefined variable `m`) was never reached by the one live caller, which used `ntype==3`. Deleting the buggy file removes the bug outright; the sibling's `norm_type==2` branch is complete and correct, so nothing here depends on the fix.
+
+**No caller relied on the local copy's broken behaviour.** Checked directly: the only caller of `ptch_norm` used `ntype==3`, not the broken `ntype==2` branch, so there is no silent behaviour change to flag.
+
+**Exhaustive call-site sweep.** Grepped the whole repo (`+lib/ptch_norm.m|watson_otf.m`, `lib\.ptch_norm|watson_otf`, and bare `\bptch_norm\b|\bwatson_otf\b`), all file types, including the 29 `_`-prefixed dead files (`+general/_*.m`, `+stats/_*.m`, `+experiment/+analysis/_*.m`) and `tools/`: none of the dead files reference either function. Live hits before the edit: `+lib/csf_floating.m:23` (`watson_otf`), `+general/compute_nat_img_eff_coding_bins.m:144` (`ptch_norm`), `tools/smoke_test.m:273` (`watson_otf`, minimal-argument sweep entry), and `+lib/Contents.m:9` (prose note). All four updated. After the edit, the same sweep finds zero remaining bare or `lib.`-qualified references anywhere in the repo; the only surviving mentions are historical — `CLEANUP.md` (a separate, older tracking doc, out of this plan's scope) and this plan's own record of what S3.11/B3.3 were before being done.
+
+**Neither function was a golden-harness entry point** (`grep` of `tools/golden_harness.m` for both names: no hits), so no golden-reference recapture question arises from this item.
+
+**Verification.** `tools/smoke_test.m`: `50 passed, 0 failed, 2 xfail (recorded bugs), 0 skipped` — `vislab.lib.watson_otf` now the entry in the minimal-argument sweep, still passing; the package-resolution sweep now counts 152 in-scope files (2 fewer, as expected from the deletion) and still resolves every package-qualified reference except the 14 already-known-dead ones. `golden_harness('replay', ...)`: `golden_harness: replay matched all 57 fields` — expected, since neither function feeds a golden entry point.
 
 </div>
 

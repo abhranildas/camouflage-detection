@@ -15,12 +15,12 @@ function atf = csf_floating(params, spatial_freq, pupil_diameter, wavelength, ..
 %   Output
 %     atf - amplitude transfer function at each spatial_freq.
 %
-%   See also lib.WATSON_OTF, lib.CSF_FITTED, lib.CSF_ERR.
+%   See also vislab.lib.WATSON_OTF, lib.CSF_FITTED, lib.CSF_ERR.
 
     surround_strength = params(1);
     surround_size = params(2);
     center_size = params(3);
-    otf = lib.watson_otf(spatial_freq, pupil_diameter, wavelength);   % Watson's OTF
+    otf = vislab.lib.watson_otf(spatial_freq, pupil_diameter, wavelength);   % Watson's OTF
     % ATF
     atf = otf.*(1-surround_strength*exp(-surround_size*spatial_freq.^surround_shape_exponent))...
         .*exp(-center_size*spatial_freq);

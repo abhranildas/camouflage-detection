@@ -69,7 +69,11 @@
 % rng(123,'twister');
 ppd = 106;
 norm_mean = 128;
-norm_type = 3;
+% norm_type/n_channels follow vislab.lib.ptch_norm's convention (S3.11): type 1
+% with n_channels = 3 scales each RGB channel to norm_mean independently, which
+% is what the old local lib.ptch_norm(..., ntype=3) "mean for color image" did.
+norm_type = 1;
+n_channels = 3;
 norm_contrast = 0.25;
 n_bins_rgb = 16000;
 max_pixel_value = 2^14 - 1;  % CPS images are actually 14-bit, even though saved as 16-bit
@@ -141,7 +145,7 @@ for i_file = 1:n_files
         patch_rgb = source_image_rgb(patch_row_start:patch_row_start+patch_size-1, ...
             patch_col_start:patch_col_start+patch_size-1, :);
         % normalize means of each RGB channel
-        patch_rgb_normalized = lib.ptch_norm(patch_rgb, norm_mean, norm_contrast, norm_type);
+        patch_rgb_normalized = vislab.lib.ptch_norm(patch_rgb, norm_mean, norm_contrast, norm_type, n_channels);
         % rgb(i_el:i_el+patch_sz^2-1,:)=reshape(permute(ptch_rgb, [2, 1, 3]), [], 3); % store rgb values
 
         % for grey values, select patch of patch_size
