@@ -1,5 +1,6 @@
 *.asv
-vislab_data/
+vislab-common/
+.claude/settings.local.json
 exp_files/
 Presentations, reports, abstracts/
 experiment_tracker.xlsx

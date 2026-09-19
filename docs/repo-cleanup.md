@@ -89,7 +89,7 @@
 - [ ] 🟡 **S3.10.** Rename zone-3 frozen `save`/`load` names, only with a migration script (~100GB of real data at risk).
 - [x] 🟡 **S3.11.** Repoint `+lib/ptch_norm.m`/`watson_otf.m` to `vislab.lib.*`, delete local copies (resolves B3.3; signature differs, not drop-in). **Done** — two call sites repointed (`csf_floating.m`, `compute_nat_img_eff_coding_bins.m`), both local files deleted. Details in 3.3.
 - [ ] 🟡 **S3.15.** Reorder statements wherever flagged (per-instance safety review).
-- [ ] 🟡 **S3.18.** Repo hygiene: gitignore `.claude/settings.local.json`, fix `.gitignore:2` `vislab_data/`→`vislab-common/`, clean stale MATLAB path entries (11 startup warnings).
+- [x] 🟡 **S3.18.** Repo hygiene: gitignore `.claude/settings.local.json`, fix `.gitignore:2` `vislab_data/`→`vislab-common/`, clean stale MATLAB path entries (11 startup warnings). **The "11" doesn't reproduce — 0 warnings and 0 stale path entries measured today (details in 3.3).**
 - [ ] 🟡 **S3.19 (new).** Unify `experiment.gamma_correct` with `vislab.lib.gamma_compress`, the remainder S1.14 declined to force. Both compute `out = white·(in/white)^(1/γ)`, but the shared one fixes `white = 255` and does not quantise, while every caller here needs an arbitrary output bit depth (`+vis/show_patch_grid.m` asks for 14) and a rounded integer pixel value. Routing the local one through it as written costs two compensating rescalings by 255 for a one-token power law — worse code, not better. The real fix is to give `vislab.lib.gamma_compress` an optional white-level argument (defaulting to 255, so backward-compatible) and then make the local function a genuine one-liner. 🟡 because the benefit is close to symbolic today: `vislab.lib.gamma_compress` has **zero live callers anywhere in the lab tree** (only `gamma_expand` is used, once, by `vislab.nat_stat_bayes.source_to_lms:69`), so nothing is actually diverging yet. It also needs a commit in a sibling repo and a signature decision the user should make, and it would put the experiment's live path behind a vislab-common dependency that `setup.m` only warns about when missing.
 - [ ] 🟡 **S1.1(alt).** Stop storing stimuli, store seeds (~100GB→~10MB) — design decision on caching strategy for the expensive Portilla-Simoncelli path.
 
@@ -1634,6 +1634,23 @@ The variant-specific inputs of `session_settings` are name-value, not a union of
 **Neither function was a golden-harness entry point** (`grep` of `tools/golden_harness.m` for both names: no hits), so no golden-reference recapture question arises from this item.
 
 **Verification.** `tools/smoke_test.m`: `50 passed, 0 failed, 2 xfail (recorded bugs), 0 skipped` — `vislab.lib.watson_otf` now the entry in the minimal-argument sweep, still passing; the package-resolution sweep now counts 152 in-scope files (2 fewer, as expected from the deletion) and still resolves every package-qualified reference except the 14 already-known-dead ones. `golden_harness('replay', ...)`: `golden_harness: replay matched all 57 fields` — expected, since neither function feeds a golden entry point.
+
+</div>
+
+</details>
+
+<details style="margin:0.7em 0 0.7em 1.5em">
+<summary><h5 style="display:inline; margin:0; font-size:0.92em">S3.18 &mdash; repo hygiene: <code>.gitignore</code>, stale MATLAB path entries (1 file, 1 commit)</h5></summary>
+
+<div style="margin-left:1.5em">
+
+**`.gitignore`, two fixes.** `.claude/settings.local.json` was added as a new ignore rule. It is not currently tracked (`git ls-files` finds no match), so nothing needed untracking — the rule only protects future clones/checkouts. Line 2's `vislab_data/` was wrong on two counts, not one: the shared-library repo has always been named `vislab-common` (confirmed by grepping every in-repo reference — `config.m`, `setup.m`, every `+general/`/`+lib/` header and `load`/`save` path string all say `vislab-common`, never `vislab_data`), and neither name exists as a directory *inside* this repo — it is always a sibling (`../vislab-common`) — so the rule was, and remains, a no-op for this repo's own working tree either way. Changed to `vislab-common/` to match the name the rest of the repo actually uses, in case a future local layout ever nests it.
+
+**"11 startup warnings" does not reproduce.** No `pathdef.m` or `startup.m` exists anywhere in this repo; the only path-construction code is `setup.m`, and it builds every path dynamically (`locate_folder` probes candidates with `isfolder` before adding any of them, `ensure_addon_on_path` only adds a toolbox folder if `dir()` finds it). Ran `setup()` fresh via `matlab -batch` (R2024b Update 6, vislab-common present as a sibling, per this machine's actual layout): zero warnings. Also dumped the resulting effective `path()` (1133 entries) and checked every entry with `isfolder`: zero stale (nonexistent) directories. Whatever produced the "11" figure when the item was recorded, it isn't reproducible against the repo or this machine's MATLAB installation as they stand today — most likely it predates one of the later Stage 3 items (S2.2's config-routing, or S3.11's `ptch_norm`/`watson_otf` repoint) that has since removed the paths in question, but that's a guess, not a finding; recorded here as a documented negative rather than asserted as "fixed."
+
+**One thing found but deliberately left alone.** This machine's *global* MATLAB default path — `C:\Program Files\MATLAB\R2024b\toolbox\local\pathdef.m`, set once via `savepath` — has roughly 200 lines listing this repo's `exp_files/` tree from an old snapshot. That file is outside the git repo (nothing here to commit) and is machine-specific, not something a repo-hygiene item can fix; it is also not the source of the zero warnings measured above, since a stale saved-path entry produces no warning either (MATLAB silently skips a missing directory on the default path at startup — confirmed by observing zero warnings on a plain `matlab -batch` with no user code at all). Noting it here so it isn't mistaken for something this item closed.
+
+**Verification.** `tools/smoke_test.m`: `50 passed, 0 failed, 2 xfail (recorded bugs), 0 skipped`. `golden_harness('replay', ...)`: `golden_harness: replay matched all 57 fields`. Both expected to be unaffected — this item touched no `.m` file, only `.gitignore`.
 
 </div>
 
