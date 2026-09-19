@@ -8,9 +8,9 @@
 % functions — run cell by cell, not called with arguments.
 %
 % Patch viewers (R. C. Walshe's, renamed to snake_case in tranche 0.1.1;
-% known callers of B2.15, lib.crop_image's always-overridden indColorChannels)
+% known callers of B2.15, lib.crop_image's always-overridden ind_color_channels)
 %   vis.show_example_patches     - grid of patches from one luminance bin (BUG: the
-%     bSave branch references undefined variables L/targetNr, new/B2)
+%     b_save branch references undefined variables L/target_nr, new/B2)
 %   vis.show_patch_grid          - grid of patches from one luminance/contrast/
 %     similarity bin
 %   vis.show_patches_one_by_one  - step through patches in a bin one at a time

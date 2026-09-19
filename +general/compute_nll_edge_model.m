@@ -25,8 +25,8 @@ function [neg_log_likelihood, p_correct, d_prime_all, responses] = ...
 %                         fit inside the feasible region.
 %     edge_model        - struct array, one element per experiment, as stored in
 %                         vislab-common/data/edge_model.mat. Fields read:
-%                         .target (nTrials x nLevels logical, target present),
-%                         .n_bdry_edge_pixels (nTrials x nLevels pixel count),
+%                         .target (n_trials x n_levels logical, target present),
+%                         .n_bdry_edge_pixels (n_trials x n_levels pixel count),
 %                         .txtr_edge_density (edge pixels per pixel, in [0, 1]),
 %                         .subject_data(subj_id).correct (logical).
 %     n_boundary_pixels - length of the boundary ribbon, in pixels.
@@ -38,9 +38,9 @@ function [neg_log_likelihood, p_correct, d_prime_all, responses] = ...
 %                          correct counts. For subj_id == 0 it is instead minus
 %                          the summed mean accuracy, which is an accuracy score
 %                          and not a likelihood, despite the function's name.
-%     p_correct          - 1 x nLevels predicted proportion correct.
-%     d_prime_all        - numel(edge_model) x 1 cell, each cell 1 x nLevels d'.
-%     responses          - nTrials x nLevels decision variable (z-score).
+%     p_correct          - 1 x n_levels predicted proportion correct.
+%     d_prime_all        - numel(edge_model) x 1 cell, each cell 1 x n_levels d'.
+%     responses          - n_trials x n_levels decision variable (z-score).
 %
 %   Three of the four outputs are unreliable, recorded as B3.19 and not fixed
 %   here: p_correct and responses are overwritten on every pass of the
@@ -67,8 +67,8 @@ function [neg_log_likelihood, p_correct, d_prime_all, responses] = ...
         log_likelihood = 0;
         for i_exp = 1:numel(edge_model)
             target_present = edge_model(i_exp).target;
-            nTrials = size(target_present, 1);
-            nLevels = size(target_present, 2);
+            n_trials = size(target_present, 1);
+            n_levels = size(target_present, 2);
 
             %     n_bdry_pixels=edge_model.n_bdry_pixels;
             n_boundary_edge_pixels = edge_model(i_exp).n_bdry_edge_pixels;
@@ -80,11 +80,11 @@ function [neg_log_likelihood, p_correct, d_prime_all, responses] = ...
             responses = edge_count_z;
 
             % mean and sd of edge responses for blanks and targets in each level
-            response_blank_means = nan(1, nLevels);
-            response_blank_sds = nan(1, nLevels);
-            response_target_means = nan(1, nLevels);
-            response_target_sds = nan(1, nLevels);
-            for i_level = 1:nLevels
+            response_blank_means = nan(1, n_levels);
+            response_blank_sds = nan(1, n_levels);
+            response_target_means = nan(1, n_levels);
+            response_target_sds = nan(1, n_levels);
+            for i_level = 1:n_levels
                 responses_this_level = responses(:, i_level);
                 responses_blank = responses_this_level(~target_present(:, i_level));
                 responses_target = responses_this_level(target_present(:, i_level));
@@ -106,7 +106,7 @@ function [neg_log_likelihood, p_correct, d_prime_all, responses] = ...
                 log_likelihood = log_likelihood + mean(p_correct);
             else
                 n_correct = sum(edge_model(i_exp).subject_data(subj_id).correct);
-                log_likelihood = log_likelihood + sum(log(binopdf(n_correct, nTrials, p_correct)));
+                log_likelihood = log_likelihood + sum(log(binopdf(n_correct, n_trials, p_correct)));
             end
 
             % incorporating bias

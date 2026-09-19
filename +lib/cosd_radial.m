@@ -1,6 +1,6 @@
-function cos_grid = cosd_radial(x_deg, y_deg, freq_cyc_deg, amplitude, dc_offset, bPlot)
+function cos_grid = cosd_radial(x_deg, y_deg, freq_cyc_deg, amplitude, dc_offset, b_plot)
 % COSD_RADIAL  Radially symmetric cosine with a specified frequency.
-%   cos_grid = lib.cosd_radial(x_deg, y_deg, freq_cyc_deg, amplitude, dc_offset, bPlot)
+%   cos_grid = lib.cosd_radial(x_deg, y_deg, freq_cyc_deg, amplitude, dc_offset, b_plot)
 %
 %   Radially symmetric cosine grating evaluated at locations x_deg, y_deg.
 %
@@ -9,7 +9,7 @@ function cos_grid = cosd_radial(x_deg, y_deg, freq_cyc_deg, amplitude, dc_offset
 %     freq_cyc_deg - spatial frequency of the cosine, in cycles/degree.
 %     amplitude    - peak amplitude of the cosine, dimensionless.
 %     dc_offset    - value added uniformly, same units as amplitude.
-%     bPlot        - (optional) if true, plots the result. Default false.
+%     b_plot       - (optional) if true, plots the result. Default false.
 %
 %   Output
 %     cos_grid - height of the cosine at each (x_deg, y_deg), same size as
@@ -19,14 +19,14 @@ function cos_grid = cosd_radial(x_deg, y_deg, freq_cyc_deg, amplitude, dc_offset
 %
 %   See also lib.COS_WINDOW_2D.
 
-    if ~exist('bPlot')
-        bPlot = 0;
+    if ~exist('b_plot')
+        b_plot = 0;
     end
 
     phi = 0;
     cos_grid = amplitude.*cosd(360.*freq_cyc_deg.*sqrt(x_deg.^2 + y_deg.^2) + phi) + dc_offset;
 
-    if bPlot == 1
+    if b_plot == 1
         figure('position', [193 944 646 338]); subplot(1, 2, 1);
         imagesc(x_deg(1, :), y_deg(:, 1)', cos_grid);
         axis square;

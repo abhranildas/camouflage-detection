@@ -16,7 +16,7 @@
 %
 % Inputs: workspace `ExpSettings`/`SubjectExpFile`/
 %     `SubjectExpFile_unblocked` structs, as above.
-% Output: `ExpSettings2`, `ExpSettings_shuffle` (shuffled copies) and an
+% Output: `ExpSettings2`, `exp_settings_shuffle` (shuffled copies) and an
 %     updated `SubjectExpFile` (unshuffled in place) in the workspace.
 %     Nothing is saved to disk (the save is a comment, a note to the
 %     user).
@@ -51,15 +51,15 @@ SubjectExpFile.stimuli = ExpSettings.stimuli;
 
 %% shuffle the experiment
 % load ExpSettings and shuffle indices
-ExpSettings_shuffle = ExpSettings;
-for i_orig = 1:ExpSettings_shuffle.nSessions*ExpSettings_shuffle.nLevels*ExpSettings_shuffle.nTrials
-    ExpSettings_shuffle.bTargetPresent(i_orig) = ExpSettings.bTargetPresent(idx(i_orig));
-    ExpSettings_shuffle.edgePowers(i_orig) = ExpSettings.edgePowers(idx(i_orig));
-    ExpSettings_shuffle.seeds(i_orig) = ExpSettings.seeds(idx(i_orig));
+exp_settings_shuffle = ExpSettings;
+for i_orig = 1:exp_settings_shuffle.nSessions*exp_settings_shuffle.nLevels*exp_settings_shuffle.nTrials
+    exp_settings_shuffle.bTargetPresent(i_orig) = ExpSettings.bTargetPresent(idx(i_orig));
+    exp_settings_shuffle.edgePowers(i_orig) = ExpSettings.edgePowers(idx(i_orig));
+    exp_settings_shuffle.seeds(i_orig) = ExpSettings.seeds(idx(i_orig));
 
     [i_trial, i_level, i_session] = ind2sub([30 10 4], i_orig);
     [i_trial_shuffle, i_level_shuffle, i_session_shuffle] = ind2sub([30 10 4], idx(i_orig));
-    ExpSettings_shuffle.stimuli(:, :, i_trial, i_level, i_session) = ...
+    exp_settings_shuffle.stimuli(:, :, i_trial, i_level, i_session) = ...
         ExpSettings.stimuli(:, :, i_trial_shuffle, i_level_shuffle, i_session_shuffle);
 end
 

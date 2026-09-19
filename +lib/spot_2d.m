@@ -1,6 +1,6 @@
-function spot = spot_2d(stimulusParams)
+function spot = spot_2d(stimulus_params)
 % SPOT_2D  Create a pedestal (annular) spot stimulus.
-%   spot = lib.spot_2d(stimulusParams)
+%   spot = lib.spot_2d(stimulus_params)
 %                                    ------
 %                                   |  __  |
 %                                   | |  | |
@@ -17,34 +17,34 @@ function spot = spot_2d(stimulusParams)
 %   See also lib.GABOR_2D, lib.HAAR_2D, lib.DIFFERENCE_OF_GAUSSIANS_2D.
 
     if nargin < 1
-        stimulusParams.pixperdeg = 60;
-        stimulusParams.size = .35;
-        stimulusParams.dc = 0;
-        stimulusParams.contrast = 1;
-        stimulusParams.type = 'spot';
+        stimulus_params.pixperdeg = 60;
+        stimulus_params.size = .35;
+        stimulus_params.dc = 0;
+        stimulus_params.contrast = 1;
+        stimulus_params.type = 'spot';
     end
 
-    if (stimulusParams.dc ~= 0)
-        amplitude = stimulusParams.dc * stimulusParams.contrast;
+    if (stimulus_params.dc ~= 0)
+        amplitude = stimulus_params.dc * stimulus_params.contrast;
     else
         amplitude = 1;
     end
 
     param_names = {'pixperdeg', 'size', 'dc', 'contrast', 'type'};
-    param_fields = fieldnames(stimulusParams);
+    param_fields = fieldnames(stimulus_params);
     has_params = ismember(param_names, param_fields);
     if (any(~has_params))
         error('Poorly specified haar parameter set');
     end
 
-    spot_radius_px = floor((stimulusParams.size/2)*stimulusParams.pixperdeg);
+    spot_radius_px = floor((stimulus_params.size/2)*stimulus_params.pixperdeg);
 
-    interior_radius_deg = stimulusParams.size/2 * 1/sqrt(2);
+    interior_radius_deg = stimulus_params.size/2 * 1/sqrt(2);
 
     [x_grid, y_grid] = meshgrid(-spot_radius_px:spot_radius_px);
 
-    dist_grid = sqrt(x_grid.^2 + y_grid.^2) ./ stimulusParams.pixperdeg;
-    envelope = dist_grid < stimulusParams.size/2;
+    dist_grid = sqrt(x_grid.^2 + y_grid.^2) ./ stimulus_params.pixperdeg;
+    envelope = dist_grid < stimulus_params.size/2;
 
     spot = ones(size(dist_grid)) * -amplitude;
     spot(dist_grid >= interior_radius_deg) = amplitude;

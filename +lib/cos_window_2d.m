@@ -1,12 +1,12 @@
-function cos_window = cos_window_2d(window_size, window_factor, bPlot)
+function cos_window = cos_window_2d(window_size, window_factor, b_plot)
 % COS_WINDOW_2D  2D raised-cosine (Hann-like) window.
-%   cos_window = lib.cos_window_2d(window_size, window_factor, bPlot)
+%   cos_window = lib.cos_window_2d(window_size, window_factor, b_plot)
 %
 %   Inputs
 %     window_size   - scalar or [rows, cols] window size, in pixels.
 %     window_factor - (optional) 1/window_factor must be an integer; scales
 %                     the radius at which the window reaches zero. Default 1.
-%     bPlot         - (optional) if true, plots the window. Default false.
+%     b_plot        - (optional) if true, plots the window. Default false.
 %
 %   Output
 %     cos_window - window_size(1) x window_size(2) array, 1 at the centre,
@@ -20,8 +20,8 @@ function cos_window = cos_window_2d(window_size, window_factor, bPlot)
     if ~exist('window_factor', 'var') || isempty(window_factor)
         window_factor = 1;
     end
-    if ~exist('bPlot', 'var')
-        bPlot = 0;
+    if ~exist('b_plot', 'var')
+        b_plot = 0;
     end
     if length(window_size) == 1
         window_size = repmat(window_size, 1, 2);
@@ -50,7 +50,7 @@ function cos_window = cos_window_2d(window_size, window_factor, bPlot)
 
     cos_window(radius_grid >= hann_window_radius) = 0;
 
-    if bPlot
+    if b_plot
         figure; surf(cos_window, 'edgecolor', 'none'); title('Cosine Window', 'fontsize', 15);
         axis tight; box on; zlim([0 1])
     end

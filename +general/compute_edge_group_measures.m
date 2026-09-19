@@ -37,17 +37,17 @@
 
 n_edge = 1e3;  % # of points in the edge vector
 
-nTrials = ExpSettings.nTrials;
-nLevels = ExpSettings.nLevels;
-nSessions = ExpSettings.nSessions;
+n_trials = ExpSettings.nTrials;
+n_levels = ExpSettings.nLevels;
+n_sessions = ExpSettings.nSessions;
 
-% stim_n_groups=nan(nTrials,nLevels,nSessions);
-stim_l_groups = cell(nTrials, nLevels, nSessions);
-stim_e_groups = cell(nTrials, nLevels, nSessions);
+% stim_n_groups=nan(n_trials,n_levels,n_sessions);
+stim_l_groups = cell(n_trials, n_levels, n_sessions);
+stim_e_groups = cell(n_trials, n_levels, n_sessions);
 
-parfor i_session = 1:nSessions
-    for i_level = 1:nLevels
-        for i_trial = 1:nTrials
+parfor i_session = 1:n_sessions
+    for i_level = 1:n_levels
+        for i_trial = 1:n_trials
             stim = ExpSettings.stimuli(:, :, i_trial, i_level, i_session);
             [~, ~, l_groups, e_groups] = lib.edge(stim);
 %             stim_n_groups(iTrial,iLevel,iSession)=n_groups;

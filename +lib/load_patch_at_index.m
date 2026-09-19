@@ -1,8 +1,8 @@
-function [surround_patch, patch, patch_windowed] = load_patch_at_index(ImgStats, patchIndex, ...
-    filePath, bDisp, envelope)
+function [surround_patch, patch, patch_windowed] = load_patch_at_index(ImgStats, patch_index, ...
+    file_path, b_disp, envelope)
 % LOAD_PATCH_AT_INDEX  Returns a surround and target patch at a sampled index.
-%   [surround_patch, patch, patch_windowed] = lib.load_patch_at_index(ImgStats, patchIndex, ...
-%       filePath, bDisp, envelope)
+%   [surround_patch, patch, patch_windowed] = lib.load_patch_at_index(ImgStats, patch_index, ...
+%       file_path, b_disp, envelope)
 %
 %   Output
 %     surround_patch - image surround patch.
@@ -17,13 +17,13 @@ function [surround_patch, patch, patch_windowed] = load_patch_at_index(ImgStats,
     %% Set parameters
 
     % if the file path is not specified, set it to a default
-    if (~exist('filePath', 'var'))
-        filePath = ImgStats.Settings.imgFilePath;
+    if (~exist('file_path', 'var'))
+        file_path = ImgStats.Settings.imgFilePath;
     end
 
     % if the display boolean is not set, default to 0
-    if (~exist('bDisp', 'var'))
-        bDisp = 0;
+    if (~exist('b_disp', 'var'))
+        b_disp = 0;
     end
 
     if (~exist('envelope', 'var'))
@@ -33,12 +33,12 @@ function [surround_patch, patch, patch_windowed] = load_patch_at_index(ImgStats,
     surround_size_px = ImgStats.Settings.surroundSizePix;
     target_size_px = ImgStats.Settings.targetSizePix;
 
-    [coord_index, image_index] = ind2sub(size(ImgStats.C), patchIndex);
+    [coord_index, image_index] = ind2sub(size(ImgStats.C), patch_index);
 
     %%
 
     image_name = ImgStats.imgDir(image_index).name;
-    load([filePath '/' image_name]);
+    load([file_path '/' image_name]);
 
     % crop out the surround patch
     surround_patch = lib.crop_image(I_PPM, ImgStats.sampleCoords(coord_index, :), ...
@@ -56,7 +56,7 @@ function [surround_patch, patch, patch_windowed] = load_patch_at_index(ImgStats,
     end
 
     % plot
-    if (bDisp)
+    if (b_disp)
 
         if (isempty(envelope))
             n_bits = 14;
